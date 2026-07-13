@@ -141,30 +141,7 @@ input[type="password"]{padding-right:46px;}
 .btn-icon{font-size:20px;}
 .btn-deposit{background:var(--accent3);color:#fff;}
 .btn-withdraw{background:var(--gold);color:#fff;}
-.btn-reinvest{background:var(--accent);color:#fff;}
 .btn-transactions{background:var(--accent2);color:#fff;}
-
-/* Floating WhatsApp Icon */
-.whatsapp-float{
-  position:fixed;
-  bottom:80px;
-  left:20px;
-  width:55px;
-  height:55px;
-  background:#25D366;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:28px;
-  cursor:pointer;
-  box-shadow:0 4px 20px rgba(37,211,102,.4);
-  z-index:300;
-  transition:transform .2s;
-  color:#fff;
-  text-decoration:none;
-}
-.whatsapp-float:hover{transform:scale(1.08);}
 
 /* Investment Active Card */
 .investment-card{background:linear-gradient(135deg, #1e3a5f 0%, #0f2b45 100%);border:1px solid var(--accent);border-radius:16px;padding:16px;margin-bottom:16px;}
@@ -273,7 +250,6 @@ input[type="password"]{padding-right:46px;}
 /* Section-specific backgrounds */
 #sec-deposit .action-card{background:linear-gradient(135deg, rgba(16,185,129,.1) 0%, rgba(16,185,129,.05) 100%);border:1px solid rgba(16,185,129,.3);}
 #sec-withdraw .action-card{background:linear-gradient(135deg, rgba(255,107,91,.1) 0%, rgba(255,107,91,.05) 100%);border:1px solid rgba(255,107,91,.3);}
-#sec-reinvest .action-card{background:linear-gradient(135deg, rgba(6,182,212,.1) 0%, rgba(6,182,212,.05) 100%);border:1px solid rgba(6,182,212,.3);}
 
 .popup-banner{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-10px);background:#1e293b;color:#fff;font-size:13px;font-weight:600;padding:14px 22px;border-radius:16px;opacity:0;transition:.35s;z-index:9998;pointer-events:none;text-align:center;max-width:320px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.25);line-height:1.5;}
 .popup-banner.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -384,8 +360,6 @@ input[type="password"]{padding-right:46px;}
 .ref-member-status{color:var(--muted);}
 
 /* WA Button */
-.wa-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:fit-content;margin-left:auto;background:#25D366;border:none;border-radius:14px;padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:#fff;cursor:pointer;}
-.wa-btn:active{transform:scale(.98);}
 
 .loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;}
 .loading-spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
@@ -532,7 +506,6 @@ input[type="password"]{padding-right:46px;}
       <div class="action-grid" style="display:flex;flex-direction:column;gap:12px;margin:16px 0;align-items:flex-start;">
         <button class="action-btn" style="background:#22c55e;border:none;color:white;padding:12px 20px;border-radius:12px;font-weight:600;font-size:15px;" onclick="switchTab('deposit')"><span class="btn-icon">💳</span> Invest</button>
         <button class="action-btn" style="background:#ef4444;border:none;color:white;padding:12px 20px;border-radius:12px;font-weight:600;font-size:15px;" onclick="switchTab('withdraw')"><span class="btn-icon">💸</span> Withdraw</button>
-        <button class="action-btn" style="background:#3d5a6c;border:none;color:white;padding:12px 20px;border-radius:12px;font-weight:600;font-size:15px;font-style:italic;text-shadow:2px 2px 4px rgba(0,0,0,0.5);" onclick="switchTab('reinvest')"><span class="btn-icon">🔄</span> Re-Invest</button>
       </div>
     </div>
     <div class="section">
@@ -542,13 +515,7 @@ input[type="password"]{padding-right:46px;}
         <button class="copy-btn" onclick="copyRef()">Copy</button>
       </div>
     </div>
-    <div class="section">
-      <button class="wa-btn" onclick="openWaGroup()">💬 Join our channel</button>
-    </div>
   </div>
-
-  <!-- Floating WhatsApp Icon -->
-  <a href="#" id="whatsapp-float-btn" class="whatsapp-float" target="_blank">💬</a>
 
   <!-- History - New Card Design -->
   <div class="dash-section" id="sec-history">
@@ -703,26 +670,6 @@ input[type="password"]{padding-right:46px;}
     </div>
   </div>
 
-  <!-- Re-Invest -->
-  <div class="dash-section" id="sec-reinvest">
-    <div class="inner-header"><span style="font-size:22px">🔄</span><div><div class="inner-title">Re-Invest</div><div class="inner-sub">Compound your earnings</div></div></div>
-    <div class="section">
-      <div class="action-card">
-        <div class="deposit-note">🔄 Re-invest from your <strong>BALANCE</strong> to <strong>STAKE</strong>. Minimum <strong>UGX 10,000</strong>. Earns 10% instant profit + restarts 56-day cycle.</div>
-        <div class="field-group">
-          <label class="field-label">Available BALANCE</label>
-          <div class="field-wrap"><span class="field-icon">💼</span><div class="readonly-field" id="reinvest-balance-display">UGX 0</div></div>
-        </div>
-        <div class="field-group">
-          <label class="field-label">Amount to Re-Invest (UGX)</label>
-          <div class="field-wrap"><span class="field-icon">🔄</span><input type="number" id="reinvest-amount" placeholder="Minimum 10,000" min="10000"></div>
-          <div class="field-error" id="reinvest-amount-err">Minimum re-invest is UGX 10,000</div>
-        </div>
-        <button class="green-btn" onclick="doReinvest()">🔄 RE-INVEST NOW</button>
-      </div>
-    </div>
-  </div>
-
   <nav class="bottom-nav">
     <div class="nav-item active" onclick="switchTab('home')"><span class="nav-icon">🏠</span><span class="nav-label">DASHBOARD</span></div>
     <div class="nav-item" onclick="switchTab('team')"><span class="nav-icon">👥</span><span class="nav-label">REFER</span></div>
@@ -750,7 +697,6 @@ input[type="password"]{padding-right:46px;}
     <div class="menu-item active-menu" onclick="menuNav('home')"><span class="menu-item-icon">🏠</span>Dashboard</div>
     <div class="menu-item" onclick="menuNav('deposit')"><span class="menu-item-icon">💳</span>Invest Now</div>
     <div class="menu-item" onclick="menuNav('withdraw')"><span class="menu-item-icon">💰</span>Withdraw</div>
-    <div class="menu-item" onclick="menuNav('reinvest')"><span class="menu-item-icon">🔄</span>Re-Invest</div>
     <div class="menu-item" onclick="menuNav('team')"><span class="menu-item-icon">🔗</span>Referral</div>
     <div class="menu-divider"></div>
     <div class="menu-item" onclick="menuNav('history')"><span class="menu-item-icon">📋</span>Records</div>
@@ -826,7 +772,7 @@ input[type="password"]{padding-right:46px;}
       You have the right to access, modify, or delete your personal information at any time.<br><br>
       
       <strong>7. Contact Us</strong><br>
-      For privacy concerns, contact our support team via the WhatsApp links in the app.
+      For privacy concerns, contact our support team.
     </div>
   </div>
 </div>
@@ -1012,7 +958,6 @@ async function initApp() {
         renderTeam();
         updateReferralLink();
         updateProfileUI();
-        updateWhatsAppButton();
         showDashboard();
         switchTab('home');
         startDailyProfitLoop();
@@ -1103,11 +1048,6 @@ function copyRef() {
   }
 }
 
-function openWaGroup() {
-  if (settingsData.waGroup) window.open(settingsData.waGroup, '_blank');
-  // No modal - just silent fail
-}
-
 function showAuth(id) {
   document.querySelectorAll('.auth-page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
   const t = document.getElementById(id);
@@ -1190,7 +1130,7 @@ function closePrivacyModal(event) {
   document.getElementById('privacy-modal-overlay').classList.remove('open');
 }
 
-const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', reinvest: 'sec-reinvest' };
+const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw' };
 const navOrder = ['home', 'history', 'team', 'plan', 'profile'];
 
 function switchTab(tab) {
@@ -1282,7 +1222,6 @@ function updateBalanceUI() {
   document.getElementById('stat-stake').textContent = fmt(stake);
   document.getElementById('stat-balance').textContent = fmt(balance);
   document.getElementById('stat-withdrawn').textContent = fmt(withdrawn);
-  document.getElementById('reinvest-balance-display').textContent = fmt(balance);
   updateActiveInvestmentDisplay();
 }
 
@@ -1301,7 +1240,7 @@ function updateActiveInvestmentDisplay() {
   document.getElementById('investment-progress-fill').style.width = progress + '%';
   document.getElementById('days-completed').textContent = daysRun;
   if (daysRun >= totalDays) {
-    document.getElementById('investment-status').textContent = '✅ Investment completed! Re-invest to continue earning.';
+    document.getElementById('investment-status').textContent = '✅ Investment completed!';
   } else {
     const remaining = totalDays - daysRun;
     document.getElementById('investment-status').textContent = `📈 Generating 10% daily profit — ${remaining} days remaining`;
@@ -1319,7 +1258,6 @@ function startUserListener(username) {
       renderTeam();
       updateReferralLink();
       updateProfileUI();
-      updateWhatsAppButton();
     }
   });
 }
@@ -1340,15 +1278,6 @@ function updateProfileUI() {
   document.getElementById('profile-date-simple').textContent = currentUser.joinedDate || '2025';
   document.getElementById('profile-status-simple').textContent = currentUser.activated ? '🟢 Active' : '⏳ Inactive';
   document.getElementById('with-phone-display').textContent = currentUser.phone || '—';
-}
-
-function updateWhatsAppButton() {
-  const waBtn = document.getElementById('whatsapp-float-btn');
-  if (waBtn && currentUser) {
-    const phone = settingsData.waNumber || '700000000';
-    const message = `Hey, I'm ${currentUser.username}, I need assistance with my DiamondEarn investment account. Please help me! 📈`;
-    waBtn.href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-  }
 }
 
 let currentHistoryFilter = 'all';
@@ -1834,42 +1763,6 @@ async function processWithdrawalToMarz(reqKey, userPhone, sendAmount, reference,
   }
 }
 
-async function doReinvest() {
-  clearErrors('reinvest-amount-err');
-  const amount = parseInt(document.getElementById('reinvest-amount').value) || 0;
-  if (amount < 10000) { setErr('reinvest-amount-err', true, 'Minimum re-invest is UGX 10,000'); return; }
-  const balance = currentUser.balance || 0;
-  if (balance < amount) { setErr('reinvest-amount-err', true, 'Insufficient BALANCE.'); return; }
-  const profit = Math.floor(amount * 0.10);
-  const now = dateStr();
-  const todayKey = getDateKey(new Date());
-  const btn = document.querySelector('#sec-reinvest .green-btn');
-  btn.disabled = true; btn.textContent = '⏳ Processing...';
-  try {
-    const newBalance = balance - amount + profit;
-    const newStake = (currentUser.stake || 0) + amount;
-    let newActiveInvestment = currentUser.activeInvestment || null;
-    if (!newActiveInvestment || newActiveInvestment.daysRun >= 56) {
-      newActiveInvestment = { amount: newStake, startDate: new Date().toISOString(), daysRun: 0, lastPaidDate: todayKey };
-    } else {
-      newActiveInvestment.amount = newStake;
-    }
-    const updates = {
-      stake: newStake, balance: newBalance, activated: true, activeInvestment: newActiveInvestment,
-      [`deposits/dep_reinvest_${Date.now()}`]: { amount, startDate: Date.now(), daysRun: 0, lastPaidDate: todayKey },
-      [`transactions/tx_reinvest_a_${Date.now()}`]: { type: 'Re-Invest', amount: -amount, note: 'Moved from BALANCE to STAKE', date: now, status: 'completed' },
-      [`transactions/tx_reinvest_b_${Date.now()}`]: { type: 'Profit', amount: profit, note: '10% instant profit on re-invest', date: now, status: 'completed' }
-    };
-    await db.ref('users/' + safeKey(currentUsername)).update(updates);
-    document.getElementById('reinvest-amount').value = '';
-    // Silent success - no toast
-  } catch (error) {
-    console.error('Reinvest error:', error);
-    await sendAdminNotification('reinvest_error', currentUsername, amount, error.message);
-  }
-  btn.disabled = false; btn.textContent = '🔄 RE-INVEST NOW';
-}
-
 async function doLogin() {
   clearErrors('login-user-err', 'login-pw-err');
   setErr('login-general-err', false);
@@ -1904,7 +1797,6 @@ async function doLogin() {
     renderTeam();
     updateReferralLink();
     updateProfileUI();
-    updateWhatsAppButton();
     showDashboard();
     switchTab('home');
     startDailyProfitLoop();
@@ -1972,7 +1864,6 @@ async function doRegister() {
   renderTeam();
   updateReferralLink();
   updateProfileUI();
-  updateWhatsAppButton();
   showDashboard();
   switchTab('home');
   startDailyProfitLoop();
