@@ -328,9 +328,9 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         </div>
         <table>
           <thead>
-            <tr><th>Username</th><th>Phone</th><th>Password</th><th>STAKE</th><th>BALANCE</th><th>Withdrawn</th><th>Referrals</th><th>Status</th><th>Actions</th></tr>
+            <tr><th>Username</th><th>Phone</th><th>Password</th><th>STAKE</th><th>BALANCE</th><th>Withdrawn</th><th>Status</th><th>Actions</th></tr>
           </thead>
-          <tbody id="users-table-body"><tr class="empty-row"><td colspan="9">Loading...</td></tr></tbody>
+          <tbody id="users-table-body"><tr class="empty-row"><td colspan="8">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -431,7 +431,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
     <div class="page" id="pg-sog">
       <div class="page-title">🗑️ SOG - Search & Obliterate</div>
       <div class="page-sub">Wipe user financial data (keeps account structure) - Account becomes brand new</div>
-      <div style="background:#fff0f4;border:1px solid var(--border);padding:16px;border-radius:12px;margin-bottom:20px;"><strong style="color:var(--warn);">⚠️ WARNING:</strong> This will reset ALL user financial data (STAKE, BALANCE, WITHDRAWN, transactions, active investment) to zero. The user account will look brand new but username, password, phone, country, joined date, referral list, and referrer info will remain. This cannot be undone.</div>
+      <div style="background:#fff0f4;border:1px solid var(--border);padding:16px;border-radius:12px;margin-bottom:20px;"><strong style="color:var(--warn);">⚠️ WARNING:</strong> This will reset ALL user financial data (STAKE, BALANCE, WITHDRAWN, transactions, active investment) to zero. The user account will look brand new but username, password, phone, country, and joined date will remain. This cannot be undone.</div>
       <div style="display:flex;gap:12px;margin-bottom:20px;">
         <input type="text" class="f-input" id="sog-username-search" placeholder="Enter username to search..." oninput="searchSOGUser()" style="flex:1;padding:11px 14px;">
         <button class="btn btn-approve" onclick="clearSOGSearch()">Clear</button>
@@ -485,14 +485,6 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         <div class="settings-row"><span class="settings-label">Maximum Deposit (UGX)</span><div class="ugx-group"><span class="ugx-label">UGX</span><input type="number" class="ugx-input" id="max-deposit-input" min="10000" step="1000" placeholder="2350000"></div><button class="btn btn-save" onclick="saveMaxDeposit()">Save</button></div>
         <div class="settings-row"><span class="settings-label">Minimum Withdrawal (UGX)</span><div class="ugx-group"><span class="ugx-label">UGX</span><input type="number" class="ugx-input" id="min-withdraw-input" min="500" step="500" placeholder="10000"></div><button class="btn btn-save" onclick="saveMinWithdraw()">Save</button></div>
         <div class="settings-row"><span class="settings-label">Withdrawal Service Charge (%)</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" class="pct-input" id="with-charge-input" min="0" max="50" step="0.5" placeholder="10"><span class="pct-label">%</span></div><button class="btn btn-save" onclick="saveWithCharge()">Save</button></div>
-      </div>
-
-      <!-- Referral Commissions -->
-      <div class="settings-section">
-        <div class="settings-title">🔗 Referral Commissions</div>
-        <div class="settings-row"><span class="settings-label">Level 1 Commission</span><div class="pct-group"><input type="number" class="pct-input" id="ref-l1-input" min="0" max="50" step="0.5" placeholder="10"><span class="pct-label">%</span></div><button class="btn btn-save" onclick="saveRefPct()">Save All Levels</button></div>
-        <div class="settings-row"><span class="settings-label">Level 2 Commission</span><div class="pct-group"><input type="number" class="pct-input" id="ref-l2-input" min="0" max="50" step="0.5" placeholder="4"><span class="pct-label">%</span></div></div>
-        <div class="settings-row"><span class="settings-label">Level 3 Commission</span><div class="pct-group"><input type="number" class="pct-input" id="ref-l3-input" min="0" max="50" step="0.5" placeholder="2"><span class="pct-label">%</span></div></div>
       </div>
 
       <!-- Withdrawal Approval Toggle -->
@@ -649,7 +641,6 @@ let allUsers = {};
 let allSettings = {
   uraTax: 4,
   withdrawCharge: 10,
-  refL1: 10, refL2: 4, refL3: 2,
   withdrawLocked: false,
   withdrawApproval: false,
   minDeposit: 10000,
@@ -742,9 +733,6 @@ function renderDashboard() {
     <div class="pct-pill">Min Deposit <span>${fmt(s.minDeposit || 10000)}</span></div>
     <div class="pct-pill">URA Tax <span>${s.uraTax || 4}%</span></div>
     <div class="pct-pill">Withdrawal Charge <span>${s.withdrawCharge || 10}%</span></div>
-    <div class="pct-pill">Ref L1 <span>${s.refL1 || 10}%</span></div>
-    <div class="pct-pill">Ref L2 <span>${s.refL2 || 4}%</span></div>
-    <div class="pct-pill">Ref L3 <span>${s.refL3 || 2}%</span></div>
     <div class="pct-pill">MarzPay API <span style="color:${s.marzApiKey ? 'var(--accent3)' : 'var(--warn)'};">${s.marzApiKey ? '✅ Set' : '⚠️ Not Set'}</span></div>
     <div class="pct-pill">Withdrawals <span style="color:${s.withdrawLocked ? 'var(--warn)' : 'var(--success)'};">${s.withdrawLocked ? '🔒 LOCKED' : '🔓 OPEN'}</span></div>
   `;
@@ -756,10 +744,9 @@ function renderUsersTable() {
   const users = Object.values(allUsers);
   const filtered = searchFilter ? users.filter(u => u.username && u.username.toLowerCase().includes(searchFilter.toLowerCase())) : users;
   const tbody = document.getElementById('users-table-body');
-  if (!filtered.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No users found<\/tr>'; return; }
+  if (!filtered.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No users found<\/tr>'; return; }
   tbody.innerHTML = filtered.map(u => {
     const sk = safeKey(u.username || '');
-    const refCount = u.referrals ? Object.keys(u.referrals).length : 0;
     return `<tr>
       <td><strong>${u.username || '—'}</strong></td>
       <td class="mono">${u.phone || '—'}</td>
@@ -767,7 +754,6 @@ function renderUsersTable() {
       <td class="mono" style="color:var(--gold)">${fmt(u.stake)}</td>
       <td class="mono" style="color:var(--success);font-weight:700">${fmt(u.balance)}</td>
       <td class="mono" style="color:var(--warn);">${fmt(u.withdrawn)}</td>
-      <td class="mono">${refCount}</td>
       <td><span class="badge ${u.locked ? 'badge-locked' : 'badge-active'}">${u.locked ? 'Locked' : 'Active'}</span></td>
       <td style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn btn-edit" onclick="openEditModal('${u.username}')">✏️ Edit</button>
@@ -925,7 +911,6 @@ function renderTransactions() {
   if (txFilter === 'deposit') filtered = allTxs.filter(t => t.type === 'Deposit');
   else if (txFilter === 'withdrawal') filtered = allTxs.filter(t => t.type === 'Withdrawal');
   else if (txFilter === 'profit') filtered = allTxs.filter(t => t.type === 'Profit');
-  else if (txFilter === 'referral') filtered = allTxs.filter(t => t.type === 'Referral');
   else if (txFilter === 'bonus') filtered = allTxs.filter(t => t.type === 'Bonus');
   
   if (countEl) countEl.textContent = filtered.length + ' transactions';
@@ -1305,9 +1290,6 @@ function loadSettingsUI() {
   const s = allSettings;
   document.getElementById('ura-tax-input').value = s.uraTax || 4;
   document.getElementById('with-charge-input').value = s.withdrawCharge || 10;
-  document.getElementById('ref-l1-input').value = s.refL1 || 10;
-  document.getElementById('ref-l2-input').value = s.refL2 || 4;
-  document.getElementById('ref-l3-input').value = s.refL3 || 2;
   document.getElementById('min-deposit-input').value = s.minDeposit || 10000;
   document.getElementById('max-deposit-input').value = s.maxDeposit || 2350000;
   document.getElementById('min-withdraw-input').value = s.minWithdraw || 10000;
@@ -1408,14 +1390,6 @@ async function saveWithCharge() {
   const v = parseFloat(document.getElementById('with-charge-input').value) || 10;
   await db.ref('settings/withdrawCharge').set(v);
   toast('✅ Withdrawal charge updated to ' + v + '%');
-}
-
-async function saveRefPct() {
-  const l1 = parseFloat(document.getElementById('ref-l1-input').value) || 10;
-  const l2 = parseFloat(document.getElementById('ref-l2-input').value) || 4;
-  const l3 = parseFloat(document.getElementById('ref-l3-input').value) || 2;
-  await db.ref('settings').update({ refL1: l1, refL2: l2, refL3: l3 });
-  toast('✅ Referral percentages updated');
 }
 
 async function lockWithdrawals(lock) {

@@ -113,10 +113,6 @@ input[type="password"]{padding-right:46px;}
 .stat-label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
 .stat-value{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;}
 .stat-value.dep{color:var(--gold)}.stat-value.earn{color:var(--accent3)}.stat-value.with{color:var(--warn)}.stat-value.total{color:var(--accent)}
-.ref-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;}
-.ref-url{flex:1;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.copy-btn{background:var(--accent);border:none;border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;padding:7px 14px;cursor:pointer;}
-.copy-btn:active{transform:scale(.95);}
 .action-grid{display:flex;flex-direction:column;gap:12px;padding-left:16px;}
 .action-btn{border:none;border-radius:14px;padding:14px 18px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px;width:fit-content;}
 .action-btn:active{transform:scale(.96);}
@@ -269,7 +265,6 @@ input[type="password"]{padding-right:46px;}
 .tx-card.tx-withdrawal::before{background:linear-gradient(90deg, #ef4444, #dc2626);}
 .tx-card.tx-profit::before{background:linear-gradient(90deg, #22c55e, #16a34a);}
 .tx-card.tx-bonus::before{background:linear-gradient(90deg, #f59e0b, #d97706);}
-.tx-card.tx-referral::before{background:linear-gradient(90deg, #8b5cf6, #7c3aed);}
 
 .tx-card-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
 .tx-card-icon{font-size:28px;width:50px;height:50px;display:flex;align-items:center;justify-content:center;background:var(--surface2);border-radius:12px;}
@@ -292,38 +287,6 @@ input[type="password"]{padding-right:46px;}
 
 .tx-filter-tabs{display:none;}
 .tx-tab{display:none;}
-
-/* Referral Page */
-.ref-new-container{display:flex;flex-direction:column;gap:16px;}
-.ref-stat-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 16px;display:flex;flex-direction:column;gap:8px;}
-.ref-bonus-box{border-left:4px solid var(--accent);}
-.ref-team-box{border-left:4px solid var(--gold);}
-.ref-stat-top{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
-.ref-stat-amount{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--accent);}
-.ref-link-section{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;}
-.ref-link-label{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px;display:block;}
-.ref-link-box{display:flex;gap:8px;align-items:center;}
-.ref-link-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);outline:none;}
-.ref-copy-btn{background:var(--accent);border:none;border-radius:10px;padding:12px 16px;font-weight:700;color:#fff;cursor:pointer;font-size:12px;white-space:nowrap;}
-.ref-copy-btn:active{transform:scale(.95);}
-.ref-link-hint{font-size:10px;color:var(--muted);margin-top:8px;}
-.ref-commission-info{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;}
-.ref-commission-title{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:12px;display:block;}
-.ref-commission-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--surface2);border-radius:10px;margin-bottom:8px;}
-.ref-commission-item:last-child{margin-bottom:0;}
-.ref-level{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;}
-.ref-pct{font-weight:800;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--gold);min-width:35px;}
-.ref-desc{font-size:12px;color:var(--muted);flex:1;}
-.ref-empty-state{text-align:center;padding:40px 20px;}
-.ref-empty-emoji{font-size:48px;margin-bottom:12px;}
-.ref-empty-msg{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;}
-.ref-empty-hint{font-size:12px;color:var(--muted);}
-.ref-members-list{display:flex;flex-direction:column;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-top:16px;}
-.ref-member-item{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface2);border-radius:10px;}
-.ref-member-name{font-weight:700;color:var(--text);font-size:13px;}
-.ref-member-info{display:flex;gap:12px;align-items:center;font-size:11px;}
-.ref-member-level{background:var(--accent);color:#fff;padding:2px 8px;border-radius:4px;font-weight:700;}
-.ref-member-status{color:var(--muted);}
 
 /* WA Button */
 
@@ -413,10 +376,6 @@ input[type="password"]{padding-right:46px;}
       <div class="field-wrap"><span class="field-icon">🔐</span><input type="password" id="reg-confirm" placeholder="Repeat password"><button class="eye-btn" onclick="toggleEye('reg-confirm',this)">👁️</button></div>
       <div class="field-error" id="reg-confirm-err">Passwords do not match</div>
     </div>
-    <div class="field-group">
-      <label class="field-label">Referred By</label>
-      <div style="background:#fff0f4;padding:12px 14px;border-radius:8px;border:1px solid var(--border);color:var(--accent);font-weight:600;" id="reg-referrer-display">None</div>
-    </div>
     <div class="field-error" id="reg-general-err" style="text-align:center;margin-bottom:10px;font-size:12px;"></div>
     <button class="submit-btn" onclick="doRegister()">Create Account & Earn 🎁</button>
     <div class="auth-switch">Already have an account? <a onclick="showAuth('login-page')">Sign In</a></div>
@@ -473,13 +432,6 @@ input[type="password"]{padding-right:46px;}
         <button class="action-btn" style="background:#ef4444;border:none;color:white;padding:12px 20px;border-radius:12px;font-weight:600;font-size:15px;" onclick="switchTab('withdraw')"><span class="btn-icon">💸</span> Withdraw</button>
       </div>
     </div>
-    <div class="section">
-      <div class="ref-box">
-        <span style="font-size:16px;">🔗</span>
-        <div class="ref-url" id="ref-url">Loading referral link...</div>
-        <button class="copy-btn" onclick="copyRef()">Copy</button>
-      </div>
-    </div>
   </div>
 
   <!-- History - New Card Design -->
@@ -498,7 +450,6 @@ input[type="password"]{padding-right:46px;}
       <button class="tx-pill" onclick="setTxFilter('Withdrawal',this)">💸 Withdrawals</button>
       <button class="tx-pill" onclick="setTxFilter('Profit',this)">📈 Profits</button>
       <button class="tx-pill" onclick="setTxFilter('Bonus',this)">🎁 Bonuses</button>
-      <button class="tx-pill" onclick="setTxFilter('Referral',this)">🔗 Referral</button>
     </div>
     
     <!-- Transaction Cards -->
@@ -507,36 +458,9 @@ input[type="password"]{padding-right:46px;}
     </div>
   </div>
 
-  <!-- Referral Team -->
+  <!-- Tiers (blank) -->
   <div class="dash-section" id="sec-team">
-    <div class="inner-header"><span style="font-size:22px">👥</span><div><div class="inner-title">REFER</div><div class="inner-sub">Grow your network & earn</div></div></div>
-    <div class="section">
-      <div class="ref-new-container">
-        <div class="ref-stat-box ref-bonus-box">
-          <div class="ref-stat-top">💰 Bonuses Earned</div>
-          <div class="ref-stat-amount" id="total-ref-earned-new">UGX 0</div>
-        </div>
-        <div class="ref-stat-box ref-team-box">
-          <div class="ref-stat-top">👥 Team Size</div>
-          <div class="ref-stat-amount" id="ref-team-count">0</div>
-        </div>
-        <div class="ref-link-section">
-          <div class="ref-link-label">📱 Your Referral Code</div>
-          <div class="ref-link-box">
-            <input type="text" class="ref-link-input" id="ref-url-new" readonly>
-            <button class="ref-copy-btn" onclick="copyRef()">Copy</button>
-          </div>
-          <div class="ref-link-hint">Share this link to invite friends</div>
-        </div>
-        <div class="ref-commission-info">
-          <div class="ref-commission-title">💳 Earn on 3 Levels</div>
-          <div class="ref-commission-item"><span class="ref-level">L1</span><span class="ref-pct" id="ref-pct-l1-new">10%</span><span class="ref-desc">Direct referrals</span></div>
-          <div class="ref-commission-item"><span class="ref-level">L2</span><span class="ref-pct" id="ref-pct-l2-new">4%</span><span class="ref-desc">Their referrals</span></div>
-          <div class="ref-commission-item"><span class="ref-level">L3</span><span class="ref-pct" id="ref-pct-l3-new">2%</span><span class="ref-desc">3rd level</span></div>
-        </div>
-        <div id="ref-members-new"><div class="ref-empty-state"><div class="ref-empty-emoji">🤝</div><div class="ref-empty-msg">No team members yet</div><div class="ref-empty-hint">Invite friends to start earning</div></div></div>
-      </div>
-    </div>
+    <div class="inner-header"><span style="font-size:22px">👥</span><div><div class="inner-title">TIERS</div><div class="inner-sub">Coming soon</div></div></div>
   </div>
 
   <!-- Returns Plan -->
@@ -774,7 +698,7 @@ function genUUID() { return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^
 let currentUser = null;
 let currentUsername = null;
 let settingsData = {
-  uraTax: 4, withdrawCharge: 10, refL1: 10, refL2: 4, refL3: 2,
+  uraTax: 4, withdrawCharge: 10,
   withdrawLocked: false, withdrawApproval: false,
   minDeposit: 10000, maxDeposit: 2350000, minWithdraw: 10000, marzApiKey: ''
 };
@@ -886,8 +810,6 @@ async function initApp() {
         startUserListener(savedUser);
         updateBalanceUI();
         renderHistory();
-        renderTeam();
-        updateReferralLink();
         updateProfileUI();
         showDashboard();
         switchTab('home');
@@ -970,25 +892,10 @@ function updateRegPrefix() {
 function regPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 9); }
 function depPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 9); }
 
-function copyRef() {
-  const url = document.getElementById('ref-url-new');
-  if (url && url.value) {
-    navigator.clipboard.writeText(url.value).then(() => {
-      // Silent copy - no toast
-    });
-  }
-}
-
 function showAuth(id) {
   document.querySelectorAll('.auth-page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
   const t = document.getElementById(id);
   if (t) { t.style.display = 'flex'; t.classList.add('active'); }
-  if (id === 'register-page') {
-    const urlParams = new URLSearchParams(window.location.search);
-    const refCode = urlParams.get('ref') || null;
-    const refDisplay = document.getElementById('reg-referrer-display');
-    if (refDisplay) refDisplay.textContent = refCode || 'None';
-  }
 }
 
 function showDashboard() {
@@ -1072,7 +979,7 @@ function startSettingsListener() {
   db.ref('settings').on('value', (snap) => {
     if (snap.exists()) settingsData = { ...settingsData, ...snap.val() };
     updateUIWithSettings();
-    if (currentUser) { renderTeam(); applyWithdrawLock(); }
+    if (currentUser) { applyWithdrawLock(); }
   });
 }
 
@@ -1090,12 +997,6 @@ function updateUIWithSettings() {
   if (feePercent) feePercent.textContent = settingsData.withdrawCharge || 10;
   const receivePercent = document.getElementById('with-receive-percent');
   if (receivePercent) receivePercent.textContent = 100 - (settingsData.withdrawCharge || 10);
-  const pctL1 = document.getElementById('ref-pct-l1-new');
-  const pctL2 = document.getElementById('ref-pct-l2-new');
-  const pctL3 = document.getElementById('ref-pct-l3-new');
-  if (pctL1) pctL1.textContent = (settingsData.refL1 || 10) + '%';
-  if (pctL2) pctL2.textContent = (settingsData.refL2 || 4) + '%';
-  if (pctL3) pctL3.textContent = (settingsData.refL3 || 2) + '%';
   const withInp = document.getElementById('with-amount');
   if (withInp) withInp.min = minWith;
   const depAmount = document.getElementById('dep-amount');
@@ -1174,19 +1075,9 @@ function startUserListener(username) {
       currentUser = snap.val();
       updateBalanceUI();
       renderHistory();
-      renderTeam();
-      updateReferralLink();
       updateProfileUI();
     }
   });
-}
-
-function updateReferralLink() {
-  if (!currentUser) return;
-  const siteBase = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
-  const refLink = siteBase + '?ref=' + encodeURIComponent(currentUser.username);
-  document.getElementById('ref-url').textContent = refLink;
-  document.getElementById('ref-url-new').value = refLink;
 }
 
 function updateProfileUI() {
@@ -1236,8 +1127,8 @@ function renderHistory() {
     return;
   }
   
-  const typeIcons = { Deposit: '💳', Withdrawal: '💸', Profit: '📈', Bonus: '🎁', 'Re-Invest': '🔄', Referral: '🔗' };
-  const typeClasses = { Deposit: 'tx-deposit', Withdrawal: 'tx-withdrawal', Profit: 'tx-profit', Bonus: 'tx-bonus', Referral: 'tx-referral' };
+  const typeIcons = { Deposit: '💳', Withdrawal: '💸', Profit: '📈', Bonus: '🎁' };
+  const typeClasses = { Deposit: 'tx-deposit', Withdrawal: 'tx-withdrawal', Profit: 'tx-profit', Bonus: 'tx-bonus' };
   
   if (wrap) {
     wrap.innerHTML = '<div class="tx-cards-grid">' + 
@@ -1265,29 +1156,6 @@ function renderHistory() {
           </div>
         </div>`;
       }).join('') + '</div>';
-  }
-}
-
-function renderTeam() {
-  if (!currentUser) return;
-  let totalRefBonus = 0;
-  if (currentUser.transactions) {
-    Object.values(currentUser.transactions).forEach(tx => { if (tx.type === 'Referral') totalRefBonus += tx.amount; });
-  }
-  document.getElementById('total-ref-earned-new').textContent = fmt(totalRefBonus);
-  const refs = currentUser.referrals ? Object.values(currentUser.referrals) : [];
-  document.getElementById('ref-team-count').textContent = refs.length;
-  const membersWrap = document.getElementById('ref-members-new');
-  if (!refs.length) {
-    if (membersWrap) membersWrap.innerHTML = '<div class="ref-empty-state"><div class="ref-empty-emoji">🤝</div><div class="ref-empty-msg">No team members yet</div><div class="ref-empty-hint">Invite friends to start earning</div></div>';
-    return;
-  }
-  if (membersWrap) {
-    membersWrap.innerHTML = '<div class="ref-members-list">' + refs.map((r) => {
-      const isActive = (r.invested || 0) > 0;
-      const statusIcon = isActive ? '🟢' : '⏳';
-      return `<div class="ref-member-item"><div class="ref-member-name">${r.username}</div><div class="ref-member-info"><span class="ref-member-level">L${r.level}</span><span class="ref-member-status">${statusIcon} ${isActive ? 'Active' : 'Inactive'}</span></div></div>`;
-    }).join('') + '</div>';
   }
 }
 
@@ -1486,7 +1354,6 @@ async function doDeposit() {
       // Update admin transaction to SUCCESSFUL
       await db.ref('adminTransactions/' + adminTxKey).update({ status: 'successful' });
       
-      await creditReferralBonuses(currentUsername, amount);
     } else if (pollResult === 'failed') {
       // Update admin transaction to FAILED
       await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
@@ -1504,36 +1371,6 @@ async function doDeposit() {
   }
   btn.disabled = false; btn.textContent = '💳 INVEST NOW';
   switchTab('home');
-}
-
-// ============================================================
-// REFERRAL BONUSES - SILENT, no transaction history
-// ============================================================
-async function creditReferralBonuses(depositorUsername, amount) {
-  const depositorSnap = await db.ref('users/' + safeKey(depositorUsername)).get();
-  if (!depositorSnap.exists()) return;
-  const depositor = depositorSnap.val();
-  if (!depositor.referredBy) return;
-  const pctL1 = (settingsData.refL1 || 10) / 100;
-  const pctL2 = (settingsData.refL2 || 4) / 100;
-  const pctL3 = (settingsData.refL3 || 2) / 100;
-  let uplineUsername = depositor.referredBy;
-  for (let i = 0; i < 3; i++) {
-    if (!uplineUsername) break;
-    const uplineSnap = await db.ref('users/' + safeKey(uplineUsername)).get();
-    if (!uplineSnap.exists()) break;
-    const upline = uplineSnap.val();
-    const bonus = Math.floor(amount * (i === 0 ? pctL1 : i === 1 ? pctL2 : pctL3));
-    if (bonus > 0) {
-      const newBalance = (upline.balance || 0) + bonus;
-      const updates = { balance: newBalance, refEarned: (upline.refEarned || 0) + bonus };
-      // NO transaction record for referral bonuses
-      const refSnap = await db.ref('users/' + safeKey(uplineUsername) + '/referrals/' + safeKey(depositorUsername)).get();
-      if (refSnap.exists()) updates[`referrals/${safeKey(depositorUsername)}/invested`] = (refSnap.val().invested || 0) + amount;
-      await db.ref('users/' + safeKey(uplineUsername)).update(updates);
-    }
-    uplineUsername = upline.referredBy || null;
-  }
 }
 
 // ============================================================
@@ -1713,8 +1550,6 @@ async function doLogin() {
     startUserListener(username);
     updateBalanceUI();
     renderHistory();
-    renderTeam();
-    updateReferralLink();
     updateProfileUI();
     showDashboard();
     switchTab('home');
@@ -1734,8 +1569,6 @@ async function doRegister() {
   const phoneDigits = document.getElementById('reg-phone').value.trim();
   const password = document.getElementById('reg-password').value;
   const confirm = document.getElementById('reg-confirm').value;
-  const urlParams = new URLSearchParams(window.location.search);
-  const refCode = urlParams.get('ref') || null;
   let ok = true;
   if (!username) { setErr('reg-user-err', true, 'Username is required'); ok = false; }
   if (!country) { setErr('reg-country-err', true, 'Please select your country'); ok = false; }
@@ -1750,38 +1583,19 @@ async function doRegister() {
   const now = dateStr();
   const todayKey = getDateKey(new Date());
   const newUser = {
-    username, password, country, phone: fullPhone, stake: 0, balance: 4000, withdrawn: 0, refEarned: 0,
-    activated: false, locked: false, referredBy: refCode, joinedDate: new Date().getFullYear().toString(),
+    username, password, country, phone: fullPhone, stake: 0, balance: 4000, withdrawn: 0,
+    activated: false, locked: false, joinedDate: new Date().getFullYear().toString(),
     lastProfitDate: todayKey,
     transactions: { t0: { type: 'Bonus', amount: 4000, note: 'Registration Bonus 🎁', date: now, status: 'completed' } },
-    referrals: {}, deposits: {}, activeInvestment: null
+    deposits: {}, activeInvestment: null
   };
   await db.ref('users/' + safeKey(username)).set(newUser);
-  if (refCode) {
-    const referrerSnap = await db.ref('users/' + safeKey(refCode)).get();
-    if (referrerSnap.exists()) {
-      const referrer = referrerSnap.val();
-      await db.ref('users/' + safeKey(refCode) + '/referrals/' + safeKey(username)).set({ username, invested: 0, level: 1 });
-      if (referrer.referredBy) {
-        const level2Snap = await db.ref('users/' + safeKey(referrer.referredBy)).get();
-        if (level2Snap.exists()) {
-          await db.ref('users/' + safeKey(referrer.referredBy) + '/referrals/' + safeKey(username)).set({ username, invested: 0, level: 2 });
-          const level2Data = level2Snap.val();
-          if (level2Data.referredBy) {
-            await db.ref('users/' + safeKey(level2Data.referredBy) + '/referrals/' + safeKey(username)).set({ username, invested: 0, level: 3 });
-          }
-        }
-      }
-    }
-  }
   currentUser = newUser;
   currentUsername = username;
   sessionStorage.setItem('pp_current_user', username);
   startUserListener(username);
   updateBalanceUI();
   renderHistory();
-  renderTeam();
-  updateReferralLink();
   updateProfileUI();
   showDashboard();
   switchTab('home');
@@ -1820,18 +1634,6 @@ function startInactivityWatcher() {
   ['click', 'touchstart', 'scroll', 'keydown'].forEach(evt => document.addEventListener(evt, resetInactivityTimer, { passive: true }));
   resetInactivityTimer();
 }
-
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const ref = params.get('ref');
-  if (ref) { sessionStorage.setItem('pp_pending_ref', ref); sessionStorage.setItem('pp_open_register', 'true'); }
-  const openReg = sessionStorage.getItem('pp_open_register');
-  if (openReg) {
-    sessionStorage.removeItem('pp_open_register');
-    const refCode = sessionStorage.getItem('pp_pending_ref');
-    if (refCode && document.getElementById('reg-referrer-display')) document.getElementById('reg-referrer-display').textContent = refCode;
-  }
-})();
 
 initApp();
 </script>
