@@ -25,6 +25,7 @@
   --accent3:#ffffff;
   --warn:#ef4444;
   --gold:#ffffff;
+  --btn:#0c8046;
   --text:#ffffff;
   --muted:#ffffff;
   --table-header:#0f9d58;
@@ -36,7 +37,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);}
 .auth-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:32px;width:100%;max-width:450px;}
 .auth-logo{text-align:center;margin-bottom:28px;}
-.auth-logo-icon{width:64px;height:64px;background:var(--accent);border-radius:16px;display:grid;place-items:center;font-size:28px;margin:0 auto 12px;color:#fff;}
+.auth-logo-icon{width:64px;height:64px;background:var(--btn);border-radius:16px;display:grid;place-items:center;font-size:28px;margin:0 auto 12px;color:#fff;}
 .auth-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:var(--accent);margin-bottom:4px;text-align:center;}
 .auth-sub{font-size:12px;color:var(--muted);text-align:center;margin-bottom:24px;}
 .f-group{margin-bottom:16px;}
@@ -52,7 +53,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 input[type="password"]{padding-right:46px;}
 .auth-switch{text-align:center;margin-top:18px;font-size:13px;color:var(--muted);}
 .auth-switch a{color:var(--accent);font-weight:700;cursor:pointer;text-decoration:none;}
-.submit-btn{width:100%;background:var(--accent);border:none;border-radius:14px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#fff;cursor:pointer;margin-top:8px;}
+.submit-btn{width:100%;background:var(--btn);border:none;border-radius:14px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#fff;cursor:pointer;margin-top:8px;}
 .submit-btn:active{transform:scale(.98);}
 .select-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;}
 .select-input:focus{border-color:var(--accent);}
@@ -66,7 +67,7 @@ input[type="password"]{padding-right:46px;}
 .sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto;}
 .nav-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;cursor:pointer;margin-bottom:4px;font-size:13px;font-weight:600;color:var(--muted);}
 .nav-item:hover{background:var(--surface2);color:var(--text);}
-.nav-item.active{background:var(--surface3);color:var(--accent);}
+.nav-item.active{background:var(--btn);color:#fff;}
 .nav-icon{font-size:18px;width:24px;text-align:center;}
 .nav-badge{margin-left:auto;background:var(--warn);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:20px;display:none;}
 .sidebar-footer{padding:16px 12px;border-top:1px solid var(--border);}
@@ -109,7 +110,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 .btn-edit:hover{background:var(--surface3);}
 .btn-delete{background:var(--surface2);color:var(--warn);border:1px solid var(--warn);}
 .btn-delete:hover{background:var(--surface3);}
-.btn-save{background:var(--accent);color:#fff;padding:10px 24px;font-size:13px;font-weight:700;border:none;}
+.btn-save{background:var(--btn);color:#fff;padding:10px 24px;font-size:13px;font-weight:700;border:none;}
 .btn-danger{background:var(--warn);color:#fff;padding:10px 24px;font-size:13px;font-weight:700;border:none;}
 .btn-success{background:var(--success);color:#fff;padding:10px 24px;font-size:13px;font-weight:700;border:none;}
 .settings-section{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
@@ -141,7 +142,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 .loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;}
 .loading-spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.notif-bell{position:fixed;bottom:28px;right:28px;width:54px;height:54px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;z-index:300;color:#fff;}
+.notif-bell{position:fixed;bottom:28px;right:28px;width:54px;height:54px;background:var(--btn);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;z-index:300;color:#fff;}
 .notif-bell:hover{transform:scale(1.08);}
 .notif-badge{position:absolute;top:-4px;right:-4px;background:var(--warn);color:#fff;font-size:10px;font-weight:800;width:20px;height:20px;border-radius:50%;display:none;align-items:center;justify-content:center;border:2px solid var(--bg);}
 .notif-badge.show{display:flex;}
@@ -163,7 +164,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 .notif-overlay.open{display:block;}
 .tube-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
 .tube-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;}
-.tube-avatar{width:52px;height:52px;background:var(--accent);border-radius:50%;display:grid;place-items:center;font-size:22px;margin:0 auto 10px;color:#fff;}
+.tube-avatar{width:52px;height:52px;background:var(--btn);border-radius:50%;display:grid;place-items:center;font-size:22px;margin:0 auto 10px;color:#fff;}
 .tube-name{font-size:14px;font-weight:800;margin-bottom:4px;}
 .tube-amt{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--accent3);}
 .admin-footer{position:fixed;bottom:0;left:260px;right:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 16px;z-index:100;}
@@ -590,7 +591,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 <!-- MODALS -->
 <div class="modal-ov" id="edit-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;padding:24px;"><div class="modal-box" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:440px;"><div class="modal-title" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;margin-bottom:18px;color:var(--accent);">✏️ Edit User</div><input type="hidden" id="edit-username"><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label" style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;">Password</label><input type="text" class="modal-input" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;" id="edit-password"></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">Phone Number</label><input type="text" class="modal-input" id="edit-phone-modal" placeholder="+256..."></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">BALANCE (UGX)</label><input type="number" class="modal-input" id="edit-balance" min="0"></div><div class="modal-actions" style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;"><button class="modal-cancel" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;" onclick="closeEditModal()">Cancel</button><button class="btn btn-save" onclick="saveEditUser()">Save Changes</button></div></div></div>
 
-<div class="toast" id="toast" style="position:fixed;top:24px;right:24px;background:var(--accent3);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;padding:12px 24px;border-radius:12px;opacity:0;transition:.3s;z-index:9999;pointer-events:none;transform:translateY(-10px);"></div>
+<div class="toast" id="toast" style="position:fixed;top:24px;right:24px;background:var(--btn);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;padding:12px 24px;border-radius:12px;opacity:0;transition:.3s;z-index:9999;pointer-events:none;transform:translateY(-10px);"></div>
 <div class="notif-overlay" id="notif-overlay" onclick="closeNotifDrawer()"></div>
 <div class="notif-bell" onclick="openNotifDrawer()">🔔<div class="notif-badge" id="notif-badge">0</div></div>
 <div class="notif-drawer" id="notif-drawer">
