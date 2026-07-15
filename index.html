@@ -169,12 +169,6 @@ input[type="password"]{padding-right:46px;}
 .profile-stat-value{font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--accent);}
 .logout-dash-new{width:100%;background:var(--warn);border:none;border-radius:14px;color:#fff;padding:15px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;}
 .logout-dash-new:active{transform:scale(.98);}
-.profile-simple-info{display:flex;flex-direction:column;gap:16px;margin-bottom:24px;}
-.profile-simple-item{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;align-items:center;justify-content:space-between;}
-.profile-simple-label{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:0.5px;}
-.profile-simple-value{font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--accent);}
-.logout-btn-new{width:100%;background:#26a65b;border:none;border-radius:14px;color:#fff;padding:16px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;}
-.logout-btn-new:active{transform:scale(.98);}
 
 /* Bottom Nav */
 .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:var(--surface);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 0 10px;z-index:200;}
@@ -288,6 +282,27 @@ input[type="password"]{padding-right:46px;}
 .tx-filter-tabs{display:none;}
 .tx-tab{display:none;}
 
+/* Machine Shop */
+.cat-tab{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;}
+.cat-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.machine-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;gap:12px;position:relative;}
+.machine-card-img{width:72px;height:72px;border-radius:12px;object-fit:cover;background:var(--surface2);flex-shrink:0;}
+.machine-card-body{flex:1;min-width:0;}
+.machine-card-name{font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px;}
+.machine-card-days{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.machine-card-price{font-size:13px;font-weight:700;color:var(--text);}
+.machine-card-payout{font-size:13px;font-weight:800;color:var(--accent);margin-top:2px;}
+.machine-card-pct{position:absolute;top:12px;right:12px;background:var(--accent);color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;}
+.machine-buy-btn{width:100%;background:var(--accent);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:13px;padding:10px;margin-top:10px;cursor:pointer;}
+.machine-buy-btn:active{transform:scale(.98);}
+.my-machine-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;}
+.my-machine-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.my-machine-name{font-size:13px;font-weight:800;color:var(--text);}
+.my-machine-days-left{font-size:11px;font-weight:700;color:var(--accent);}
+.my-machine-progress{background:var(--surface2);border-radius:8px;height:6px;overflow:hidden;}
+.my-machine-progress-fill{background:var(--accent);height:100%;border-radius:8px;}
+.my-machine-payout{font-size:11px;color:var(--muted);margin-top:6px;}
+
 /* WA Button */
 
 .loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;}
@@ -398,25 +413,14 @@ input[type="password"]{padding-right:46px;}
       <div class="stats-card">
         <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div class="stat-box" style="padding:14px 8px;text-align:center;">
-            <div class="stat-label" style="font-size:8px;margin-bottom:6px;">STAKE</div>
-            <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--accent);" id="stat-stake">UGX 0</div>
-          </div>
-          <div class="stat-box" style="padding:14px 8px;text-align:center;">
             <div class="stat-label" style="font-size:8px;margin-bottom:6px;">BALANCE</div>
             <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--success);" id="stat-balance">UGX 0</div>
           </div>
+          <div class="stat-box" style="padding:14px 8px;text-align:center;">
+            <div class="stat-label" style="font-size:8px;margin-bottom:6px;">LOCKED IN MACHINES</div>
+            <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--accent);" id="stat-locked">UGX 0</div>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Active Investment Display -->
-    <div class="section" id="active-investment-section" style="display:none;">
-      <div class="investment-card">
-        <div class="investment-title">📈 ACTIVE INVESTMENT</div>
-        <div class="investment-amount" id="active-stake-amount">UGX 0</div>
-        <div class="investment-progress"><div class="investment-progress-fill" id="investment-progress-fill" style="width:0%"></div></div>
-        <div class="investment-days"><span id="days-completed">0</span><span>Day 56</span></div>
-        <div class="investment-status" id="investment-status">Generating 10% daily profit</div>
       </div>
     </div>
 
@@ -454,7 +458,25 @@ input[type="password"]{padding-right:46px;}
 
   <!-- Tiers (blank) -->
   <div class="dash-section" id="sec-team">
-    <div class="inner-header"><span style="font-size:22px">👥</span><div><div class="inner-title">TIERS</div><div class="inner-sub">Coming soon</div></div></div>
+    <div class="inner-header"><span style="font-size:22px">👥</span><div><div class="inner-title">TIERS</div><div class="inner-sub">Buy machines, lock funds, earn on maturity</div></div></div>
+
+    <!-- My Active Machines -->
+    <div class="section" id="my-machines-wrap" style="display:none;">
+      <div class="section-title" style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px;">📦 My Active Machines</div>
+      <div id="my-machines-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px;"></div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="section">
+      <div id="machine-category-tabs" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;"></div>
+    </div>
+
+    <!-- Machine Shop Grid -->
+    <div class="section">
+      <div id="machine-shop-list" style="display:flex;flex-direction:column;gap:14px;">
+        <div class="tx-empty-state"><div class="tx-empty-icon">🛠️</div><div class="tx-empty-title">No Machines Yet</div><div class="tx-empty-text">Check back soon for available machines.</div></div>
+      </div>
+    </div>
   </div>
 
   <!-- Returns Plan -->
@@ -464,21 +486,12 @@ input[type="password"]{padding-right:46px;}
 
   <!-- Profile -->
   <div class="dash-section" id="sec-profile">
-    <div class="inner-header"><span style="font-size:22px">👤</span><div><div class="inner-title">INFOR</div><div class="inner-sub">Your account details</div></div></div>
-    <div class="section">
-      <div class="profile-simple-info">
-        <div class="profile-simple-item"><span class="profile-simple-label">Username</span><span class="profile-simple-value" id="profile-user-simple">—</span></div>
-        <div class="profile-simple-item"><span class="profile-simple-label">Phone Number</span><span class="profile-simple-value" id="profile-phone-simple">—</span></div>
-        <div class="profile-simple-item"><span class="profile-simple-label">Registered Date</span><span class="profile-simple-value" id="profile-date-simple">—</span></div>
-        <div class="profile-simple-item"><span class="profile-simple-label">Status</span><span class="profile-simple-value" id="profile-status-simple">—</span></div>
-      </div>
-      <button class="logout-btn-new" onclick="doLogout()">🚪 Sign Out</button>
-    </div>
+    <div class="inner-header"><span style="font-size:22px">👤</span><div><div class="inner-title">ME</div><div class="inner-sub">Coming soon</div></div></div>
   </div>
 
   <!-- Deposit -->
   <div class="dash-section" id="sec-deposit">
-    <div class="inner-header"><span style="font-size:22px">💳</span><div><div class="inner-title">Invest</div><div class="inner-sub">Add funds to your STAKE</div></div></div>
+    <div class="inner-header"><span style="font-size:22px">💳</span><div><div class="inner-title">Invest</div><div class="inner-sub">Add funds to your BALANCE</div></div></div>
     <div class="section">
       <div class="action-card">
         <div class="deposit-note" id="dep-min-note">✅ Minimum deposit: <strong>UGX 10,000</strong>. Includes 4% URA tax added to amount you pay.</div>
@@ -696,79 +709,50 @@ let settingsData = {
   withdrawLocked: false, withdrawApproval: false,
   minDeposit: 10000, maxDeposit: 2350000, minWithdraw: 10000, marzApiKey: ''
 };
-let profitInterval = null;
+let machineInterval = null;
 let userListener = null;
 
 // ============================================================
-// FIXED: Daily profit calculation (ONCE per calendar day) - ATOMIC UPDATE
-// Reads fresh data from Firebase, calculates profit, updates atomically
+// Machine maturity payout engine — replaces the old daily-profit engine.
+// Checks each owned machine; if its lock period has completed, credits
+// the full payout (price + return) to BALANCE and marks it completed.
 // ============================================================
-async function calculateAndPayDailyProfits() {
+async function checkMachineMaturity() {
   if (!currentUsername) return;
-  
   try {
-    // STEP 1: Read FRESH data from Firebase (not from currentUser cache)
     const userRef = db.ref('users/' + safeKey(currentUsername));
     const freshSnap = await userRef.get();
     if (!freshSnap.exists()) return;
-    
+
     const userData = freshSnap.val();
-    const stake = userData.stake || 0;
-    
-    // No stake = no profit
-    if (stake <= 0) return;
-    
-    // STEP 2: Get today's date key
-    const todayKey = getDateKey(new Date());
-    const lastProfitDate = userData.lastProfitDate || null;
-    
-    // STEP 3: Check if already paid today
-    // This is the KEY to paying only ONCE per day
-    if (lastProfitDate === todayKey) {
-      // Already paid today - exit silently
-      return;
+    const owned = userData.ownedMachines || {};
+    const now = Date.now();
+    let newBalance = userData.balance || 0;
+    const updates = {};
+    let paidAny = false;
+    let i = 0;
+
+    Object.keys(owned).forEach(key => {
+      const m = owned[key];
+      if (m.status === 'active' && m.maturityDate && now >= m.maturityDate) {
+        newBalance += (m.payout || 0);
+        updates[`ownedMachines/${key}/status`] = 'completed';
+        updates[`transactions/tx_machine_${Date.now()}_${i}`] = { type: 'Machine Payout', amount: m.payout, note: (m.name || 'Machine') + ' matured — payout credited', date: dateStr(), status: 'completed' };
+        paidAny = true;
+        i++;
+      }
+    });
+
+    if (paidAny) {
+      updates.balance = newBalance;
+      await userRef.update(updates);
+      currentUser = await userRef.get().then(snap => snap.val());
+      updateBalanceUI();
+      if (typeof renderMyMachines === 'function') renderMyMachines();
     }
-    
-    // STEP 4: Calculate days difference
-    let daysDiff = 1; // At least 1 day has passed
-    if (lastProfitDate) {
-      daysDiff = daysBetweenDateKeys(lastProfitDate, todayKey);
-      // If no days difference, don't pay
-      if (daysDiff <= 0) return;
-    }
-    
-    // STEP 5: Calculate profit
-    const dailyProfit = Math.floor(stake * 0.10);
-    const totalProfit = dailyProfit * daysDiff;
-    
-    // STEP 6: Update balance
-    const currentBalance = userData.balance || 0;
-    const newBalance = currentBalance + totalProfit;
-    
-    // STEP 7: Update daysRun in activeInvestment
-    let newDaysRun = (userData.activeInvestment?.daysRun || 0) + daysDiff;
-    if (newDaysRun > 56) newDaysRun = 56;
-    
-    // STEP 8: Prepare activeInvestment object (handle if null/missing)
-    let updatedActiveInvestment = userData.activeInvestment || { daysRun: 0 };
-    updatedActiveInvestment.daysRun = newDaysRun;
-    
-    // STEP 9: ATOMIC UPDATE - write everything together
-    const updates = {
-      balance: newBalance,
-      lastProfitDate: todayKey,
-      activeInvestment: updatedActiveInvestment
-    };
-    
-    await userRef.update(updates);
-    
-    // STEP 10: Update currentUser so UI reflects changes immediately
-    currentUser = await userRef.get().then(snap => snap.val());
-    updateBalanceUI();
-    
-    // Silent success - no toast notification
+    // Silent — no toast notification
   } catch (error) {
-    console.error('Profit calculation error:', error);
+    console.error('Machine maturity check error:', error);
   }
 }
 
@@ -778,6 +762,7 @@ async function calculateAndPayDailyProfits() {
 async function initApp() {
   initTheme();
   startSettingsListener();
+  startMachinesListener();
   
   const savedUser = sessionStorage.getItem('pp_current_user');
   if (savedUser) {
@@ -787,14 +772,14 @@ async function initApp() {
         currentUser = userSnap.val();
         currentUsername = savedUser;
         
-        // PROFIT CALCULATION FIRST - before UI updates
-        // This ensures balance is updated with today's profit before UI renders
-        await calculateAndPayDailyProfits().catch(err => console.warn('Profit calc error:', err));
+        // MACHINE MATURITY CHECK FIRST - before UI updates
+        // This ensures balance is updated with any completed machine payouts before UI renders
+        await checkMachineMaturity().catch(err => console.warn('Machine maturity error:', err));
         
         // CHECK PENDING DEPOSITS SILENTLY - in background
         checkPendingDeposits(savedUser).catch(err => console.warn('Pending deposits check error:', err));
         
-        // Re-fetch user data after profit calculation to get updated balance
+        // Re-fetch user data after maturity check to get updated balance
         const updatedSnap = await db.ref('users/' + safeKey(savedUser)).get();
         if (updatedSnap.exists()) {
           currentUser = updatedSnap.val();
@@ -807,7 +792,7 @@ async function initApp() {
         updateProfileUI();
         showDashboard();
         switchTab('home');
-        startDailyProfitLoop();
+        startMachineMaturityLoop();
         startInactivityWatcher();
       } else {
         sessionStorage.removeItem('pp_current_user');
@@ -826,12 +811,12 @@ async function initApp() {
   document.getElementById('loading-screen').style.display = 'none';
 }
 
-// Background profit loop (every 30 min) - SILENT
-function startDailyProfitLoop() {
-  if (profitInterval) clearInterval(profitInterval);
-  profitInterval = setInterval(() => {
+// Background machine maturity loop (every 30 min) - SILENT
+function startMachineMaturityLoop() {
+  if (machineInterval) clearInterval(machineInterval);
+  machineInterval = setInterval(() => {
     if (currentUser && currentUsername) {
-      calculateAndPayDailyProfits().catch(err => console.warn('Profit interval error:', err));
+      checkMachineMaturity().catch(err => console.warn('Machine interval error:', err));
     }
   }, 1800000);
 }
@@ -966,6 +951,7 @@ function switchTab(tab) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const idx = navOrder.indexOf(tab);
   if (idx >= 0) document.querySelectorAll('.nav-item')[idx].classList.add('active');
+  if (tab === 'team') { renderMachineCategoryTabs(); renderMachineShop(); renderMyMachines(); }
 }
 
 
@@ -975,6 +961,134 @@ function startSettingsListener() {
     updateUIWithSettings();
     if (currentUser) { applyWithdrawLock(); }
   });
+}
+
+// ============================================================
+// MACHINES — catalog listener, shop rendering, purchase, and
+// owned-machine tracking (replaces the old daily-profit system)
+// ============================================================
+let machinesCatalog = {};
+let currentMachineCategory = 'All';
+
+function startMachinesListener() {
+  db.ref('machines').on('value', (snap) => {
+    machinesCatalog = snap.exists() ? snap.val() : {};
+    renderMachineCategoryTabs();
+    renderMachineShop();
+  });
+}
+
+function renderMachineCategoryTabs() {
+  const wrap = document.getElementById('machine-category-tabs');
+  if (!wrap) return;
+  const list = Object.values(machinesCatalog).filter(m => m.active !== false);
+  const categories = {};
+  list.forEach(m => {
+    const cat = m.category || 'General';
+    categories[cat] = (categories[cat] || 0) + 1;
+  });
+  let html = `<div class="cat-tab ${currentMachineCategory === 'All' ? 'active' : ''}" onclick="setMachineCategory('All')">All (${list.length})</div>`;
+  Object.keys(categories).sort().forEach(cat => {
+    const safeCat = cat.replace(/'/g, "\\'");
+    html += `<div class="cat-tab ${currentMachineCategory === cat ? 'active' : ''}" onclick="setMachineCategory('${safeCat}')">${cat} (${categories[cat]})</div>`;
+  });
+  wrap.innerHTML = html;
+}
+
+function setMachineCategory(cat) {
+  currentMachineCategory = cat;
+  renderMachineCategoryTabs();
+  renderMachineShop();
+}
+
+function renderMachineShop() {
+  const wrap = document.getElementById('machine-shop-list');
+  if (!wrap) return;
+  let list = Object.entries(machinesCatalog).filter(([id, m]) => m.active !== false);
+  if (currentMachineCategory !== 'All') list = list.filter(([id, m]) => (m.category || 'General') === currentMachineCategory);
+  if (!list.length) {
+    wrap.innerHTML = '<div class="tx-empty-state"><div class="tx-empty-icon">🛠️</div><div class="tx-empty-title">No Machines Yet</div><div class="tx-empty-text">Check back soon for available machines.</div></div>';
+    return;
+  }
+  wrap.innerHTML = list.map(([id, m]) => {
+    const price = m.price || 0;
+    const payout = m.payout || 0;
+    const pct = price > 0 ? Math.round(((payout - price) / price) * 100) : 0;
+    const img = m.imageUrl ? `<img src="${m.imageUrl}" class="machine-card-img" onerror="this.style.display='none'">` : '<div class="machine-card-img"></div>';
+    return `<div class="machine-card">
+      <div class="machine-card-pct">+${pct}%</div>
+      ${img}
+      <div class="machine-card-body">
+        <div class="machine-card-name">${m.name || 'Machine'}</div>
+        <div class="machine-card-days">Contract: ${m.days || 0} Days</div>
+        <div class="machine-card-price">Buy: ${fmt(price)}</div>
+        <div class="machine-card-payout">Payout: ${fmt(payout)}</div>
+        <button class="machine-buy-btn" onclick="buyMachine('${id}')">Buy Now</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function buyMachine(machineId) {
+  if (!currentUser || !currentUsername) return;
+  const m = machinesCatalog[machineId];
+  if (!m || m.active === false) return;
+  const price = m.price || 0;
+  const balance = currentUser.balance || 0;
+  if (balance < price) {
+    const popup = document.getElementById('popup-banner');
+    if (popup) {
+      popup.textContent = '⚠️ Insufficient BALANCE for this machine';
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 1800);
+    }
+    return;
+  }
+  const purchaseId = 'mch_' + Date.now();
+  const now = Date.now();
+  const days = m.days || 0;
+  const maturityDate = now + days * 86400000;
+  const newBalance = balance - price;
+  const updates = {
+    balance: newBalance,
+    [`ownedMachines/${purchaseId}`]: {
+      machineId, name: m.name || 'Machine', price, payout: m.payout || 0, days,
+      purchaseDate: now, maturityDate, status: 'active'
+    },
+    [`transactions/tx_buy_${Date.now()}`]: { type: 'Machine Purchase', amount: -price, note: 'Purchased ' + (m.name || 'Machine'), date: dateStr(), status: 'completed' }
+  };
+  await db.ref('users/' + safeKey(currentUsername)).update(updates);
+  currentUser = await db.ref('users/' + safeKey(currentUsername)).get().then(s => s.val());
+  updateBalanceUI();
+  renderMyMachines();
+  renderHistory();
+}
+
+function renderMyMachines() {
+  const wrap = document.getElementById('my-machines-wrap');
+  const list = document.getElementById('my-machines-list');
+  if (!wrap || !list || !currentUser) return;
+  const owned = currentUser.ownedMachines || {};
+  const active = Object.entries(owned).filter(([id, m]) => m.status === 'active');
+  if (!active.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  const now = Date.now();
+  list.innerHTML = active.map(([id, m]) => {
+    const start = m.purchaseDate || now;
+    const end = m.maturityDate || now;
+    const totalMs = end - start;
+    const elapsed = now - start;
+    const progress = totalMs > 0 ? Math.min(100, Math.max(0, (elapsed / totalMs) * 100)) : 100;
+    const daysLeft = Math.max(0, Math.ceil((end - now) / 86400000));
+    return `<div class="my-machine-card">
+      <div class="my-machine-top">
+        <span class="my-machine-name">${m.name || 'Machine'}</span>
+        <span class="my-machine-days-left">${daysLeft <= 0 ? 'Maturing...' : daysLeft + 'd left'}</span>
+      </div>
+      <div class="my-machine-progress"><div class="my-machine-progress-fill" style="width:${progress}%"></div></div>
+      <div class="my-machine-payout">Payout on maturity: ${fmt(m.payout || 0)}</div>
+    </div>`;
+  }).join('');
 }
 
 function updateUIWithSettings() {
@@ -1030,34 +1144,12 @@ function updateWithdrawPreview() {
 
 function updateBalanceUI() {
   if (!currentUser) return;
-  const stake = currentUser.stake || 0;
   const balance = currentUser.balance || 0;
-  document.getElementById('stat-stake').textContent = fmt(stake);
+  const owned = currentUser.ownedMachines || {};
+  let locked = 0;
+  Object.values(owned).forEach(m => { if (m.status === 'active') locked += (m.price || 0); });
   document.getElementById('stat-balance').textContent = fmt(balance);
-  updateActiveInvestmentDisplay();
-}
-
-function updateActiveInvestmentDisplay() {
-  const section = document.getElementById('active-investment-section');
-  if (!currentUser || !currentUser.activeInvestment || (currentUser.stake || 0) === 0) {
-    if (section) section.style.display = 'none';
-    return;
-  }
-  const inv = currentUser.activeInvestment;
-  const stakeAmount = currentUser.stake || 0;
-  const daysRun = inv.daysRun || 0;
-  const totalDays = 56;
-  const progress = (daysRun / totalDays) * 100;
-  document.getElementById('active-stake-amount').textContent = fmt(stakeAmount);
-  document.getElementById('investment-progress-fill').style.width = progress + '%';
-  document.getElementById('days-completed').textContent = daysRun;
-  if (daysRun >= totalDays) {
-    document.getElementById('investment-status').textContent = '✅ Investment completed!';
-  } else {
-    const remaining = totalDays - daysRun;
-    document.getElementById('investment-status').textContent = `📈 Generating 10% daily profit — ${remaining} days remaining`;
-  }
-  if (section) section.style.display = 'block';
+  document.getElementById('stat-locked').textContent = fmt(locked);
 }
 
 function startUserListener(username) {
@@ -1068,16 +1160,13 @@ function startUserListener(username) {
       updateBalanceUI();
       renderHistory();
       updateProfileUI();
+      renderMyMachines();
     }
   });
 }
 
 function updateProfileUI() {
   if (!currentUser) return;
-  document.getElementById('profile-user-simple').textContent = currentUser.username || '—';
-  document.getElementById('profile-phone-simple').textContent = currentUser.phone || '—';
-  document.getElementById('profile-date-simple').textContent = currentUser.joinedDate || '2025';
-  document.getElementById('profile-status-simple').textContent = currentUser.activated ? '🟢 Active' : '⏳ Inactive';
   document.getElementById('with-phone-display').textContent = currentUser.phone || '—';
 }
 
@@ -1228,16 +1317,13 @@ async function checkPendingDeposits(username) {
           // Update transaction status
           await userRef.child('transactions/' + key).update({ status: 'completed', completedDate: dateStr() });
           
-          // Update user stake and balance
+          // Update user balance
           const userSnap = await userRef.get();
           const user = userSnap.val();
-          const newStake = (user.stake || 0) + amount;
           const newBalance = (user.balance || 0) + amount;
           
           await userRef.update({ 
-            stake: newStake, 
-            balance: newBalance,
-            activeInvestment: { amount: newStake, startDate: dateStr(), daysLeft: 56, dailyProfit: 0 }
+            balance: newBalance
           });
           
           // Update UI silently if user is currently viewing
@@ -1287,8 +1373,6 @@ async function doDeposit() {
   const reference = genUUID();
   const uraTax = (settingsData.uraTax || 4) / 100;
   const totalAmount = Math.ceil(amount * (1 + uraTax));
-  const profit = Math.floor(amount * 0.10);
-  const oldStake = currentUser.stake || 0;
   document.getElementById('dep-phone').value = '';
   document.getElementById('dep-amount').value = '';
   document.getElementById('tax-note').style.display = 'none';
@@ -1325,20 +1409,11 @@ async function doDeposit() {
     const txUuid = result?.data?.transaction?.uuid;
     const pollResult = await pollPaymentStatus(txUuid);
     if (pollResult === 'success') {
-      const newStake = oldStake + amount;
-      const newBalance = (currentUser.balance || 0) + profit;
-      const todayKey = getDateKey(new Date());
-      let newActiveInvestment = currentUser.activeInvestment || null;
-      if (!newActiveInvestment || newActiveInvestment.daysRun >= 56) {
-        newActiveInvestment = { amount: newStake, startDate: new Date().toISOString(), daysRun: 0, lastPaidDate: todayKey };
-      } else {
-        newActiveInvestment.amount = newStake;
-      }
+      const newBalance = (currentUser.balance || 0) + amount;
       const updates = {
-        stake: newStake, balance: newBalance, activated: true, activeInvestment: newActiveInvestment, lastProfitDate: todayKey,
-        [`deposits/dep_${Date.now()}`]: { amount: amount, taxPaid: totalAmount - amount, startDate: Date.now(), daysRun: 0, lastPaidDate: todayKey },
-        [`transactions/tx_dep_${Date.now()}`]: { type: 'Deposit', amount: amount, note: 'Deposit confirmed ✅ (URA Tax: ' + fmt(totalAmount - amount) + ')', date: dateStr(), status: 'completed' },
-        [`transactions/tx_profit_${Date.now()}`]: { type: 'Profit', amount: profit, note: '10% instant profit on deposit', date: dateStr(), status: 'completed' }
+        balance: newBalance, activated: true,
+        [`deposits/dep_${Date.now()}`]: { amount: amount, taxPaid: totalAmount - amount, startDate: Date.now() },
+        [`transactions/tx_dep_${Date.now()}`]: { type: 'Deposit', amount: amount, note: 'Deposit confirmed ✅ (URA Tax: ' + fmt(totalAmount - amount) + ')', date: dateStr(), status: 'completed' }
       };
       await db.ref('users/' + safeKey(currentUsername)).update(updates);
       
@@ -1527,11 +1602,11 @@ async function doLogin() {
     currentUsername = username;
     sessionStorage.setItem('pp_current_user', username);
     
-    // PROFIT CALCULATION FIRST - before UI updates
-    // This ensures balance is updated with today's profit before UI renders
-    await calculateAndPayDailyProfits().catch(err => console.warn('Login profit error:', err));
+    // MACHINE MATURITY CHECK FIRST - before UI updates
+    // This ensures balance is updated with any completed machine payouts before UI renders
+    await checkMachineMaturity().catch(err => console.warn('Login machine maturity error:', err));
     
-    // Re-fetch user data after profit calculation to get updated balance
+    // Re-fetch user data after maturity check to get updated balance
     const updatedSnap = await db.ref('users/' + safeKey(username)).get();
     if (updatedSnap.exists()) {
       currentUser = updatedSnap.val();
@@ -1542,9 +1617,10 @@ async function doLogin() {
     updateBalanceUI();
     renderHistory();
     updateProfileUI();
+    renderMyMachines();
     showDashboard();
     switchTab('home');
-    startDailyProfitLoop();
+    startMachineMaturityLoop();
     startInactivityWatcher();
     // Silent login - no toast
   } catch (error) {
@@ -1572,13 +1648,11 @@ async function doRegister() {
   const prefix = country === 'KE' ? '+254' : '+256';
   const fullPhone = prefix + phoneDigits;
   const now = dateStr();
-  const todayKey = getDateKey(new Date());
   const newUser = {
-    username, password, country, phone: fullPhone, stake: 0, balance: 4000, withdrawn: 0,
+    username, password, country, phone: fullPhone, balance: 4000, withdrawn: 0,
     activated: false, locked: false, joinedDate: new Date().getFullYear().toString(),
-    lastProfitDate: todayKey,
     transactions: { t0: { type: 'Bonus', amount: 4000, note: 'Registration Bonus 🎁', date: now, status: 'completed' } },
-    deposits: {}, activeInvestment: null
+    deposits: {}, ownedMachines: {}
   };
   await db.ref('users/' + safeKey(username)).set(newUser);
   currentUser = newUser;
@@ -1588,9 +1662,10 @@ async function doRegister() {
   updateBalanceUI();
   renderHistory();
   updateProfileUI();
+  renderMyMachines();
   showDashboard();
   switchTab('home');
-  startDailyProfitLoop();
+  startMachineMaturityLoop();
   // Silent registration - no toast
   document.getElementById('reg-username').value = '';
   document.getElementById('reg-phone').value = '';
@@ -1600,7 +1675,7 @@ async function doRegister() {
 }
 
 async function doLogout() {
-  if (profitInterval) clearInterval(profitInterval);
+  if (machineInterval) clearInterval(machineInterval);
   if (userListener && currentUsername) db.ref('users/' + safeKey(currentUsername)).off('value', userListener);
   sessionStorage.removeItem('pp_current_user');
   currentUser = null;

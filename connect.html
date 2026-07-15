@@ -286,6 +286,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
     <div class="sidebar-nav">
       <div class="nav-item active" onclick="showPage('pg-dashboard')"><span class="nav-icon">📊</span><span>Dashboard</span></div>
       <div class="nav-item" onclick="showPage('pg-users')"><span class="nav-icon">👥</span><span>Users</span></div>
+      <div class="nav-item" onclick="showPage('pg-machines')"><span class="nav-icon">🛠️</span><span>Machines</span></div>
       <div class="nav-item" onclick="showPage('pg-tube')"><span class="nav-icon">📈</span><span>Investors</span></div>
       <div class="nav-item" onclick="showPage('pg-transactions')"><span class="nav-icon">💰</span><span>Transactions</span></div>
       <div class="nav-item" onclick="showPage('pg-withdrawals')"><span class="nav-icon">💸</span><span>Withdrawals</span><span class="nav-badge" id="withdrawals-nav-badge">0</span></div>
@@ -305,7 +306,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
       <div class="page-sub">Real-time platform overview</div>
       <div class="stats-row">
         <div class="stat-card"><div class="stat-card-label">Total Users</div><div class="stat-card-val green" id="d-total-users">—</div></div>
-        <div class="stat-card"><div class="stat-card-label">Total STAKE</div><div class="stat-card-val gold" id="d-total-stake">—</div></div>
+        <div class="stat-card"><div class="stat-card-label">Locked in Machines</div><div class="stat-card-val gold" id="d-total-locked">—</div></div>
         <div class="stat-card"><div class="stat-card-label">Total BALANCE</div><div class="stat-card-val emerald" id="d-total-balance">—</div></div>
       </div>
       <div class="pct-summary" id="pct-summary"></div>
@@ -327,9 +328,44 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         </div>
         <table>
           <thead>
-            <tr><th>Username</th><th>Phone</th><th>Password</th><th>STAKE</th><th>BALANCE</th><th>Status</th><th>Actions</th></tr>
+            <tr><th>Username</th><th>Phone</th><th>Password</th><th>BALANCE</th><th>Status</th><th>Actions</th></tr>
           </thead>
-          <tbody id="users-table-body"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
+          <tbody id="users-table-body"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MACHINES -->
+    <div class="page" id="pg-machines">
+      <div class="page-title">🛠️ Machines</div>
+      <div class="page-sub">Create and manage machines shown on the user's TIERS page</div>
+
+      <div class="table-wrap" style="max-width:600px;margin-bottom:24px;">
+        <div class="table-header"><div class="table-title" id="machine-form-title">➕ Add New Machine</div></div>
+        <div style="padding:24px;">
+          <input type="hidden" id="machine-edit-id">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div><label class="f-label">Machine Name</label><input type="text" class="f-input" style="padding:11px 14px;" id="machine-name" placeholder="e.g. NOB 1"></div>
+            <div><label class="f-label">Category</label><input type="text" class="f-input" style="padding:11px 14px;" id="machine-category" placeholder="e.g. A-Series"></div>
+          </div>
+          <div style="margin-bottom:14px;"><label class="f-label">Image URL</label><input type="text" class="f-input" style="padding:11px 14px;" id="machine-image" placeholder="https://..."></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div><label class="f-label">Price (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-price" placeholder="24000" min="0"></div>
+            <div><label class="f-label">Days</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-days" placeholder="14" min="1"></div>
+            <div><label class="f-label">Payout (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-payout" placeholder="36000" min="0"></div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-save" style="flex:1;padding:12px;" onclick="saveMachine()">💾 Save Machine</button>
+            <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);display:none;" id="machine-cancel-btn" onclick="cancelMachineEdit()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">📦 All Machines</div></div>
+        <table>
+          <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Days</th><th>Payout</th><th>Return %</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="machines-table-body"><tr class="empty-row"><td colspan="9">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -337,7 +373,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
     <!-- INVESTORS (TUBE) -->
     <div class="page" id="pg-tube">
       <div class="page-title">Active Investors</div>
-      <div class="page-sub">Users who have STAKE and are earning daily profits</div>
+      <div class="page-sub">Users with machines currently locked</div>
       <div class="tube-grid" id="tube-grid"><p style="color:var(--muted);font-size:13px">Loading...</p></div>
     </div>
 
@@ -409,7 +445,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
               <div><div style="font-size:15px;font-weight:800;" id="debit-user-name">—</div><div style="font-size:12px;color:var(--muted);" id="debit-user-phone">—</div></div>
               <div style="text-align:right;"><div style="font-size:11px;color:var(--muted);">Current BALANCE</div><div style="font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;" id="debit-user-balance">—</div></div>
             </div>
-            <div style="font-size:11px;color:var(--muted);">STAKE: <span id="debit-user-stake">—</span></div>
+            <div style="font-size:11px;color:var(--muted);">Locked in Machines: <span id="debit-user-locked">—</span></div>
           </div>
           <div id="debit-not-found" style="display:none;color:var(--warn);font-size:13px;margin-bottom:12px;">❌ User not found</div>
           <div style="margin-bottom:16px;"><label class="f-label">Amount to Debit (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="debit-amount" placeholder="Enter amount" min="1" oninput="updateDebitPreview()"></div>
@@ -430,7 +466,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
     <div class="page" id="pg-sog">
       <div class="page-title">🗑️ SOG - Search & Obliterate</div>
       <div class="page-sub">Wipe user financial data (keeps account structure) - Account becomes brand new</div>
-      <div style="background:#fff0f4;border:1px solid var(--border);padding:16px;border-radius:12px;margin-bottom:20px;"><strong style="color:var(--warn);">⚠️ WARNING:</strong> This will reset ALL user financial data (STAKE, BALANCE, transactions, active investment) to zero. The user account will look brand new but username, password, phone, country, and joined date will remain. This cannot be undone.</div>
+      <div style="background:#fff0f4;border:1px solid var(--border);padding:16px;border-radius:12px;margin-bottom:20px;"><strong style="color:var(--warn);">⚠️ WARNING:</strong> This will reset ALL user financial data (BALANCE, transactions, owned machines) to zero. The user account will look brand new but username, password, phone, country, and joined date will remain. This cannot be undone.</div>
       <div style="display:flex;gap:12px;margin-bottom:20px;">
         <input type="text" class="f-input" id="sog-username-search" placeholder="Enter username to search..." oninput="searchSOGUser()" style="flex:1;padding:11px 14px;">
         <button class="btn btn-approve" onclick="clearSOGSearch()">Clear</button>
@@ -552,7 +588,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 </div>
 
 <!-- MODALS -->
-<div class="modal-ov" id="edit-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;padding:24px;"><div class="modal-box" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:440px;"><div class="modal-title" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;margin-bottom:18px;color:var(--accent);">✏️ Edit User</div><input type="hidden" id="edit-username"><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label" style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;">Password</label><input type="text" class="modal-input" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;" id="edit-password"></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">Phone Number</label><input type="text" class="modal-input" id="edit-phone-modal" placeholder="+256..."></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">STAKE (UGX)</label><input type="number" class="modal-input" id="edit-stake" min="0"></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">BALANCE (UGX)</label><input type="number" class="modal-input" id="edit-balance" min="0"></div><div class="modal-actions" style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;"><button class="modal-cancel" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;" onclick="closeEditModal()">Cancel</button><button class="btn btn-save" onclick="saveEditUser()">Save Changes</button></div></div></div>
+<div class="modal-ov" id="edit-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;padding:24px;"><div class="modal-box" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:440px;"><div class="modal-title" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;margin-bottom:18px;color:var(--accent);">✏️ Edit User</div><input type="hidden" id="edit-username"><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label" style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;">Password</label><input type="text" class="modal-input" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;" id="edit-password"></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">Phone Number</label><input type="text" class="modal-input" id="edit-phone-modal" placeholder="+256..."></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">BALANCE (UGX)</label><input type="number" class="modal-input" id="edit-balance" min="0"></div><div class="modal-actions" style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;"><button class="modal-cancel" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;" onclick="closeEditModal()">Cancel</button><button class="btn btn-save" onclick="saveEditUser()">Save Changes</button></div></div></div>
 
 <div class="toast" id="toast" style="position:fixed;top:24px;right:24px;background:var(--accent3);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;padding:12px 24px;border-radius:12px;opacity:0;transition:.3s;z-index:9999;pointer-events:none;transform:translateY(-10px);"></div>
 <div class="notif-overlay" id="notif-overlay" onclick="closeNotifDrawer()"></div>
@@ -657,11 +693,13 @@ let debitHistory = [];
 let allWithdrawals = {};
 let awHistory = [];
 let allAdminTransactions = {};
+let allMachines = {};
 
 let usersUnsubscribe = null;
 let settingsUnsubscribe = null;
 let withdrawalsUnsubscribe = null;
 let adminTxUnsubscribe = null;
+let machinesUnsubscribe = null;
 
 function fmt(n) { return 'UGX ' + Number(n || 0).toLocaleString(); }
 function dateStr() { const d = new Date(); return d.toLocaleDateString('en-UG', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit' }); }
@@ -705,21 +743,28 @@ function startRealtimeListeners() {
     renderAdminTransactions();
   });
   
+  if (machinesUnsubscribe) machinesUnsubscribe();
+  machinesUnsubscribe = db.ref('machines').on('value', (snap) => {
+    allMachines = snap.val() || {};
+    renderMachinesTable();
+  });
+  
   startNotifListener();
   loadAwHistory();
 }
 
 function renderDashboard() {
   const users = Object.values(allUsers);
-  let totalStake = 0, totalBalance = 0, locked = 0, activeInvestors = 0;
+  let totalLocked = 0, totalBalance = 0, locked = 0, activeInvestors = 0;
   users.forEach(u => {
-    totalStake += u.stake || 0;
+    const userLocked = userLockedTotal(u);
+    totalLocked += userLocked;
     totalBalance += u.balance || 0;
     if (u.locked) locked++;
-    if ((u.stake || 0) > 0) activeInvestors++;
+    if (userLocked > 0) activeInvestors++;
   });
   document.getElementById('d-total-users').textContent = users.length;
-  document.getElementById('d-total-stake').textContent = fmt(totalStake);
+  document.getElementById('d-total-locked').textContent = fmt(totalLocked);
   document.getElementById('d-total-balance').textContent = fmt(totalBalance);
   document.getElementById('d-locked').textContent = locked;
   document.getElementById('d-min-deposit').textContent = fmt(allSettings.minDeposit || 10000);
@@ -741,14 +786,13 @@ function renderUsersTable() {
   const users = Object.values(allUsers);
   const filtered = searchFilter ? users.filter(u => u.username && u.username.toLowerCase().includes(searchFilter.toLowerCase())) : users;
   const tbody = document.getElementById('users-table-body');
-  if (!filtered.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No users found<\/tr>'; return; }
+  if (!filtered.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No users found<\/tr>'; return; }
   tbody.innerHTML = filtered.map(u => {
     const sk = safeKey(u.username || '');
     return `<tr>
       <td><strong>${u.username || '—'}</strong></td>
       <td class="mono">${u.phone || '—'}</td>
       <td><div class="pw-cell" id="pwcell_${sk}"><span class="pw-val" onclick="editPw('${sk}')">${u.password || '—'}</span></div></td>
-      <td class="mono" style="color:var(--gold)">${fmt(u.stake)}</td>
       <td class="mono" style="color:var(--success);font-weight:700">${fmt(u.balance)}</td>
       <td><span class="badge ${u.locked ? 'badge-locked' : 'badge-active'}">${u.locked ? 'Locked' : 'Active'}</span></td>
       <td style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -788,7 +832,6 @@ function openEditModal(username) {
   document.getElementById('edit-username').value = username;
   document.getElementById('edit-password').value = u.password || '';
   document.getElementById('edit-phone-modal').value = u.phone || '';
-  document.getElementById('edit-stake').value = u.stake || 0;
   document.getElementById('edit-balance').value = u.balance || 0;
   document.getElementById('edit-modal').style.display = 'flex';
 }
@@ -799,7 +842,6 @@ async function saveEditUser() {
   const username = document.getElementById('edit-username').value;
   const newPassword = document.getElementById('edit-password').value;
   const newPhone = document.getElementById('edit-phone-modal').value;
-  const newStake = parseInt(document.getElementById('edit-stake').value) || 0;
   const newBalance = parseInt(document.getElementById('edit-balance').value) || 0;
   
   const sk = safeKey(username);
@@ -809,34 +851,15 @@ async function saveEditUser() {
   const updates = {
     password: newPassword,
     phone: newPhone,
-    stake: newStake,
-    balance: newBalance,
-    activated: newStake > 0
+    balance: newBalance
   };
   
-  if (newStake > (user.stake || 0)) {
-    const addedAmount = newStake - (user.stake || 0);
-    const instantProfit = Math.floor(addedAmount * 0.10);
-    updates.balance = newBalance + instantProfit;
-    const todayKey = new Date().toISOString().slice(0, 10);
-    const depKey = 'dep_' + Date.now();
-    updates['deposits/' + depKey] = {
-      amount: addedAmount,
-      startDate: Date.now(),
-      daysRun: 0,
-      lastPaidDate: todayKey
-    };
+  if (newBalance > (user.balance || 0)) {
+    const addedAmount = newBalance - (user.balance || 0);
     updates['transactions/dep_admin_' + Date.now()] = {
       type: 'Deposit',
       amount: addedAmount,
-      note: 'Admin credited to STAKE',
-      date: dateStr(),
-      status: 'completed'
-    };
-    updates['transactions/profit_admin_' + Date.now()] = {
-      type: 'Profit',
-      amount: instantProfit,
-      note: '10% instant profit on credited amount',
+      note: 'Admin credited to BALANCE',
       date: dateStr(),
       status: 'completed'
     };
@@ -860,18 +883,128 @@ async function deleteUser(username) {
   }
 }
 
+function userLockedTotal(u) {
+  const owned = u.ownedMachines || {};
+  let total = 0;
+  Object.values(owned).forEach(m => { if (m.status === 'active') total += (m.price || 0); });
+  return total;
+}
+
 function renderTube() {
-  const investors = Object.values(allUsers).filter(u => (u.stake || 0) > 0);
+  const investors = Object.values(allUsers).filter(u => userLockedTotal(u) > 0);
   const grid = document.getElementById('tube-grid');
   if (!investors.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px">No investors yet.</div>'; return; }
   grid.innerHTML = investors.map(u => `
     <div class="tube-card">
       <div class="tube-avatar">📈</div>
       <div class="tube-name">${u.username}</div>
-      <div class="tube-amt">STAKE: ${fmt(u.stake)}</div>
+      <div class="tube-amt">LOCKED: ${fmt(userLockedTotal(u))}</div>
       <div class="tube-amt" style="font-size:10px;color:var(--success)">BAL: ${fmt(u.balance)}</div>
     </div>
   `).join('');
+}
+
+// ============================================================
+// MACHINES — admin CRUD for the machine catalog shown on the
+// user app's TIERS page.
+// ============================================================
+function renderMachinesTable() {
+  const tbody = document.getElementById('machines-table-body');
+  if (!tbody) return;
+  const list = Object.entries(allMachines);
+  if (!list.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No machines yet. Add one above.</td></tr>'; return; }
+  tbody.innerHTML = list.map(([id, m]) => {
+    const price = m.price || 0;
+    const payout = m.payout || 0;
+    const pct = price > 0 ? Math.round(((payout - price) / price) * 100) : 0;
+    const imgHtml = m.imageUrl ? `<img src="${m.imageUrl}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;" onerror="this.style.opacity='0.2'">` : '—';
+    return `<tr>
+      <td>${imgHtml}</td>
+      <td><strong>${m.name || '—'}</strong></td>
+      <td class="mono">${m.category || '—'}</td>
+      <td class="mono" style="color:var(--gold)">${fmt(price)}</td>
+      <td class="mono">${m.days || 0}d</td>
+      <td class="mono" style="color:var(--success)">${fmt(payout)}</td>
+      <td class="mono" style="color:var(--accent3)">+${pct}%</td>
+      <td><span class="badge ${m.active === false ? 'badge-locked' : 'badge-active'}">${m.active === false ? 'Inactive' : 'Active'}</span></td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-edit" onclick="editMachine('${id}')">✏️ Edit</button>
+        <button class="btn ${m.active === false ? 'btn-approve' : 'btn-reject'}" onclick="toggleMachineActive('${id}', ${m.active === false})">${m.active === false ? '✅ Activate' : '⛔ Deactivate'}</button>
+        <button class="btn btn-delete" onclick="deleteMachine('${id}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function saveMachine() {
+  const editId = document.getElementById('machine-edit-id').value;
+  const name = document.getElementById('machine-name').value.trim();
+  const category = document.getElementById('machine-category').value.trim() || 'General';
+  const imageUrl = document.getElementById('machine-image').value.trim();
+  const price = parseInt(document.getElementById('machine-price').value) || 0;
+  const days = parseInt(document.getElementById('machine-days').value) || 0;
+  const payout = parseInt(document.getElementById('machine-payout').value) || 0;
+
+  if (!name) { toast('Machine name is required', '#f87171'); return; }
+  if (price <= 0) { toast('Price must be greater than 0', '#f87171'); return; }
+  if (days <= 0) { toast('Days must be greater than 0', '#f87171'); return; }
+  if (payout <= price) { toast('Payout must be greater than price', '#f87171'); return; }
+
+  const machineData = { name, category, imageUrl, price, days, payout, active: true };
+
+  if (editId) {
+    // Preserve existing active state on edit
+    const existing = allMachines[editId];
+    machineData.active = existing ? (existing.active !== false) : true;
+    await db.ref('machines/' + editId).update(machineData);
+    toast('✅ Machine updated');
+  } else {
+    const newId = 'mach_' + Date.now();
+    await db.ref('machines/' + newId).set(machineData);
+    toast('✅ Machine added');
+  }
+  cancelMachineEdit();
+}
+
+function editMachine(id) {
+  const m = allMachines[id];
+  if (!m) return;
+  document.getElementById('machine-edit-id').value = id;
+  document.getElementById('machine-name').value = m.name || '';
+  document.getElementById('machine-category').value = m.category || '';
+  document.getElementById('machine-image').value = m.imageUrl || '';
+  document.getElementById('machine-price').value = m.price || 0;
+  document.getElementById('machine-days').value = m.days || 0;
+  document.getElementById('machine-payout').value = m.payout || 0;
+  document.getElementById('machine-form-title').textContent = '✏️ Edit Machine — ' + (m.name || '');
+  document.getElementById('machine-cancel-btn').style.display = 'inline-block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cancelMachineEdit() {
+  document.getElementById('machine-edit-id').value = '';
+  document.getElementById('machine-name').value = '';
+  document.getElementById('machine-category').value = '';
+  document.getElementById('machine-image').value = '';
+  document.getElementById('machine-price').value = '';
+  document.getElementById('machine-days').value = '';
+  document.getElementById('machine-payout').value = '';
+  document.getElementById('machine-form-title').textContent = '➕ Add New Machine';
+  document.getElementById('machine-cancel-btn').style.display = 'none';
+}
+
+async function toggleMachineActive(id, newActive) {
+  await db.ref('machines/' + id + '/active').set(newActive);
+  toast(newActive ? '✅ Machine activated' : '⛔ Machine deactivated', newActive ? undefined : '#f87171');
+}
+
+async function deleteMachine(id) {
+  const m = allMachines[id];
+  const confirmed = await confirmAction('Delete Machine?', 'Delete "' + (m ? m.name : 'this machine') + '"? Users who already own it keep their purchase — this only removes it from the shop. This cannot be undone.');
+  if (confirmed) {
+    await db.ref('machines/' + id).remove();
+    toast('🗑️ Machine deleted', '#f87171');
+  }
 }
 
 function filterTx(type) { txFilter = type; renderTransactions(); }
@@ -1172,7 +1305,7 @@ function searchDebitUser() {
     document.getElementById('debit-user-name').textContent = found.username;
     document.getElementById('debit-user-phone').textContent = found.phone || '—';
     document.getElementById('debit-user-balance').textContent = fmt(found.balance || 0);
-    document.getElementById('debit-user-stake').textContent = fmt(found.stake || 0);
+    document.getElementById('debit-user-locked').textContent = fmt(userLockedTotal(found));
     infoBox.style.display = 'block';
     updateDebitPreview();
   } else { notFound.style.display = 'block'; }
@@ -1184,7 +1317,7 @@ function updateDebitPreview() {
   if (!debitTargetUser || amt <= 0) { prev.style.display = 'none'; return; }
   const newBal = (debitTargetUser.balance || 0) - amt;
   prev.style.display = 'block';
-  prev.innerHTML = '<strong>⚠️ DEBIT WARNING</strong><br>BALANCE: ' + fmt(debitTargetUser.balance || 0) + ' → After debit: <strong>' + fmt(newBal) + '</strong><br>STAKE remains: ' + fmt(debitTargetUser.stake || 0);
+  prev.innerHTML = '<strong>⚠️ DEBIT WARNING</strong><br>BALANCE: ' + fmt(debitTargetUser.balance || 0) + ' → After debit: <strong>' + fmt(newBal) + '</strong><br>Locked in Machines: ' + fmt(userLockedTotal(debitTargetUser));
   prev.style.color = newBal < 0 ? 'var(--warn)' : 'var(--muted)';
 }
 
@@ -1249,7 +1382,7 @@ function searchSOGUser() {
   const user = Object.values(allUsers).find(u => (u.username || '').toLowerCase() === q);
   if (user) {
     sogTargetUser = user;
-    const userDisplay = 'Username: <strong>' + user.username + '</strong><br>Phone: ' + (user.phone || '—') + '<br>STAKE: ' + fmt(user.stake || 0) + ' | BALANCE: ' + fmt(user.balance || 0);
+    const userDisplay = 'Username: <strong>' + user.username + '</strong><br>Phone: ' + (user.phone || '—') + '<br>BALANCE: ' + fmt(user.balance || 0);
     document.getElementById('sog-user-display').innerHTML = userDisplay;
     foundDiv.style.display = 'block';
   } else { notFound.style.display = 'block'; }
@@ -1264,16 +1397,13 @@ function clearSOGSearch() {
 
 async function obliterateUserData() {
   if (!sogTargetUser) { toast('No user selected', '#f87171'); return; }
-  const confirmed = await confirmAction('🗑️ OBLITERATE ALL FINANCIAL DATA?', 'Delete ALL financial data for ' + sogTargetUser.username + '? STAKE, BALANCE, transactions, and active investment will be reset to zero. Account will become brand new. THIS CANNOT BE UNDONE.');
+  const confirmed = await confirmAction('🗑️ OBLITERATE ALL FINANCIAL DATA?', 'Delete ALL financial data for ' + sogTargetUser.username + '? BALANCE, transactions, and owned machines will be reset to zero. Account will become brand new. THIS CANNOT BE UNDONE.');
   if (confirmed) {
-    const todayKey = new Date().toISOString().slice(0, 10);
     const updates = {
-      stake: 0,
       balance: 0,
       withdrawn: 0,
       activated: false,
-      activeInvestment: null,
-      lastProfitDate: todayKey,
+      ownedMachines: {},
       transactions: {}
     };
     await db.ref('users/' + safeKey(sogTargetUser.username)).update(updates);
@@ -1822,11 +1952,12 @@ function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const map = { 'pg-dashboard': 0, 'pg-users': 1, 'pg-tube': 2, 'pg-transactions': 3, 'pg-withdrawals': 4, 'pg-debit': 5, 'pg-sog': 6, 'pg-settings': 7, 'pg-admin-withdraw': 8 };
+  const map = { 'pg-dashboard': 0, 'pg-users': 1, 'pg-machines': 2, 'pg-tube': 3, 'pg-transactions': 4, 'pg-withdrawals': 5, 'pg-debit': 6, 'pg-sog': 7, 'pg-settings': 8, 'pg-admin-withdraw': 9 };
   if (map[id] !== undefined) document.querySelectorAll('.nav-item')[map[id]].classList.add('active');
   if (id === 'pg-transactions') renderAdminTransactions();
   if (id === 'pg-withdrawals') renderWithdrawalsTable();
   if (id === 'pg-debit') renderDebitHistory();
+  if (id === 'pg-machines') renderMachinesTable();
 }
 
 function showTerms() { 
