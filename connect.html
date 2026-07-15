@@ -329,9 +329,9 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         </div>
         <table>
           <thead>
-            <tr><th>Username</th><th>Phone</th><th>Password</th><th>BALANCE</th><th>Status</th><th>Actions</th></tr>
+            <tr><th>Username</th><th>Phone</th><th>Password</th><th>BALANCE</th><th>Machines</th><th>Status</th><th>Actions</th></tr>
           </thead>
-          <tbody id="users-table-body"><tr class="empty-row"><td colspan="6">Loading...</td></tr></tbody>
+          <tbody id="users-table-body"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -608,6 +608,16 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 <!-- MODALS -->
 <div class="modal-ov" id="edit-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;padding:24px;"><div class="modal-box" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:440px;"><div class="modal-title" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;margin-bottom:18px;color:var(--accent);">✏️ Edit User</div><input type="hidden" id="edit-username"><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label" style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;">Password</label><input type="text" class="modal-input" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;" id="edit-password"></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">Phone Number</label><input type="text" class="modal-input" id="edit-phone-modal" placeholder="+256..."></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">BALANCE (UGX)</label><input type="number" class="modal-input" id="edit-balance" min="0"></div><div class="modal-actions" style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;"><button class="modal-cancel" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;" onclick="closeEditModal()">Cancel</button><button class="btn btn-save" onclick="saveEditUser()">Save Changes</button></div></div></div>
 
+<div class="modal-ov" id="user-machines-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;padding:24px;">
+  <div class="modal-box" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:560px;max-height:80vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <div class="modal-title" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;color:var(--accent);margin-bottom:0;">🛠️ Machines — <span id="um-username">—</span></div>
+      <button class="modal-cancel" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;" onclick="closeUserMachinesModal()">✕ Close</button>
+    </div>
+    <div id="um-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast" style="position:fixed;top:24px;right:24px;background:var(--btn);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;padding:12px 24px;border-radius:12px;opacity:0;transition:.3s;z-index:9999;pointer-events:none;transform:translateY(-10px);"></div>
 <div class="notif-overlay" id="notif-overlay" onclick="closeNotifDrawer()"></div>
 <div class="notif-bell" onclick="openNotifDrawer()">🔔<div class="notif-badge" id="notif-badge">0</div></div>
@@ -737,6 +747,7 @@ function startRealtimeListeners() {
     renderUsersTable();
     renderTube();
     renderTransactions();
+    if (umCurrentUsername) renderUserMachinesModal();
   });
   
   if (settingsUnsubscribe) settingsUnsubscribe();
@@ -804,14 +815,16 @@ function renderUsersTable() {
   const users = Object.values(allUsers);
   const filtered = searchFilter ? users.filter(u => u.username && u.username.toLowerCase().includes(searchFilter.toLowerCase())) : users;
   const tbody = document.getElementById('users-table-body');
-  if (!filtered.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No users found<\/tr>'; return; }
+  if (!filtered.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No users found<\/tr>'; return; }
   tbody.innerHTML = filtered.map(u => {
     const sk = safeKey(u.username || '');
+    const machineCount = Object.keys(u.ownedMachines || {}).length;
     return `<tr>
       <td><strong>${u.username || '—'}</strong></td>
       <td class="mono">${u.phone || '—'}</td>
       <td><div class="pw-cell" id="pwcell_${sk}"><span class="pw-val" onclick="editPw('${sk}')">${u.password || '—'}</span></div></td>
       <td class="mono" style="color:var(--success);font-weight:700">${fmt(u.balance)}</td>
+      <td><span class="mono" style="color:var(--btn);font-weight:800;cursor:pointer;text-decoration:underline;" onclick="openUserMachinesModal('${u.username}')">${machineCount}</span></td>
       <td><span class="badge ${u.locked ? 'badge-locked' : 'badge-active'}">${u.locked ? 'Locked' : 'Active'}</span></td>
       <td style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn btn-edit" onclick="openEditModal('${u.username}')">✏️ Edit</button>
@@ -899,6 +912,105 @@ async function deleteUser(username) {
     await db.ref('users/' + safeKey(username)).remove();
     toast('🗑️ User deleted', '#f87171');
   }
+}
+
+// ============================================================
+// USER MACHINES MODAL — view, cancel, or delete a user's
+// purchased machines from the Users page.
+// ============================================================
+let umCurrentUsername = null;
+
+function openUserMachinesModal(username) {
+  umCurrentUsername = username;
+  document.getElementById('um-username').textContent = username;
+  document.getElementById('user-machines-modal').style.display = 'flex';
+  renderUserMachinesModal();
+}
+
+function closeUserMachinesModal() {
+  umCurrentUsername = null;
+  document.getElementById('user-machines-modal').style.display = 'none';
+}
+
+function renderUserMachinesModal() {
+  if (!umCurrentUsername) return;
+  const sk = safeKey(umCurrentUsername);
+  const u = allUsers[sk];
+  const list = document.getElementById('um-list');
+  if (!u) { list.innerHTML = '<div style="color:var(--muted);font-size:13px;">User not found.</div>'; return; }
+  const owned = Object.entries(u.ownedMachines || {});
+  if (!owned.length) { list.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center;">No machines purchased yet.</div>'; return; }
+
+  const now = Date.now();
+  list.innerHTML = owned.map(([key, m]) => {
+    const statusLabel = m.status === 'active' ? 'Active' : (m.status === 'cancelled' ? 'Cancelled' : 'Completed');
+    const badgeClass = m.status === 'active' ? 'badge-active' : 'badge-locked';
+    const daysLeft = m.status === 'active' ? Math.max(0, Math.ceil(((m.maturityDate || now) - now) / 86400000)) : null;
+    return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+        <div>
+          <div style="font-weight:800;font-size:14px;color:var(--text);">${m.name || 'Machine'}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${m.days || 0} day contract${daysLeft !== null ? ' — ' + daysLeft + 'd left' : ''}</div>
+        </div>
+        <span class="badge ${badgeClass}">${statusLabel}</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">
+        Price: <strong style="color:var(--text);">${fmt(m.price || 0)}</strong> &nbsp;•&nbsp; Payout: <strong style="color:var(--success);">${fmt(m.payout || 0)}</strong>
+      </div>
+      ${m.status === 'active' ? `
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-reject" onclick="cancelUserMachine('${key}')">↩️ Cancel & Refund</button>
+        <button class="btn btn-delete" onclick="deleteUserMachine('${key}')">🗑️ Delete (No Refund)</button>
+      </div>` : `
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-delete" onclick="deleteUserMachine('${key}')">🗑️ Delete Record</button>
+      </div>`}
+    </div>`;
+  }).join('');
+}
+
+async function cancelUserMachine(machineKey) {
+  if (!umCurrentUsername) return;
+  const sk = safeKey(umCurrentUsername);
+  const u = allUsers[sk];
+  if (!u) return;
+  const m = (u.ownedMachines || {})[machineKey];
+  if (!m) return;
+
+  const confirmed = await confirmAction('Cancel Machine?', 'Cancel "' + (m.name || 'this machine') + '" for ' + umCurrentUsername + '? The price (' + fmt(m.price || 0) + ') will be refunded to their BALANCE, and no payout will be earned.');
+  if (!confirmed) return;
+
+  const newBalance = (u.balance || 0) + (m.price || 0);
+  const updates = {};
+  updates['balance'] = newBalance;
+  updates['ownedMachines/' + machineKey + '/status'] = 'cancelled';
+  updates['transactions/tx_cancel_' + Date.now()] = {
+    type: 'Machine Cancelled',
+    amount: m.price || 0,
+    note: (m.name || 'Machine') + ' cancelled by admin — refunded',
+    date: dateStr(),
+    status: 'completed'
+  };
+
+  await db.ref('users/' + sk).update(updates);
+  toast('↩️ Machine cancelled, ' + fmt(m.price || 0) + ' refunded');
+  renderUserMachinesModal();
+}
+
+async function deleteUserMachine(machineKey) {
+  if (!umCurrentUsername) return;
+  const sk = safeKey(umCurrentUsername);
+  const u = allUsers[sk];
+  if (!u) return;
+  const m = (u.ownedMachines || {})[machineKey];
+  if (!m) return;
+
+  const confirmed = await confirmAction('Delete Machine Record?', 'Permanently delete "' + (m.name || 'this machine') + '" from ' + umCurrentUsername + ' account? No refund will be given. This cannot be undone.');
+  if (!confirmed) return;
+
+  await db.ref('users/' + sk + '/ownedMachines/' + machineKey).remove();
+  toast('🗑️ Machine record deleted', '#f87171');
+  renderUserMachinesModal();
 }
 
 function userLockedTotal(u) {
