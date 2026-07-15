@@ -389,8 +389,6 @@ input[type="password"]{padding-right:46px;}
       <div class="brand"><div class="brand-icon">📈</div><div class="brand-name">DiamondEarn</div></div>
     </div>
     <div class="topbar-right">
-      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">🌙</button>
-      <div class="username-top" id="dash-username">—</div>
     </div>
   </div>
 
@@ -398,7 +396,7 @@ input[type="password"]{padding-right:46px;}
   <div class="dash-section active" id="sec-home">
     <div class="section">
       <div class="stats-card">
-        <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div class="stat-box" style="padding:14px 8px;text-align:center;">
             <div class="stat-label" style="font-size:8px;margin-bottom:6px;">STAKE</div>
             <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--accent);" id="stat-stake">UGX 0</div>
@@ -406,10 +404,6 @@ input[type="password"]{padding-right:46px;}
           <div class="stat-box" style="padding:14px 8px;text-align:center;">
             <div class="stat-label" style="font-size:8px;margin-bottom:6px;">BALANCE</div>
             <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--success);" id="stat-balance">UGX 0</div>
-          </div>
-          <div class="stat-box" style="padding:14px 8px;text-align:center;">
-            <div class="stat-label" style="font-size:8px;margin-bottom:6px;">Withdrawn</div>
-            <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--warn);" id="stat-withdrawn">UGX 0</div>
           </div>
         </div>
       </div>
@@ -1038,10 +1032,8 @@ function updateBalanceUI() {
   if (!currentUser) return;
   const stake = currentUser.stake || 0;
   const balance = currentUser.balance || 0;
-  const withdrawn = currentUser.withdrawn || 0;
   document.getElementById('stat-stake').textContent = fmt(stake);
   document.getElementById('stat-balance').textContent = fmt(balance);
-  document.getElementById('stat-withdrawn').textContent = fmt(withdrawn);
   updateActiveInvestmentDisplay();
 }
 
@@ -1082,7 +1074,6 @@ function startUserListener(username) {
 
 function updateProfileUI() {
   if (!currentUser) return;
-  document.getElementById('dash-username').textContent = currentUser.username;
   document.getElementById('profile-user-simple').textContent = currentUser.username || '—';
   document.getElementById('profile-phone-simple').textContent = currentUser.phone || '—';
   document.getElementById('profile-date-simple').textContent = currentUser.joinedDate || '2025';

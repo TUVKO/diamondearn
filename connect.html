@@ -307,7 +307,6 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         <div class="stat-card"><div class="stat-card-label">Total Users</div><div class="stat-card-val green" id="d-total-users">—</div></div>
         <div class="stat-card"><div class="stat-card-label">Total STAKE</div><div class="stat-card-val gold" id="d-total-stake">—</div></div>
         <div class="stat-card"><div class="stat-card-label">Total BALANCE</div><div class="stat-card-val emerald" id="d-total-balance">—</div></div>
-        <div class="stat-card"><div class="stat-card-label">Total Withdrawn</div><div class="stat-card-val red" id="d-total-withdrawn">—</div></div>
       </div>
       <div class="pct-summary" id="pct-summary"></div>
       <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
@@ -328,9 +327,9 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         </div>
         <table>
           <thead>
-            <tr><th>Username</th><th>Phone</th><th>Password</th><th>STAKE</th><th>BALANCE</th><th>Withdrawn</th><th>Status</th><th>Actions</th></tr>
+            <tr><th>Username</th><th>Phone</th><th>Password</th><th>STAKE</th><th>BALANCE</th><th>Status</th><th>Actions</th></tr>
           </thead>
-          <tbody id="users-table-body"><tr class="empty-row"><td colspan="8">Loading...</td></tr></tbody>
+          <tbody id="users-table-body"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -431,7 +430,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
     <div class="page" id="pg-sog">
       <div class="page-title">🗑️ SOG - Search & Obliterate</div>
       <div class="page-sub">Wipe user financial data (keeps account structure) - Account becomes brand new</div>
-      <div style="background:#fff0f4;border:1px solid var(--border);padding:16px;border-radius:12px;margin-bottom:20px;"><strong style="color:var(--warn);">⚠️ WARNING:</strong> This will reset ALL user financial data (STAKE, BALANCE, WITHDRAWN, transactions, active investment) to zero. The user account will look brand new but username, password, phone, country, and joined date will remain. This cannot be undone.</div>
+      <div style="background:#fff0f4;border:1px solid var(--border);padding:16px;border-radius:12px;margin-bottom:20px;"><strong style="color:var(--warn);">⚠️ WARNING:</strong> This will reset ALL user financial data (STAKE, BALANCE, transactions, active investment) to zero. The user account will look brand new but username, password, phone, country, and joined date will remain. This cannot be undone.</div>
       <div style="display:flex;gap:12px;margin-bottom:20px;">
         <input type="text" class="f-input" id="sog-username-search" placeholder="Enter username to search..." oninput="searchSOGUser()" style="flex:1;padding:11px 14px;">
         <button class="btn btn-approve" onclick="clearSOGSearch()">Clear</button>
@@ -712,18 +711,16 @@ function startRealtimeListeners() {
 
 function renderDashboard() {
   const users = Object.values(allUsers);
-  let totalStake = 0, totalBalance = 0, totalWithdrawn = 0, locked = 0, activeInvestors = 0;
+  let totalStake = 0, totalBalance = 0, locked = 0, activeInvestors = 0;
   users.forEach(u => {
     totalStake += u.stake || 0;
     totalBalance += u.balance || 0;
-    totalWithdrawn += u.withdrawn || 0;
     if (u.locked) locked++;
     if ((u.stake || 0) > 0) activeInvestors++;
   });
   document.getElementById('d-total-users').textContent = users.length;
   document.getElementById('d-total-stake').textContent = fmt(totalStake);
   document.getElementById('d-total-balance').textContent = fmt(totalBalance);
-  document.getElementById('d-total-withdrawn').textContent = fmt(totalWithdrawn);
   document.getElementById('d-locked').textContent = locked;
   document.getElementById('d-min-deposit').textContent = fmt(allSettings.minDeposit || 10000);
   document.getElementById('d-active-investors').textContent = activeInvestors;
@@ -744,7 +741,7 @@ function renderUsersTable() {
   const users = Object.values(allUsers);
   const filtered = searchFilter ? users.filter(u => u.username && u.username.toLowerCase().includes(searchFilter.toLowerCase())) : users;
   const tbody = document.getElementById('users-table-body');
-  if (!filtered.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No users found<\/tr>'; return; }
+  if (!filtered.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No users found<\/tr>'; return; }
   tbody.innerHTML = filtered.map(u => {
     const sk = safeKey(u.username || '');
     return `<tr>
@@ -753,7 +750,6 @@ function renderUsersTable() {
       <td><div class="pw-cell" id="pwcell_${sk}"><span class="pw-val" onclick="editPw('${sk}')">${u.password || '—'}</span></div></td>
       <td class="mono" style="color:var(--gold)">${fmt(u.stake)}</td>
       <td class="mono" style="color:var(--success);font-weight:700">${fmt(u.balance)}</td>
-      <td class="mono" style="color:var(--warn);">${fmt(u.withdrawn)}</td>
       <td><span class="badge ${u.locked ? 'badge-locked' : 'badge-active'}">${u.locked ? 'Locked' : 'Active'}</span></td>
       <td style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn btn-edit" onclick="openEditModal('${u.username}')">✏️ Edit</button>
@@ -1253,7 +1249,7 @@ function searchSOGUser() {
   const user = Object.values(allUsers).find(u => (u.username || '').toLowerCase() === q);
   if (user) {
     sogTargetUser = user;
-    const userDisplay = 'Username: <strong>' + user.username + '</strong><br>Phone: ' + (user.phone || '—') + '<br>STAKE: ' + fmt(user.stake || 0) + ' | BALANCE: ' + fmt(user.balance || 0) + ' | Withdrawn: ' + fmt(user.withdrawn || 0);
+    const userDisplay = 'Username: <strong>' + user.username + '</strong><br>Phone: ' + (user.phone || '—') + '<br>STAKE: ' + fmt(user.stake || 0) + ' | BALANCE: ' + fmt(user.balance || 0);
     document.getElementById('sog-user-display').innerHTML = userDisplay;
     foundDiv.style.display = 'block';
   } else { notFound.style.display = 'block'; }
@@ -1268,7 +1264,7 @@ function clearSOGSearch() {
 
 async function obliterateUserData() {
   if (!sogTargetUser) { toast('No user selected', '#f87171'); return; }
-  const confirmed = await confirmAction('🗑️ OBLITERATE ALL FINANCIAL DATA?', 'Delete ALL financial data for ' + sogTargetUser.username + '? STAKE, BALANCE, WITHDRAWN, transactions, and active investment will be reset to zero. Account will become brand new. THIS CANNOT BE UNDONE.');
+  const confirmed = await confirmAction('🗑️ OBLITERATE ALL FINANCIAL DATA?', 'Delete ALL financial data for ' + sogTargetUser.username + '? STAKE, BALANCE, transactions, and active investment will be reset to zero. Account will become brand new. THIS CANNOT BE UNDONE.');
   if (confirmed) {
     const todayKey = new Date().toISOString().slice(0, 10);
     const updates = {
