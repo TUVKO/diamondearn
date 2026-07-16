@@ -300,8 +300,8 @@ input[type="password"]{padding-right:46px;}
 .my-machine-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 .my-machine-name{font-size:13px;font-weight:800;color:var(--text);}
 .my-machine-days-left{font-size:11px;font-weight:700;color:var(--accent);}
-.my-machine-progress{background:var(--surface2);border-radius:8px;height:6px;overflow:hidden;}
-.my-machine-progress-fill{background:var(--btn);height:100%;border-radius:8px;}
+.my-machine-progress{background:#0a1810;border-radius:8px;height:8px;overflow:hidden;}
+.my-machine-progress-fill{background:#22c55e;height:100%;border-radius:8px;transition:width .3s;}
 .my-machine-payout{font-size:11px;color:var(--muted);margin-top:6px;}
 
 /* WA Button */
@@ -427,8 +427,8 @@ input[type="password"]{padding-right:46px;}
 
     <div class="section">
       <div class="action-grid" style="display:flex;flex-direction:column;gap:12px;margin:16px 0;align-items:flex-start;">
-        <button class="action-btn" style="background:#22c55e;border:none;color:white;padding:12px 20px;border-radius:12px;font-weight:600;font-size:15px;" onclick="switchTab('deposit')"><span class="btn-icon">💳</span> Invest</button>
-        <button class="action-btn" style="background:#ef4444;border:none;color:white;padding:12px 20px;border-radius:12px;font-weight:600;font-size:15px;" onclick="switchTab('withdraw')"><span class="btn-icon">💸</span> Withdraw</button>
+        <button class="action-btn" style="background:#1a2e22;border:none;color:white;padding:12px 20px;border-radius:12px;font-weight:600;font-size:15px;" onclick="switchTab('deposit')"><span class="btn-icon">➕</span> Add Funds</button>
+        <button class="action-btn" style="background:#1a2e22;border:none;color:white;padding:12px 20px;border-radius:12px;font-weight:600;font-size:15px;" onclick="switchTab('withdraw')"><span class="btn-icon">➖</span> Withdraw Cash</button>
       </div>
     </div>
   </div>
@@ -461,12 +461,6 @@ input[type="password"]{padding-right:46px;}
   <div class="dash-section" id="sec-team">
     <div class="inner-header"><span style="font-size:22px">👥</span><div><div class="inner-title">TIERS</div><div class="inner-sub">Buy machines, lock funds, earn on maturity</div></div></div>
 
-    <!-- My Active Machines -->
-    <div class="section" id="my-machines-wrap" style="display:none;">
-      <div class="section-title" style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px;">📦 My Active Machines</div>
-      <div id="my-machines-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px;"></div>
-    </div>
-
     <!-- Category Tabs -->
     <div class="section">
       <div id="machine-category-tabs" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;"></div>
@@ -480,9 +474,14 @@ input[type="password"]{padding-right:46px;}
     </div>
   </div>
 
-  <!-- Returns Plan -->
+  <!-- Returns Plan / My Machines -->
   <div class="dash-section" id="sec-plan">
-    <div class="inner-header"><span style="font-size:22px">🎯</span><div><div class="inner-title">DIVIDENDS</div><div class="inner-sub">Coming soon</div></div></div>
+    <div class="inner-header"><span style="font-size:22px">🎯</span><div><div class="inner-title">DIVIDENDS</div><div class="inner-sub">Your purchased machines</div></div></div>
+    <div class="section">
+      <div id="my-machines-list" style="display:flex;flex-direction:column;gap:12px;">
+        <div class="tx-empty-state"><div class="tx-empty-icon">📦</div><div class="tx-empty-title">No Machines Purchased Yet</div><div class="tx-empty-text">Buy a machine on the TIERS page to see it here.</div></div>
+      </div>
+    </div>
   </div>
 
   <!-- Profile -->
@@ -952,7 +951,8 @@ function switchTab(tab) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   const idx = navOrder.indexOf(tab);
   if (idx >= 0) document.querySelectorAll('.nav-item')[idx].classList.add('active');
-  if (tab === 'team') { renderMachineCategoryTabs(); renderMachineShop(); renderMyMachines(); }
+  if (tab === 'team') { renderMachineCategoryTabs(); renderMachineShop(); }
+  if (tab === 'plan') { renderMyMachines(); }
 }
 
 
@@ -1043,6 +1043,19 @@ async function buyMachine(machineId) {
   if (!m || m.active === false) return;
   const price = m.price || 0;
   const balance = currentUser.balance || 0;
+
+  const owned = currentUser.ownedMachines || {};
+  const activeCount = Object.values(owned).filter(o => o.status === 'active').length;
+  if (activeCount >= 110) {
+    const popup = document.getElementById('popup-banner');
+    if (popup) {
+      popup.textContent = '⚠️ Limit reached — max 110 running machines at a time';
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 1800);
+    }
+    return;
+  }
+
   if (balance < price) {
     const popup = document.getElementById('popup-banner');
     if (popup) {
@@ -1073,28 +1086,36 @@ async function buyMachine(machineId) {
 }
 
 function renderMyMachines() {
-  const wrap = document.getElementById('my-machines-wrap');
   const list = document.getElementById('my-machines-list');
-  if (!wrap || !list || !currentUser) return;
+  if (!list || !currentUser) return;
   const owned = currentUser.ownedMachines || {};
-  const active = Object.entries(owned).filter(([id, m]) => m.status === 'active');
-  if (!active.length) { wrap.style.display = 'none'; return; }
-  wrap.style.display = 'block';
+  const all = Object.entries(owned).sort(([, a], [, b]) => (b.purchaseDate || 0) - (a.purchaseDate || 0));
+
+  if (!all.length) {
+    list.innerHTML = '<div class="tx-empty-state"><div class="tx-empty-icon">📦</div><div class="tx-empty-title">No Machines Purchased Yet</div><div class="tx-empty-text">Buy a machine on the TIERS page to see it here.</div></div>';
+    return;
+  }
+
   const now = Date.now();
-  list.innerHTML = active.map(([id, m]) => {
+  list.innerHTML = all.map(([id, m]) => {
+    const isActive = m.status === 'active';
     const start = m.purchaseDate || now;
     const end = m.maturityDate || now;
     const totalMs = end - start;
     const elapsed = now - start;
-    const progress = totalMs > 0 ? Math.min(100, Math.max(0, (elapsed / totalMs) * 100)) : 100;
+    const progress = isActive ? (totalMs > 0 ? Math.min(100, Math.max(0, (elapsed / totalMs) * 100)) : 100) : 100;
     const daysLeft = Math.max(0, Math.ceil((end - now) / 86400000));
+    const statusHtml = isActive
+      ? `<span class="my-machine-days-left">${daysLeft <= 0 ? 'Maturing...' : daysLeft + 'd left'}</span>`
+      : `<span class="my-machine-days-left" style="color:var(--success);">✅ Completed</span>`;
     return `<div class="my-machine-card">
       <div class="my-machine-top">
         <span class="my-machine-name">${m.name || 'Machine'}</span>
-        <span class="my-machine-days-left">${daysLeft <= 0 ? 'Maturing...' : daysLeft + 'd left'}</span>
+        ${statusHtml}
       </div>
+      <div class="my-machine-payout" style="margin-top:0;margin-bottom:8px;">Amount Purchased: <strong style="color:var(--text);">${fmt(m.price || 0)}</strong></div>
       <div class="my-machine-progress"><div class="my-machine-progress-fill" style="width:${progress}%"></div></div>
-      <div class="my-machine-payout">Payout on maturity: ${fmt(m.payout || 0)}</div>
+      <div class="my-machine-payout">${isActive ? 'Payout on maturity: ' + fmt(m.payout || 0) : 'Payout received: ' + fmt(m.payout || 0)}</div>
     </div>`;
   }).join('');
 }
