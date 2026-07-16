@@ -983,15 +983,16 @@ function renderMachineCategoryTabs() {
   const wrap = document.getElementById('machine-category-tabs');
   if (!wrap) return;
   const list = Object.values(machinesCatalog).filter(m => m.active !== false);
+  const fixedCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum'];
   const categories = {};
+  fixedCategories.forEach(cat => { categories[cat] = 0; });
   list.forEach(m => {
-    const cat = m.category || 'General';
+    const cat = fixedCategories.includes(m.category) ? m.category : 'Ordinary';
     categories[cat] = (categories[cat] || 0) + 1;
   });
   let html = `<div class="cat-tab ${currentMachineCategory === 'All' ? 'active' : ''}" onclick="setMachineCategory('All')">All (${list.length})</div>`;
-  Object.keys(categories).sort().forEach(cat => {
-    const safeCat = cat.replace(/'/g, "\\'");
-    html += `<div class="cat-tab ${currentMachineCategory === cat ? 'active' : ''}" onclick="setMachineCategory('${safeCat}')">${cat} (${categories[cat]})</div>`;
+  fixedCategories.forEach(cat => {
+    html += `<div class="cat-tab ${currentMachineCategory === cat ? 'active' : ''}" onclick="setMachineCategory('${cat}')">${cat} (${categories[cat]})</div>`;
   });
   wrap.innerHTML = html;
 }
@@ -1005,8 +1006,14 @@ function setMachineCategory(cat) {
 function renderMachineShop() {
   const wrap = document.getElementById('machine-shop-list');
   if (!wrap) return;
+  const fixedCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum'];
   let list = Object.entries(machinesCatalog).filter(([id, m]) => m.active !== false);
-  if (currentMachineCategory !== 'All') list = list.filter(([id, m]) => (m.category || 'General') === currentMachineCategory);
+  if (currentMachineCategory !== 'All') {
+    list = list.filter(([id, m]) => {
+      const cat = fixedCategories.includes(m.category) ? m.category : 'Ordinary';
+      return cat === currentMachineCategory;
+    });
+  }
   if (!list.length) {
     wrap.innerHTML = '<div class="tx-empty-state"><div class="tx-empty-icon">🛠️</div><div class="tx-empty-title">No Machines Yet</div><div class="tx-empty-text">Check back soon for available machines.</div></div>';
     return;

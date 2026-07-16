@@ -347,7 +347,14 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
           <input type="hidden" id="machine-edit-id">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
             <div><label class="f-label">Machine Name</label><input type="text" class="f-input" style="padding:11px 14px;" id="machine-name" placeholder="e.g. NOB 1"></div>
-            <div><label class="f-label">Category</label><input type="text" class="f-input" style="padding:11px 14px;" id="machine-category" placeholder="e.g. A-Series"></div>
+            <div><label class="f-label">Category</label>
+              <select class="f-input" style="padding:11px 14px;" id="machine-category">
+                <option value="Ordinary">Ordinary</option>
+                <option value="VIP">VIP</option>
+                <option value="VVIP">VVIP</option>
+                <option value="Platinum">Platinum</option>
+              </select>
+            </div>
           </div>
           <div style="margin-bottom:14px;">
             <label class="f-label">Machine Image</label>
@@ -1120,7 +1127,7 @@ function handleMachineImageUpload(input) {
 async function saveMachine() {
   const editId = document.getElementById('machine-edit-id').value;
   const name = document.getElementById('machine-name').value.trim();
-  const category = document.getElementById('machine-category').value.trim() || 'General';
+  const category = document.getElementById('machine-category').value || 'Ordinary';
   const imageUrl = document.getElementById('machine-image').value.trim();
   const price = parseInt(document.getElementById('machine-price').value) || 0;
   const days = parseInt(document.getElementById('machine-days').value) || 0;
@@ -1152,7 +1159,8 @@ function editMachine(id) {
   if (!m) return;
   document.getElementById('machine-edit-id').value = id;
   document.getElementById('machine-name').value = m.name || '';
-  document.getElementById('machine-category').value = m.category || '';
+  const validCats = ['Ordinary', 'VIP', 'VVIP', 'Platinum'];
+  document.getElementById('machine-category').value = validCats.includes(m.category) ? m.category : 'Ordinary';
   document.getElementById('machine-image').value = m.imageUrl || '';
   document.getElementById('machine-price').value = m.price || 0;
   document.getElementById('machine-days').value = m.days || 0;
@@ -1167,7 +1175,7 @@ function editMachine(id) {
 function cancelMachineEdit() {
   document.getElementById('machine-edit-id').value = '';
   document.getElementById('machine-name').value = '';
-  document.getElementById('machine-category').value = '';
+  document.getElementById('machine-category').value = 'Ordinary';
   document.getElementById('machine-image').value = '';
   document.getElementById('machine-image-file').value = '';
   document.getElementById('machine-price').value = '';
