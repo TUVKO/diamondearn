@@ -490,6 +490,48 @@ input[type="password"]{padding-right:46px;}
   </div>
 
   <!-- Deposit -->
+  <!-- Machine Detail -->
+  <div class="dash-section" id="sec-machine-detail">
+    <div class="inner-header"><span style="font-size:22px">🛠️</span><div><div class="inner-title" id="md-name">Machine</div><div class="inner-sub" id="md-category">Ordinary</div></div></div>
+    <div class="section">
+      <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px;">
+        <img id="md-image" class="machine-card-img" style="width:80px;height:80px;display:none;">
+        <div>
+          <div style="font-size:13px;color:var(--text);margin-bottom:4px;">Contract: <strong id="md-days">0</strong> Days</div>
+          <div style="font-size:13px;color:var(--accent3);font-weight:800;" id="md-pct">+0%</div>
+        </div>
+      </div>
+
+      <div class="stats-card" style="margin-bottom:14px;">
+        <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="stat-box" style="padding:14px 8px;text-align:center;">
+            <div class="stat-label" style="font-size:8px;margin-bottom:6px;">BUY PRICE</div>
+            <div class="stat-value" id="md-price" style="font-size:14px;font-weight:800;color:var(--text);">UGX 0</div>
+          </div>
+          <div class="stat-box" style="padding:14px 8px;text-align:center;">
+            <div class="stat-label" style="font-size:8px;margin-bottom:6px;">PAYOUT</div>
+            <div class="stat-value" id="md-payout" style="font-size:14px;font-weight:800;color:var(--success);">UGX 0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-card" style="margin-bottom:14px;">
+        <div style="text-align:center;padding:12px 8px;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">YOUR BALANCE</div>
+          <div class="stat-value" id="md-balance" style="font-size:16px;font-weight:800;color:var(--accent3);">UGX 0</div>
+        </div>
+      </div>
+
+      <div id="md-error" style="display:none;background:rgba(239,68,68,.15);border:1px solid var(--danger);color:var(--danger);padding:10px 14px;border-radius:10px;font-size:12px;margin-bottom:14px;"></div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="machine-buy-btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);" onclick="switchTab('deposit')">🔄 Recharge Balance</button>
+        <button class="machine-buy-btn" id="md-purchase-btn" onclick="purchaseCurrentMachine()">🛒 Purchase Machine</button>
+        <button class="machine-buy-btn" style="background:transparent;border:1px solid var(--border);color:var(--muted);" onclick="switchTab('team')">← Back to TIERS</button>
+      </div>
+    </div>
+  </div>
+
   <div class="dash-section" id="sec-deposit">
     <div class="inner-header"><span style="font-size:22px">💳</span><div><div class="inner-title">Invest</div><div class="inner-sub">Add funds to your BALANCE</div></div></div>
     <div class="section">
@@ -937,7 +979,7 @@ function closePrivacyModal(event) {
   document.getElementById('privacy-modal-overlay').classList.remove('open');
 }
 
-const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands' };
+const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail' };
 const navOrder = ['home', 'errands', 'team', 'plan', 'profile'];
 
 function switchTab(tab) {
@@ -1031,16 +1073,16 @@ function renderMachineShop() {
         <div class="machine-card-days">Contract: ${m.days || 0} Days</div>
         <div class="machine-card-price">Buy: ${fmt(price)}</div>
         <div class="machine-card-payout">Payout: ${fmt(payout)}</div>
-        <button class="machine-buy-btn" onclick="buyMachine('${id}')">Buy Now</button>
+        <button class="machine-buy-btn" onclick="viewMachine('${id}')">View</button>
       </div>
     </div>`;
   }).join('');
 }
 
 async function buyMachine(machineId) {
-  if (!currentUser || !currentUsername) return;
+  if (!currentUser || !currentUsername) return 'error';
   const m = machinesCatalog[machineId];
-  if (!m || m.active === false) return;
+  if (!m || m.active === false) return 'error';
   const price = m.price || 0;
   const balance = currentUser.balance || 0;
 
@@ -1053,17 +1095,11 @@ async function buyMachine(machineId) {
       popup.classList.add('show');
       setTimeout(() => popup.classList.remove('show'), 1800);
     }
-    return;
+    return 'limit';
   }
 
   if (balance < price) {
-    const popup = document.getElementById('popup-banner');
-    if (popup) {
-      popup.textContent = '⚠️ Insufficient BALANCE for this machine';
-      popup.classList.add('show');
-      setTimeout(() => popup.classList.remove('show'), 1800);
-    }
-    return;
+    return 'insufficient';
   }
   const purchaseId = 'mch_' + Date.now();
   const now = Date.now();
@@ -1083,6 +1119,75 @@ async function buyMachine(machineId) {
   updateBalanceUI();
   renderMyMachines();
   renderHistory();
+  return 'ok';
+}
+
+// ============================================================
+// MACHINE DETAIL PAGE — "View" a machine, see balance, recharge,
+// or purchase. Handles the insufficient-balance → deposit flow.
+// ============================================================
+let currentViewedMachineId = null;
+
+function viewMachine(machineId) {
+  currentViewedMachineId = machineId;
+  renderMachineDetail();
+  switchTab('machine-detail');
+}
+
+function renderMachineDetail() {
+  const m = machinesCatalog[currentViewedMachineId];
+  if (!m) return;
+  const price = m.price || 0;
+  const payout = m.payout || 0;
+  const pct = price > 0 ? Math.round(((payout - price) / price) * 100) : 0;
+
+  document.getElementById('md-name').textContent = m.name || 'Machine';
+  document.getElementById('md-category').textContent = m.category || 'Ordinary';
+  document.getElementById('md-days').textContent = m.days || 0;
+  document.getElementById('md-pct').textContent = '+' + pct + '%';
+  document.getElementById('md-price').textContent = fmt(price);
+  document.getElementById('md-payout').textContent = fmt(payout);
+  document.getElementById('md-balance').textContent = fmt(currentUser ? (currentUser.balance || 0) : 0);
+
+  const imgEl = document.getElementById('md-image');
+  if (m.imageUrl) { imgEl.src = m.imageUrl; imgEl.style.display = 'block'; }
+  else { imgEl.style.display = 'none'; }
+
+  const errEl = document.getElementById('md-error');
+  errEl.style.display = 'none';
+  errEl.textContent = '';
+}
+
+async function purchaseCurrentMachine() {
+  if (!currentViewedMachineId || !currentUser) return;
+  const m = machinesCatalog[currentViewedMachineId];
+  if (!m) return;
+  const price = m.price || 0;
+  const balance = currentUser.balance || 0;
+  const errEl = document.getElementById('md-error');
+
+  if (balance < price) {
+    const remaining = price - balance;
+    errEl.textContent = `⚠️ Insufficient BALANCE — you need ${fmt(remaining)} more to purchase this machine. Redirecting to Deposit...`;
+    errEl.style.display = 'block';
+    setTimeout(() => {
+      switchTab('deposit');
+      const depInput = document.getElementById('dep-amount');
+      if (depInput) depInput.value = remaining;
+    }, 1400);
+    return;
+  }
+
+  const result = await buyMachine(currentViewedMachineId);
+  if (result === 'ok') {
+    switchTab('plan');
+  } else if (result === 'limit') {
+    errEl.textContent = '⚠️ Limit reached — max 110 running machines at a time.';
+    errEl.style.display = 'block';
+  } else {
+    errEl.textContent = '⚠️ Something went wrong. Please try again.';
+    errEl.style.display = 'block';
+  }
 }
 
 function renderMyMachines() {

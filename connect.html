@@ -375,10 +375,12 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
             </details>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
-            <div><label class="f-label">Price (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-price" placeholder="24000" min="0"></div>
+            <div><label class="f-label">Price (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-price" placeholder="24000" min="0" oninput="updateMachinePayoutPreview()"></div>
             <div><label class="f-label">Days</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-days" placeholder="14" min="1"></div>
-            <div><label class="f-label">Payout (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-payout" placeholder="36000" min="0"></div>
+            <div><label class="f-label">Return %</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-percent" placeholder="e.g. 50" min="1" max="100" step="0.1" oninput="updateMachinePayoutPreview()"></div>
           </div>
+          <input type="hidden" id="machine-payout">
+          <div id="machine-payout-preview" style="font-size:12px;color:var(--muted);margin-bottom:14px;">💰 Payout will be calculated automatically</div>
           <div style="display:flex;gap:10px;">
             <button class="btn btn-save" style="flex:1;padding:12px;" onclick="saveMachine()">💾 Save Machine</button>
             <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);display:none;" id="machine-cancel-btn" onclick="cancelMachineEdit()">Cancel</button>
@@ -1124,6 +1126,20 @@ function handleMachineImageUpload(input) {
   reader.readAsDataURL(file);
 }
 
+function updateMachinePayoutPreview() {
+  const price = parseFloat(document.getElementById('machine-price').value) || 0;
+  const percent = parseFloat(document.getElementById('machine-percent').value) || 0;
+  const preview = document.getElementById('machine-payout-preview');
+  if (price <= 0 || percent <= 0) {
+    document.getElementById('machine-payout').value = '';
+    preview.textContent = '💰 Payout will be calculated automatically';
+    return;
+  }
+  const payout = Math.round(price + (price * percent / 100));
+  document.getElementById('machine-payout').value = payout;
+  preview.innerHTML = `💰 Payout: <strong style="color:var(--success)">${fmt(payout)}</strong> (Price ${fmt(price)} + ${percent}% return)`;
+}
+
 async function saveMachine() {
   const editId = document.getElementById('machine-edit-id').value;
   const name = document.getElementById('machine-name').value.trim();
@@ -1131,14 +1147,15 @@ async function saveMachine() {
   const imageUrl = document.getElementById('machine-image').value.trim();
   const price = parseInt(document.getElementById('machine-price').value) || 0;
   const days = parseInt(document.getElementById('machine-days').value) || 0;
-  const payout = parseInt(document.getElementById('machine-payout').value) || 0;
+  const percent = parseFloat(document.getElementById('machine-percent').value) || 0;
+  const payout = Math.round(price + (price * percent / 100));
 
   if (!name) { toast('Machine name is required', '#f87171'); return; }
   if (price <= 0) { toast('Price must be greater than 0', '#f87171'); return; }
   if (days <= 0) { toast('Days must be greater than 0', '#f87171'); return; }
-  if (payout <= price) { toast('Payout must be greater than price', '#f87171'); return; }
+  if (percent <= 0 || percent > 100) { toast('Return % must be between 1 and 100', '#f87171'); return; }
 
-  const machineData = { name, category, imageUrl, price, days, payout, active: true };
+  const machineData = { name, category, imageUrl, price, days, payout, percent, active: true };
 
   if (editId) {
     // Preserve existing active state on edit
@@ -1164,11 +1181,16 @@ function editMachine(id) {
   document.getElementById('machine-image').value = m.imageUrl || '';
   document.getElementById('machine-price').value = m.price || 0;
   document.getElementById('machine-days').value = m.days || 0;
-  document.getElementById('machine-payout').value = m.payout || 0;
+  const price = m.price || 0;
+  const payout = m.payout || 0;
+  const percent = m.percent !== undefined ? m.percent : (price > 0 ? Math.round(((payout - price) / price) * 10000) / 100 : 0);
+  document.getElementById('machine-percent').value = percent;
+  document.getElementById('machine-payout').value = payout;
   document.getElementById('machine-form-title').textContent = '✏️ Edit Machine — ' + (m.name || '');
   document.getElementById('machine-cancel-btn').style.display = 'inline-block';
   document.getElementById('machine-image-status').textContent = m.imageUrl ? '✅ Current image' : 'No image selected';
   updateMachineImagePreview(m.imageUrl || '');
+  updateMachinePayoutPreview();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1180,11 +1202,13 @@ function cancelMachineEdit() {
   document.getElementById('machine-image-file').value = '';
   document.getElementById('machine-price').value = '';
   document.getElementById('machine-days').value = '';
+  document.getElementById('machine-percent').value = '';
   document.getElementById('machine-payout').value = '';
   document.getElementById('machine-form-title').textContent = '➕ Add New Machine';
   document.getElementById('machine-cancel-btn').style.display = 'none';
   document.getElementById('machine-image-status').textContent = 'No image selected';
   updateMachineImagePreview('');
+  updateMachinePayoutPreview();
 }
 
 async function toggleMachineActive(id, newActive) {
