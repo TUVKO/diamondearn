@@ -114,7 +114,26 @@ input[type="password"]{padding-right:46px;}
 .stat-box-white{background:#ffffff !important;border:1px solid #e2e8f0 !important;}
 .stat-box-white .stat-label{color:#64748b !important;}
 .stat-box-white .stat-value{color:#0f172a !important;}
-.home-tab-btn{flex-shrink:0;background:#1a2e22;border:none;color:#fff;padding:10px 16px;border-radius:20px;font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;}
+
+.me-mega-card{
+  border-radius:22px;
+  padding:18px 14px;
+  background:linear-gradient(120deg, #ffffff 0%, #f4f8f6 25%, #ffffff 50%, #eef5f1 75%, #ffffff 100%);
+  background-size:200% 200%;
+  animation:meShimmer 6s ease-in-out infinite;
+  border:1px solid #e2e8f0;
+  box-shadow:0 4px 20px rgba(0,0,0,.08);
+}
+@keyframes meShimmer{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+.me-mega-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.me-mini-stat{background:rgba(255,255,255,.6);border:1px solid rgba(15,23,42,.06);border-radius:12px;padding:10px 4px;text-align:center;}
+.me-mini-label{font-size:7px;font-weight:700;letter-spacing:.4px;color:#94a3b8;margin-bottom:5px;text-transform:uppercase;}
+.me-mini-value{font-size:12px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1.2;word-break:break-word;}
+.home-tab-btn{background:#1a2e22;border:none;color:#fff;padding:10px 6px;border-radius:14px;font-weight:600;font-size:11px;cursor:pointer;white-space:nowrap;text-align:center;width:100%;}
 .home-tab-btn:active{transform:scale(.97);}
 .stat-label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
 .stat-value{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;}
@@ -416,15 +435,6 @@ input[type="password"]{padding-right:46px;}
   <!-- HOME / DASHBOARD -->
   <div class="dash-section active" id="sec-home">
     <div class="section">
-      <div class="home-tabs" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;">
-        <button class="home-tab-btn" onclick="switchTab('deposit')">Recharge</button>
-        <button class="home-tab-btn" onclick="switchTab('withdraw')">Withdrawal</button>
-        <button class="home-tab-btn" onclick="switchTab('team')">Team</button>
-        <button class="home-tab-btn" onclick="goToDepositRecords()">Deposit Records</button>
-      </div>
-    </div>
-
-    <div class="section">
       <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div class="stat-box stat-box-white" style="padding:14px 8px;text-align:center;">
           <div class="stat-label" style="font-size:8px;margin-bottom:6px;">BALANCE</div>
@@ -434,6 +444,17 @@ input[type="password"]{padding-right:46px;}
           <div class="stat-label" style="font-size:8px;margin-bottom:6px;">LOCKED IN MACHINES</div>
           <div class="stat-value" style="font-size:14px;font-weight:800;" id="stat-locked">UGX 0</div>
         </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="home-tabs" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <button class="home-tab-btn" onclick="switchTab('deposit')">Recharge</button>
+        <button class="home-tab-btn" onclick="switchTab('withdraw')">Withdrawal</button>
+        <button class="home-tab-btn" onclick="switchTab('team')">Team</button>
+        <button class="home-tab-btn" onclick="goToDepositRecords()">Deposits</button>
+        <button class="home-tab-btn" onclick="goToWithdrawalRecords()">Withdrawals</button>
+        <button class="home-tab-btn" onclick="switchTab('company')">Company</button>
       </div>
     </div>
   </div>
@@ -493,38 +514,40 @@ input[type="password"]{padding-right:46px;}
   <div class="dash-section" id="sec-profile">
     <div class="inner-header"><span style="font-size:22px">👤</span><div><div class="inner-title">ME</div><div class="inner-sub">Your account overview</div></div></div>
     <div class="section">
-      <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="stat-box" style="padding:14px 8px;text-align:center;">
-          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">BALANCE</div>
-          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--success);" id="me-balance">UGX 0</div>
-        </div>
-        <div class="stat-box" style="padding:14px 8px;text-align:center;">
-          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">LOCKED IN MACHINES</div>
-          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--accent3);" id="me-locked">UGX 0</div>
-        </div>
-        <div class="stat-box" style="padding:14px 8px;text-align:center;">
-          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">PURCHASED MACHINES</div>
-          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--text);" id="me-purchased-machines">0</div>
-        </div>
-        <div class="stat-box" style="padding:14px 8px;text-align:center;">
-          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">TOTAL MACHINES (ALL)</div>
-          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--text);" id="me-total-machines">0</div>
-        </div>
-        <div class="stat-box" style="padding:14px 8px;text-align:center;">
-          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">TEAM MEMBERS</div>
-          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--muted);" id="me-team-members">0</div>
-        </div>
-        <div class="stat-box" style="padding:14px 8px;text-align:center;">
-          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">EARNED FROM TEAM</div>
-          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--muted);" id="me-team-earned">UGX 0</div>
-        </div>
-        <div class="stat-box" style="padding:14px 8px;text-align:center;">
-          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">TOTAL WITHDRAWN</div>
-          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--warn);" id="me-withdrawn">UGX 0</div>
-        </div>
-        <div class="stat-box" style="padding:14px 8px;text-align:center;">
-          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">TOTAL DEPOSITED</div>
-          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--success);" id="me-deposited">UGX 0</div>
+      <div class="me-mega-card">
+        <div class="me-mega-grid">
+          <div class="me-mini-stat">
+            <div class="me-mini-label">BALANCE</div>
+            <div class="me-mini-value" id="me-balance" style="color:#059669;">UGX 0</div>
+          </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">LOCKED IN MACHINES</div>
+            <div class="me-mini-value" id="me-locked" style="color:#0f172a;">UGX 0</div>
+          </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">PURCHASED MACHINES</div>
+            <div class="me-mini-value" id="me-purchased-machines" style="color:#0f172a;">0</div>
+          </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">TOTAL MACHINES (ALL)</div>
+            <div class="me-mini-value" id="me-total-machines" style="color:#0f172a;">0</div>
+          </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">TEAM MEMBERS</div>
+            <div class="me-mini-value" id="me-team-members" style="color:#64748b;">0</div>
+          </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">EARNED FROM TEAM</div>
+            <div class="me-mini-value" id="me-team-earned" style="color:#64748b;">UGX 0</div>
+          </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">TOTAL WITHDRAWN</div>
+            <div class="me-mini-value" id="me-withdrawn" style="color:#dc2626;">UGX 0</div>
+          </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">TOTAL DEPOSITED</div>
+            <div class="me-mini-value" id="me-deposited" style="color:#059669;">UGX 0</div>
+          </div>
         </div>
       </div>
     </div>
@@ -628,6 +651,10 @@ input[type="password"]{padding-right:46px;}
   <!-- Errands -->
   <div class="dash-section" id="sec-errands">
     <div class="inner-header"><span style="font-size:22px">📝</span><div><div class="inner-title">Errands</div><div class="inner-sub">Coming soon</div></div></div>
+  </div>
+
+  <div class="dash-section" id="sec-company">
+    <div class="inner-header"><span style="font-size:22px">🏢</span><div><div class="inner-title">Company</div><div class="inner-sub">Coming soon</div></div></div>
   </div>
 
   <nav class="bottom-nav">
@@ -1020,7 +1047,7 @@ function closePrivacyModal(event) {
   document.getElementById('privacy-modal-overlay').classList.remove('open');
 }
 
-const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail' };
+const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company' };
 const navOrder = ['home', 'errands', 'team', 'plan', 'profile'];
 
 function switchTab(tab) {
@@ -1383,6 +1410,12 @@ function goToDepositRecords() {
   switchTab('history');
   const pills = document.querySelectorAll('.tx-pill');
   setTxFilter('Deposit', pills[1] || null);
+}
+
+function goToWithdrawalRecords() {
+  switchTab('history');
+  const pills = document.querySelectorAll('.tx-pill');
+  setTxFilter('Withdrawal', pills[2] || null);
 }
 
 function renderHistory() {
