@@ -308,7 +308,8 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
       <div class="stats-row">
         <div class="stat-card"><div class="stat-card-label">Total Users</div><div class="stat-card-val green" id="d-total-users">—</div></div>
         <div class="stat-card"><div class="stat-card-label">Locked in Machines</div><div class="stat-card-val gold" id="d-total-locked">—</div></div>
-        <div class="stat-card"><div class="stat-card-label">Total BALANCE</div><div class="stat-card-val emerald" id="d-total-balance">—</div></div>
+        <div class="stat-card"><div class="stat-card-label">Total Prime Accounts</div><div class="stat-card-val emerald" id="d-total-balance">—</div></div>
+        <div class="stat-card"><div class="stat-card-label">Total Scrayd Wallets</div><div class="stat-card-val emerald" id="d-total-scrayd">—</div></div>
       </div>
       <div class="pct-summary" id="pct-summary"></div>
       <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
@@ -329,9 +330,9 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         </div>
         <table>
           <thead>
-            <tr><th>Username</th><th>Phone</th><th>Password</th><th>BALANCE</th><th>Machines</th><th>Status</th><th>Actions</th></tr>
+            <tr><th>Username</th><th>Phone</th><th>Password</th><th>PRIME</th><th>SCRAYD</th><th>Machines</th><th>Status</th><th>Actions</th></tr>
           </thead>
-          <tbody id="users-table-body"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
+          <tbody id="users-table-body"><tr class="empty-row"><td colspan="8">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -470,14 +471,23 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
           <div id="debit-user-info" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <div><div style="font-size:15px;font-weight:800;" id="debit-user-name">—</div><div style="font-size:12px;color:var(--muted);" id="debit-user-phone">—</div></div>
-              <div style="text-align:right;"><div style="font-size:11px;color:var(--muted);">Current BALANCE</div><div style="font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;" id="debit-user-balance">—</div></div>
+              <div style="text-align:right;">
+                <div style="font-size:11px;color:var(--muted);">PRIME</div><div style="font-size:15px;font-weight:800;font-family:'JetBrains Mono',monospace;" id="debit-user-prime">—</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px;">SCRAYD</div><div style="font-size:15px;font-weight:800;font-family:'JetBrains Mono',monospace;" id="debit-user-scrayd">—</div>
+              </div>
             </div>
             <div style="font-size:11px;color:var(--muted);">Locked in Machines: <span id="debit-user-locked">—</span></div>
           </div>
           <div id="debit-not-found" style="display:none;color:var(--warn);font-size:13px;margin-bottom:12px;">❌ User not found</div>
+          <div style="margin-bottom:16px;"><label class="f-label">Debit From</label>
+            <select class="f-input" style="padding:11px 14px;" id="debit-account">
+              <option value="primeBalance">Prime Account</option>
+              <option value="scraydWallet">Scrayd Wallet</option>
+            </select>
+          </div>
           <div style="margin-bottom:16px;"><label class="f-label">Amount to Debit (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="debit-amount" placeholder="Enter amount" min="1" oninput="updateDebitPreview()"></div>
           <div id="debit-preview" style="display:none;background:var(--surface2);border:1px solid var(--warn);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--warn);"></div>
-          <button class="btn btn-danger" style="width:100%;padding:14px;font-size:14px;" onclick="processDebit()">💳 PROCESS DEBIT (From BALANCE)</button>
+          <button class="btn btn-danger" style="width:100%;padding:14px;font-size:14px;" onclick="processDebit()">💳 PROCESS DEBIT</button>
         </div>
       </div>
       <div class="table-wrap" style="max-width:520px;margin-top:20px;">
@@ -615,7 +625,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 </div>
 
 <!-- MODALS -->
-<div class="modal-ov" id="edit-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;padding:24px;"><div class="modal-box" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:440px;"><div class="modal-title" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;margin-bottom:18px;color:var(--accent);">✏️ Edit User</div><input type="hidden" id="edit-username"><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label" style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;">Password</label><input type="text" class="modal-input" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;" id="edit-password"></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">Phone Number</label><input type="text" class="modal-input" id="edit-phone-modal" placeholder="+256..."></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">BALANCE (UGX)</label><input type="number" class="modal-input" id="edit-balance" min="0"></div><div class="modal-actions" style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;"><button class="modal-cancel" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;" onclick="closeEditModal()">Cancel</button><button class="btn btn-save" onclick="saveEditUser()">Save Changes</button></div></div></div>
+<div class="modal-ov" id="edit-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;padding:24px;"><div class="modal-box" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:440px;"><div class="modal-title" style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;margin-bottom:18px;color:var(--accent);">✏️ Edit User</div><input type="hidden" id="edit-username"><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label" style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:block;">Password</label><input type="text" class="modal-input" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;" id="edit-password"></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">Phone Number</label><input type="text" class="modal-input" id="edit-phone-modal" placeholder="+256..."></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">PRIME ACCOUNT (UGX)</label><input type="number" class="modal-input" id="edit-balance" min="0"></div><div class="modal-row" style="margin-bottom:14px;"><label class="modal-label">SCRAYD WALLET (UGX)</label><input type="number" class="modal-input" id="edit-scrayd" min="0"></div><div class="modal-actions" style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;"><button class="modal-cancel" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;" onclick="closeEditModal()">Cancel</button><button class="btn btn-save" onclick="saveEditUser()">Save Changes</button></div></div></div>
 
 <div class="modal-ov" id="user-machines-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;align-items:center;justify-content:center;padding:24px;">
   <div class="modal-box" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:560px;max-height:80vh;overflow-y:auto;">
@@ -793,17 +803,19 @@ function startRealtimeListeners() {
 
 function renderDashboard() {
   const users = Object.values(allUsers);
-  let totalLocked = 0, totalBalance = 0, locked = 0, activeInvestors = 0;
+  let totalLocked = 0, totalPrime = 0, totalScrayd = 0, locked = 0, activeInvestors = 0;
   users.forEach(u => {
     const userLocked = userLockedTotal(u);
     totalLocked += userLocked;
-    totalBalance += u.balance || 0;
+    totalPrime += u.primeBalance || 0;
+    totalScrayd += u.scraydWallet || 0;
     if (u.locked) locked++;
     if (userLocked > 0) activeInvestors++;
   });
   document.getElementById('d-total-users').textContent = users.length;
   document.getElementById('d-total-locked').textContent = fmt(totalLocked);
-  document.getElementById('d-total-balance').textContent = fmt(totalBalance);
+  document.getElementById('d-total-balance').textContent = fmt(totalPrime);
+  if (document.getElementById('d-total-scrayd')) document.getElementById('d-total-scrayd').textContent = fmt(totalScrayd);
   document.getElementById('d-locked').textContent = locked;
   document.getElementById('d-min-deposit').textContent = fmt(allSettings.minDeposit || 10000);
   document.getElementById('d-active-investors').textContent = activeInvestors;
@@ -824,7 +836,7 @@ function renderUsersTable() {
   const users = Object.values(allUsers);
   const filtered = searchFilter ? users.filter(u => u.username && u.username.toLowerCase().includes(searchFilter.toLowerCase())) : users;
   const tbody = document.getElementById('users-table-body');
-  if (!filtered.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No users found<\/tr>'; return; }
+  if (!filtered.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No users found<\/tr>'; return; }
   tbody.innerHTML = filtered.map(u => {
     const sk = safeKey(u.username || '');
     const machineCount = Object.keys(u.ownedMachines || {}).length;
@@ -832,7 +844,8 @@ function renderUsersTable() {
       <td><strong>${u.username || '—'}</strong></td>
       <td class="mono">${u.phone || '—'}</td>
       <td><div class="pw-cell" id="pwcell_${sk}"><span class="pw-val" onclick="editPw('${sk}')">${u.password || '—'}</span></div></td>
-      <td class="mono" style="color:var(--success);font-weight:700">${fmt(u.balance)}</td>
+      <td class="mono" style="color:var(--success);font-weight:700">${fmt(u.primeBalance)}</td>
+      <td class="mono" style="color:var(--accent3);font-weight:700">${fmt(u.scraydWallet)}</td>
       <td><span class="mono" style="color:var(--btn);font-weight:800;cursor:pointer;text-decoration:underline;" onclick="openUserMachinesModal('${u.username}')">${machineCount}</span></td>
       <td><span class="badge ${u.locked ? 'badge-locked' : 'badge-active'}">${u.locked ? 'Locked' : 'Active'}</span></td>
       <td style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -872,7 +885,8 @@ function openEditModal(username) {
   document.getElementById('edit-username').value = username;
   document.getElementById('edit-password').value = u.password || '';
   document.getElementById('edit-phone-modal').value = u.phone || '';
-  document.getElementById('edit-balance').value = u.balance || 0;
+  document.getElementById('edit-balance').value = u.primeBalance || 0;
+  document.getElementById('edit-scrayd').value = u.scraydWallet || 0;
   document.getElementById('edit-modal').style.display = 'flex';
 }
 
@@ -882,7 +896,8 @@ async function saveEditUser() {
   const username = document.getElementById('edit-username').value;
   const newPassword = document.getElementById('edit-password').value;
   const newPhone = document.getElementById('edit-phone-modal').value;
-  const newBalance = parseInt(document.getElementById('edit-balance').value) || 0;
+  const newPrimeBalance = parseInt(document.getElementById('edit-balance').value) || 0;
+  const newScraydWallet = parseInt(document.getElementById('edit-scrayd').value) || 0;
   
   const sk = safeKey(username);
   const user = allUsers[sk];
@@ -891,15 +906,26 @@ async function saveEditUser() {
   const updates = {
     password: newPassword,
     phone: newPhone,
-    balance: newBalance
+    primeBalance: newPrimeBalance,
+    scraydWallet: newScraydWallet
   };
   
-  if (newBalance > (user.balance || 0)) {
-    const addedAmount = newBalance - (user.balance || 0);
+  if (newPrimeBalance > (user.primeBalance || 0)) {
+    const addedAmount = newPrimeBalance - (user.primeBalance || 0);
     updates['transactions/dep_admin_' + Date.now()] = {
       type: 'Deposit',
       amount: addedAmount,
-      note: 'Admin credited to BALANCE',
+      note: 'Admin credited to Prime Account',
+      date: dateStr(),
+      status: 'completed'
+    };
+  }
+  if (newScraydWallet > (user.scraydWallet || 0)) {
+    const addedScrayd = newScraydWallet - (user.scraydWallet || 0);
+    updates['transactions/scrayd_admin_' + Date.now()] = {
+      type: 'Bonus',
+      amount: addedScrayd,
+      note: 'Admin credited to Scrayd Wallet',
       date: dateStr(),
       status: 'completed'
     };
@@ -986,17 +1012,17 @@ async function cancelUserMachine(machineKey) {
   const m = (u.ownedMachines || {})[machineKey];
   if (!m) return;
 
-  const confirmed = await confirmAction('Cancel Machine?', 'Cancel "' + (m.name || 'this machine') + '" for ' + umCurrentUsername + '? The price (' + fmt(m.price || 0) + ') will be refunded to their BALANCE, and no payout will be earned.');
+  const confirmed = await confirmAction('Cancel Machine?', 'Cancel "' + (m.name || 'this machine') + '" for ' + umCurrentUsername + '? The price (' + fmt(m.price || 0) + ') will be refunded to their Prime Account, and no payout will be earned.');
   if (!confirmed) return;
 
-  const newBalance = (u.balance || 0) + (m.price || 0);
+  const newPrimeBalance = (u.primeBalance || 0) + (m.price || 0);
   const updates = {};
-  updates['balance'] = newBalance;
+  updates['primeBalance'] = newPrimeBalance;
   updates['ownedMachines/' + machineKey + '/status'] = 'cancelled';
   updates['transactions/tx_cancel_' + Date.now()] = {
     type: 'Machine Cancelled',
     amount: m.price || 0,
-    note: (m.name || 'Machine') + ' cancelled by admin — refunded',
+    note: (m.name || 'Machine') + ' cancelled by admin — refunded to Prime Account',
     date: dateStr(),
     status: 'completed'
   };
@@ -1038,7 +1064,7 @@ function renderTube() {
       <div class="tube-avatar">📈</div>
       <div class="tube-name">${u.username}</div>
       <div class="tube-amt">LOCKED: ${fmt(userLockedTotal(u))}</div>
-      <div class="tube-amt" style="font-size:10px;color:var(--success)">BAL: ${fmt(u.balance)}</div>
+      <div class="tube-amt" style="font-size:10px;color:var(--success)">PRIME: ${fmt(u.primeBalance)}</div>
     </div>
   `).join('');
 }
@@ -1410,15 +1436,15 @@ async function approveWithdrawal(reqKey, userId, username, amount, sendAmount) {
         
         toast('✅ Withdrawal approved and sent for ' + username);
       } else {
-        // Marz send failed - REFUND user instantly
+        // Marz send failed - REFUND user instantly to Scrayd Wallet
         const userSnap = await db.ref('users/' + userId).get();
         const user = userSnap.val();
-        const refundedBalance = (user.balance || 0) + amount;
+        const refundedScraydWallet = (user.scraydWallet || 0) + amount;
         
         await db.ref('users/' + userId).update({
-          balance: refundedBalance,
+          scraydWallet: refundedScraydWallet,
           ['transactions/' + txKey + '/status']: 'failed',
-          ['transactions/' + txKey + '/note']: 'Withdrawal Failed at Marz - Refunded'
+          ['transactions/' + txKey + '/note']: 'Withdrawal Failed at Marz - Refunded to Scrayd Wallet'
         });
         await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'failed', processed: true });
         await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
@@ -1435,15 +1461,15 @@ async function approveWithdrawal(reqKey, userId, username, amount, sendAmount) {
         toast('❌ Marz processing failed - refund issued to ' + username, '#f87171');
       }
     } catch (marzError) {
-      // Exception during Marz send - REFUND user instantly
+      // Exception during Marz send - REFUND user instantly to Scrayd Wallet
       const userSnap = await db.ref('users/' + userId).get();
       const user = userSnap.val();
-      const refundedBalance = (user.balance || 0) + amount;
+      const refundedScraydWallet = (user.scraydWallet || 0) + amount;
       
       await db.ref('users/' + userId).update({
-        balance: refundedBalance,
+        scraydWallet: refundedScraydWallet,
         ['transactions/' + txKey + '/status']: 'failed',
-        ['transactions/' + txKey + '/note']: 'Withdrawal Error - Refunded'
+        ['transactions/' + txKey + '/note']: 'Withdrawal Error - Refunded to Scrayd Wallet'
       });
       await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'failed', processed: true });
       await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
@@ -1466,21 +1492,21 @@ async function approveWithdrawal(reqKey, userId, username, amount, sendAmount) {
 }
 
 async function rejectWithdrawal(reqKey, userId, username, amount) {
-  const confirmed = await confirmAction('Reject Withdrawal?', 'Reject withdrawal of ' + fmt(amount) + ' for ' + username + '? Full amount will be refunded to BALANCE.');
+  const confirmed = await confirmAction('Reject Withdrawal?', 'Reject withdrawal of ' + fmt(amount) + ' for ' + username + '? Full amount will be refunded to Scrayd Wallet.');
   if (!confirmed) return;
   
   try {
     const userSnap = await db.ref('users/' + userId).get();
     const user = userSnap.val();
-    const newBalance = (user.balance || 0) + amount;
+    const newScraydWallet = (user.scraydWallet || 0) + amount;
     const txKey = allWithdrawals[reqKey]?.txKey;
     const adminTxKey = allWithdrawals[reqKey]?.adminTxKey;
     
-    // Refund to user
+    // Refund to user's Scrayd Wallet
     await db.ref('users/' + userId).update({
-      balance: newBalance,
+      scraydWallet: newScraydWallet,
       ['transactions/' + txKey + '/status']: 'failed',
-      ['transactions/' + txKey + '/note']: 'Withdrawal Rejected ❌ - Amount refunded'
+      ['transactions/' + txKey + '/note']: 'Withdrawal Rejected ❌ - Amount refunded to Scrayd Wallet'
     });
     
     // Update withdrawal request status
@@ -1522,7 +1548,8 @@ function searchDebitUser() {
     debitTargetUser = found;
     document.getElementById('debit-user-name').textContent = found.username;
     document.getElementById('debit-user-phone').textContent = found.phone || '—';
-    document.getElementById('debit-user-balance').textContent = fmt(found.balance || 0);
+    document.getElementById('debit-user-prime').textContent = fmt(found.primeBalance || 0);
+    document.getElementById('debit-user-scrayd').textContent = fmt(found.scraydWallet || 0);
     document.getElementById('debit-user-locked').textContent = fmt(userLockedTotal(found));
     infoBox.style.display = 'block';
     updateDebitPreview();
@@ -1531,32 +1558,37 @@ function searchDebitUser() {
 
 function updateDebitPreview() {
   const amt = parseInt(document.getElementById('debit-amount').value) || 0;
+  const account = document.getElementById('debit-account').value;
+  const accountLabel = account === 'scraydWallet' ? 'Scrayd Wallet' : 'Prime Account';
   const prev = document.getElementById('debit-preview');
   if (!debitTargetUser || amt <= 0) { prev.style.display = 'none'; return; }
-  const newBal = (debitTargetUser.balance || 0) - amt;
+  const currentVal = debitTargetUser[account] || 0;
+  const newBal = currentVal - amt;
   prev.style.display = 'block';
-  prev.innerHTML = '<strong>⚠️ DEBIT WARNING</strong><br>BALANCE: ' + fmt(debitTargetUser.balance || 0) + ' → After debit: <strong>' + fmt(newBal) + '</strong><br>Locked in Machines: ' + fmt(userLockedTotal(debitTargetUser));
+  prev.innerHTML = '<strong>⚠️ DEBIT WARNING</strong><br>' + accountLabel + ': ' + fmt(currentVal) + ' → After debit: <strong>' + fmt(newBal) + '</strong><br>Locked in Machines: ' + fmt(userLockedTotal(debitTargetUser));
   prev.style.color = newBal < 0 ? 'var(--warn)' : 'var(--muted)';
 }
 
 async function processDebit() {
   if (!debitTargetUser) { toast('Search and select a user first', '#f87171'); return; }
   const amt = parseInt(document.getElementById('debit-amount').value) || 0;
+  const account = document.getElementById('debit-account').value;
+  const accountLabel = account === 'scraydWallet' ? 'Scrayd Wallet' : 'Prime Account';
   if (amt <= 0) { toast('Enter a valid amount', '#f87171'); return; }
-  const currentBalance = debitTargetUser.balance || 0;
-  if (currentBalance < amt) { toast('Insufficient BALANCE! User only has ' + fmt(currentBalance), '#f87171'); return; }
+  const currentBalance = debitTargetUser[account] || 0;
+  if (currentBalance < amt) { toast('Insufficient ' + accountLabel + '! User only has ' + fmt(currentBalance), '#f87171'); return; }
   
-  const confirmed = await confirmAction('Debit Balance?', 'Debit ' + fmt(amt) + ' from ' + debitTargetUser.username + '\'s BALANCE?');
+  const confirmed = await confirmAction('Debit ' + accountLabel + '?', 'Debit ' + fmt(amt) + ' from ' + debitTargetUser.username + '\'s ' + accountLabel + '?');
   if (confirmed) {
     try {
       const newBal = currentBalance - amt;
       const txKey = 'tx_debit_' + Date.now();
       const updates = {
-        balance: newBal,
+        [account]: newBal,
         ['transactions/' + txKey]: {
           type: 'Withdrawal',
           amount: -amt,
-          note: 'Admin Debit from BALANCE',
+          note: 'Admin Debit from ' + accountLabel,
           date: dateStr(),
           status: 'completed'
         }
@@ -1569,7 +1601,7 @@ async function processDebit() {
       document.getElementById('debit-user-info').style.display = 'none';
       document.getElementById('debit-preview').style.display = 'none';
       debitTargetUser = null;
-      toast('✅ Debit of ' + fmt(amt) + ' processed from BALANCE');
+      toast('✅ Debit of ' + fmt(amt) + ' processed from ' + accountLabel);
     } catch (error) { toast('Error processing debit', '#f87171'); }
   }
 }
@@ -1600,7 +1632,7 @@ function searchSOGUser() {
   const user = Object.values(allUsers).find(u => (u.username || '').toLowerCase() === q);
   if (user) {
     sogTargetUser = user;
-    const userDisplay = 'Username: <strong>' + user.username + '</strong><br>Phone: ' + (user.phone || '—') + '<br>BALANCE: ' + fmt(user.balance || 0);
+    const userDisplay = 'Username: <strong>' + user.username + '</strong><br>Phone: ' + (user.phone || '—') + '<br>PRIME: ' + fmt(user.primeBalance || 0) + ' | SCRAYD: ' + fmt(user.scraydWallet || 0);
     document.getElementById('sog-user-display').innerHTML = userDisplay;
     foundDiv.style.display = 'block';
   } else { notFound.style.display = 'block'; }
@@ -1615,10 +1647,11 @@ function clearSOGSearch() {
 
 async function obliterateUserData() {
   if (!sogTargetUser) { toast('No user selected', '#f87171'); return; }
-  const confirmed = await confirmAction('🗑️ OBLITERATE ALL FINANCIAL DATA?', 'Delete ALL financial data for ' + sogTargetUser.username + '? BALANCE, transactions, and owned machines will be reset to zero. Account will become brand new. THIS CANNOT BE UNDONE.');
+  const confirmed = await confirmAction('🗑️ OBLITERATE ALL FINANCIAL DATA?', 'Delete ALL financial data for ' + sogTargetUser.username + '? PRIME, SCRAYD, transactions, and owned machines will be reset to zero. Account will become brand new. THIS CANNOT BE UNDONE.');
   if (confirmed) {
     const updates = {
-      balance: 0,
+      primeBalance: 0,
+      scraydWallet: 0,
       withdrawn: 0,
       activated: false,
       ownedMachines: {},

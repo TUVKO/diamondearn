@@ -435,14 +435,18 @@ input[type="password"]{padding-right:46px;}
   <!-- HOME / DASHBOARD -->
   <div class="dash-section active" id="sec-home">
     <div class="section">
-      <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="stat-box stat-box-white" style="padding:14px 8px;text-align:center;">
-          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">BALANCE</div>
-          <div class="stat-value" style="font-size:14px;font-weight:800;" id="stat-balance">UGX 0</div>
+      <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div class="stat-box stat-box-white" style="padding:12px 6px;text-align:center;">
+          <div class="stat-label" style="font-size:7px;margin-bottom:6px;">PRIME ACCOUNT</div>
+          <div class="stat-value" style="font-size:12px;font-weight:800;" id="stat-prime">UGX 0</div>
         </div>
-        <div class="stat-box stat-box-white" style="padding:14px 8px;text-align:center;">
-          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">LOCKED IN MACHINES</div>
-          <div class="stat-value" style="font-size:14px;font-weight:800;" id="stat-locked">UGX 0</div>
+        <div class="stat-box stat-box-white" style="padding:12px 6px;text-align:center;">
+          <div class="stat-label" style="font-size:7px;margin-bottom:6px;">SCRAYD WALLET</div>
+          <div class="stat-value" style="font-size:12px;font-weight:800;" id="stat-scrayd">UGX 0</div>
+        </div>
+        <div class="stat-box stat-box-white" style="padding:12px 6px;text-align:center;">
+          <div class="stat-label" style="font-size:7px;margin-bottom:6px;">LOCKED IN MACHINES</div>
+          <div class="stat-value" style="font-size:12px;font-weight:800;" id="stat-locked">UGX 0</div>
         </div>
       </div>
     </div>
@@ -513,13 +517,31 @@ input[type="password"]{padding-right:46px;}
   <!-- Profile -->
   <div class="dash-section" id="sec-profile">
     <div class="inner-header"><span style="font-size:22px">👤</span><div><div class="inner-title">ME</div><div class="inner-sub">Your account overview</div></div></div>
+
+    <div class="section">
+      <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="stat-box stat-box-white" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">PRIME ACCOUNT</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;" id="me-prime">UGX 0</div>
+        </div>
+        <div class="stat-box stat-box-white" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">SCRAYD WALLET</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;" id="me-scrayd">UGX 0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="home-tabs" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <button class="home-tab-btn" onclick="switchTab('deposit')">Deposit</button>
+        <button class="home-tab-btn" onclick="switchTab('withdraw')">Withdrawal</button>
+        <button class="home-tab-btn" onclick="switchTab('transfer')">Transfer</button>
+      </div>
+    </div>
+
     <div class="section">
       <div class="me-mega-card">
         <div class="me-mega-grid">
-          <div class="me-mini-stat">
-            <div class="me-mini-label">BALANCE</div>
-            <div class="me-mini-value" id="me-balance" style="color:#059669;">UGX 0</div>
-          </div>
           <div class="me-mini-stat">
             <div class="me-mini-label">LOCKED IN MACHINES</div>
             <div class="me-mini-value" id="me-locked" style="color:#0f172a;">UGX 0</div>
@@ -596,8 +618,44 @@ input[type="password"]{padding-right:46px;}
     </div>
   </div>
 
+  <!-- Transfer -->
+  <div class="dash-section" id="sec-transfer">
+    <div class="inner-header"><span style="font-size:22px">🔄</span><div><div class="inner-title">Transfer</div><div class="inner-sub">Move funds between your accounts</div></div></div>
+    <div class="section">
+      <div class="action-card">
+        <div class="deposit-note">Move funds between your Prime Account and Scrayd Wallet.</div>
+        <div class="field-group">
+          <label class="field-label">Current Balances</label>
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
+              <div style="font-size:9px;color:var(--muted);">PRIME</div>
+              <div style="font-size:13px;font-weight:800;color:var(--text);" id="transfer-prime-display">UGX 0</div>
+            </div>
+            <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
+              <div style="font-size:9px;color:var(--muted);">SCRAYD</div>
+              <div style="font-size:13px;font-weight:800;color:var(--text);" id="transfer-scrayd-display">UGX 0</div>
+            </div>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Direction</label>
+          <select id="transfer-direction" style="width:100%;padding:12px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;">
+            <option value="toScrayd">Prime Account → Scrayd Wallet</option>
+            <option value="toPrime">Scrayd Wallet → Prime Account</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Amount (UGX)</label>
+          <div class="field-wrap"><input type="number" id="transfer-amount" placeholder="Enter amount" min="1"></div>
+          <div class="field-error" id="transfer-amount-err">Please check the amount</div>
+        </div>
+        <button class="green-btn" onclick="doTransfer()">CONFIRM TRANSFER</button>
+      </div>
+    </div>
+  </div>
+
   <div class="dash-section" id="sec-deposit">
-    <div class="inner-header"><div><div class="inner-title">Add Cash</div><div class="inner-sub">Add funds to your BALANCE</div></div></div>
+    <div class="inner-header"><div><div class="inner-title">Add Cash</div><div class="inner-sub">Add funds to your Prime Account</div></div></div>
     <div class="section">
       <div class="action-card">
         <div class="deposit-note" id="dep-min-note">Minimum deposit: <strong>UGX 10,000</strong>. Includes 4% URA tax added to amount you pay.</div>
@@ -623,7 +681,7 @@ input[type="password"]{padding-right:46px;}
 
   <!-- Withdraw -->
   <div class="dash-section" id="sec-withdraw">
-    <div class="inner-header"><span style="font-size:22px">💰</span><div><div class="inner-title">Withdraw</div><div class="inner-sub">Cash out your BALANCE</div></div></div>
+    <div class="inner-header"><span style="font-size:22px">💰</span><div><div class="inner-title">Withdraw</div><div class="inner-sub">Cash out your Scrayd Wallet</div></div></div>
     <div class="section">
       <div id="withdraw-locked-msg" class="locked-banner" style="display:none">🔒 Withdrawals are currently disabled. Please contact support.</div>
       <div class="action-card">
@@ -825,7 +883,7 @@ let userListener = null;
 // ============================================================
 // Machine maturity payout engine — replaces the old daily-profit engine.
 // Checks each owned machine; if its lock period has completed, credits
-// the full payout (price + return) to BALANCE and marks it completed.
+// the full payout (price + return) to SCRAYD WALLET and marks it completed.
 // ============================================================
 async function checkMachineMaturity() {
   if (!currentUsername) return;
@@ -837,7 +895,7 @@ async function checkMachineMaturity() {
     const userData = freshSnap.val();
     const owned = userData.ownedMachines || {};
     const now = Date.now();
-    let newBalance = userData.balance || 0;
+    let newScraydWallet = userData.scraydWallet || 0;
     const updates = {};
     let paidAny = false;
     let i = 0;
@@ -845,16 +903,16 @@ async function checkMachineMaturity() {
     Object.keys(owned).forEach(key => {
       const m = owned[key];
       if (m.status === 'active' && m.maturityDate && now >= m.maturityDate) {
-        newBalance += (m.payout || 0);
+        newScraydWallet += (m.payout || 0);
         updates[`ownedMachines/${key}/status`] = 'completed';
-        updates[`transactions/tx_machine_${Date.now()}_${i}`] = { type: 'Machine Payout', amount: m.payout, note: (m.name || 'Machine') + ' matured — payout credited', date: dateStr(), status: 'completed' };
+        updates[`transactions/tx_machine_${Date.now()}_${i}`] = { type: 'Machine Payout', amount: m.payout, note: (m.name || 'Machine') + ' matured — payout credited to Scrayd Wallet', date: dateStr(), status: 'completed' };
         paidAny = true;
         i++;
       }
     });
 
     if (paidAny) {
-      updates.balance = newBalance;
+      updates.scraydWallet = newScraydWallet;
       await userRef.update(updates);
       currentUser = await userRef.get().then(snap => snap.val());
       updateBalanceUI();
@@ -1047,7 +1105,7 @@ function closePrivacyModal(event) {
   document.getElementById('privacy-modal-overlay').classList.remove('open');
 }
 
-const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company' };
+const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company', transfer: 'sec-transfer' };
 const navOrder = ['home', 'errands', 'team', 'plan', 'profile'];
 
 function switchTab(tab) {
@@ -1063,6 +1121,7 @@ function switchTab(tab) {
   if (idx >= 0) document.querySelectorAll('.nav-item')[idx].classList.add('active');
   if (tab === 'team') { renderMachineCategoryTabs(); renderMachineShop(); }
   if (tab === 'plan') { renderMyMachines(); }
+  if (tab === 'transfer') { renderTransferPage(); }
 }
 
 
@@ -1152,7 +1211,7 @@ async function buyMachine(machineId) {
   const m = machinesCatalog[machineId];
   if (!m || m.active === false) return 'error';
   const price = m.price || 0;
-  const balance = currentUser.balance || 0;
+  const primeBalance = currentUser.primeBalance || 0;
 
   const owned = currentUser.ownedMachines || {};
   const activeCount = Object.values(owned).filter(o => o.status === 'active').length;
@@ -1166,21 +1225,21 @@ async function buyMachine(machineId) {
     return 'limit';
   }
 
-  if (balance < price) {
+  if (primeBalance < price) {
     return 'insufficient';
   }
   const purchaseId = 'mch_' + Date.now();
   const now = Date.now();
   const days = m.days || 0;
   const maturityDate = now + days * 86400000;
-  const newBalance = balance - price;
+  const newPrimeBalance = primeBalance - price;
   const updates = {
-    balance: newBalance,
+    primeBalance: newPrimeBalance,
     [`ownedMachines/${purchaseId}`]: {
       machineId, name: m.name || 'Machine', price, payout: m.payout || 0, days,
       purchaseDate: now, maturityDate, status: 'active'
     },
-    [`transactions/tx_buy_${Date.now()}`]: { type: 'Machine Purchase', amount: -price, note: 'Purchased ' + (m.name || 'Machine'), date: dateStr(), status: 'completed' }
+    [`transactions/tx_buy_${Date.now()}`]: { type: 'Machine Purchase', amount: -price, note: 'Purchased ' + (m.name || 'Machine') + ' (Prime Account)', date: dateStr(), status: 'completed' }
   };
   await db.ref('users/' + safeKey(currentUsername)).update(updates);
   currentUser = await db.ref('users/' + safeKey(currentUsername)).get().then(s => s.val());
@@ -1215,7 +1274,7 @@ function renderMachineDetail() {
   document.getElementById('md-pct').textContent = '+' + pct + '%';
   document.getElementById('md-price').textContent = fmt(price);
   document.getElementById('md-payout').textContent = fmt(payout);
-  document.getElementById('md-balance').textContent = fmt(currentUser ? (currentUser.balance || 0) : 0);
+  document.getElementById('md-balance').textContent = fmt(currentUser ? (currentUser.primeBalance || 0) : 0);
 
   const imgEl = document.getElementById('md-image');
   if (m.imageUrl) { imgEl.src = m.imageUrl; imgEl.style.display = 'block'; }
@@ -1231,12 +1290,12 @@ async function purchaseCurrentMachine() {
   const m = machinesCatalog[currentViewedMachineId];
   if (!m) return;
   const price = m.price || 0;
-  const balance = currentUser.balance || 0;
+  const primeBalance = currentUser.primeBalance || 0;
   const errEl = document.getElementById('md-error');
 
-  if (balance < price) {
-    const remaining = price - balance;
-    errEl.textContent = `⚠️ Insufficient BALANCE — you need ${fmt(remaining)} more to purchase this machine. Redirecting to Deposit...`;
+  if (primeBalance < price) {
+    const remaining = price - primeBalance;
+    errEl.textContent = `⚠️ Insufficient Prime Account balance — you need ${fmt(remaining)} more to purchase this machine. Redirecting to Deposit...`;
     errEl.style.display = 'block';
     setTimeout(() => {
       switchTab('deposit');
@@ -1346,12 +1405,61 @@ function updateWithdrawPreview() {
 
 function updateBalanceUI() {
   if (!currentUser) return;
-  const balance = currentUser.balance || 0;
+  const prime = currentUser.primeBalance || 0;
+  const scrayd = currentUser.scraydWallet || 0;
   const owned = currentUser.ownedMachines || {};
   let locked = 0;
   Object.values(owned).forEach(m => { if (m.status === 'active') locked += (m.price || 0); });
-  document.getElementById('stat-balance').textContent = fmt(balance);
-  document.getElementById('stat-locked').textContent = fmt(locked);
+  const primeEl = document.getElementById('stat-prime');
+  const scraydEl = document.getElementById('stat-scrayd');
+  const lockedEl = document.getElementById('stat-locked');
+  if (primeEl) primeEl.textContent = fmt(prime);
+  if (scraydEl) scraydEl.textContent = fmt(scrayd);
+  if (lockedEl) lockedEl.textContent = fmt(locked);
+}
+
+// ============================================================
+// TRANSFER — move funds between Prime Account and Scrayd Wallet
+// ============================================================
+function renderTransferPage() {
+  if (!currentUser) return;
+  const primeDisplay = document.getElementById('transfer-prime-display');
+  const scraydDisplay = document.getElementById('transfer-scrayd-display');
+  if (primeDisplay) primeDisplay.textContent = fmt(currentUser.primeBalance || 0);
+  if (scraydDisplay) scraydDisplay.textContent = fmt(currentUser.scraydWallet || 0);
+  clearErrors('transfer-amount-err');
+}
+
+async function doTransfer() {
+  if (!currentUser || !currentUsername) return;
+  clearErrors('transfer-amount-err');
+  const direction = document.getElementById('transfer-direction').value;
+  const amount = parseInt(document.getElementById('transfer-amount').value) || 0;
+  if (amount <= 0) { setErr('transfer-amount-err', true, 'Enter a valid amount'); return; }
+
+  const prime = currentUser.primeBalance || 0;
+  const scrayd = currentUser.scraydWallet || 0;
+  const updates = {};
+
+  if (direction === 'toScrayd') {
+    if (prime < amount) { setErr('transfer-amount-err', true, 'Insufficient Prime Account balance'); return; }
+    updates.primeBalance = prime - amount;
+    updates.scraydWallet = scrayd + amount;
+    updates[`transactions/tx_transfer_${Date.now()}`] = { type: 'Transfer', amount: -amount, note: 'Transferred to Scrayd Wallet', date: dateStr(), status: 'completed' };
+  } else {
+    if (scrayd < amount) { setErr('transfer-amount-err', true, 'Insufficient Scrayd Wallet balance'); return; }
+    updates.scraydWallet = scrayd - amount;
+    updates.primeBalance = prime + amount;
+    updates[`transactions/tx_transfer_${Date.now()}`] = { type: 'Transfer', amount: -amount, note: 'Transferred to Prime Account', date: dateStr(), status: 'completed' };
+  }
+
+  await db.ref('users/' + safeKey(currentUsername)).update(updates);
+  currentUser = await db.ref('users/' + safeKey(currentUsername)).get().then(s => s.val());
+  updateBalanceUI();
+  updateMeStats();
+  renderHistory();
+  document.getElementById('transfer-amount').value = '';
+  switchTab('home');
 }
 
 function startUserListener(username) {
@@ -1375,7 +1483,8 @@ function updateProfileUI() {
 
 function updateMeStats() {
   if (!currentUser) return;
-  const balance = currentUser.balance || 0;
+  const prime = currentUser.primeBalance || 0;
+  const scrayd = currentUser.scraydWallet || 0;
   const owned = currentUser.ownedMachines || {};
   const ownedList = Object.values(owned);
 
@@ -1388,14 +1497,16 @@ function updateMeStats() {
   let totalDeposited = 0;
   Object.values(deposits).forEach(d => { totalDeposited += (d.amount || 0); });
 
-  document.getElementById('me-balance').textContent = fmt(balance);
-  document.getElementById('me-locked').textContent = fmt(locked);
-  document.getElementById('me-purchased-machines').textContent = purchasedActive;
-  document.getElementById('me-total-machines').textContent = totalMachinesAll;
-  document.getElementById('me-team-members').textContent = '0';
-  document.getElementById('me-team-earned').textContent = fmt(0);
-  document.getElementById('me-withdrawn').textContent = fmt(currentUser.withdrawn || 0);
-  document.getElementById('me-deposited').textContent = fmt(totalDeposited);
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setText('me-prime', fmt(prime));
+  setText('me-scrayd', fmt(scrayd));
+  setText('me-locked', fmt(locked));
+  setText('me-purchased-machines', purchasedActive);
+  setText('me-total-machines', totalMachinesAll);
+  setText('me-team-members', '0');
+  setText('me-team-earned', fmt(0));
+  setText('me-withdrawn', fmt(currentUser.withdrawn || 0));
+  setText('me-deposited', fmt(totalDeposited));
 }
 
 let currentHistoryFilter = 'all';
@@ -1447,8 +1558,8 @@ function renderHistory() {
     return;
   }
   
-  const typeIcons = { Deposit: '💳', Withdrawal: '💸', Profit: '📈', Bonus: '🎁' };
-  const typeClasses = { Deposit: 'tx-deposit', Withdrawal: 'tx-withdrawal', Profit: 'tx-profit', Bonus: 'tx-bonus' };
+  const typeIcons = { Deposit: '💳', Withdrawal: '💸', Profit: '📈', Bonus: '🎁', Transfer: '🔄', 'Machine Purchase': '🛠️', 'Machine Payout': '📦', 'Machine Cancelled': '↩️' };
+  const typeClasses = { Deposit: 'tx-deposit', Withdrawal: 'tx-withdrawal', Profit: 'tx-profit', Bonus: 'tx-bonus', Transfer: 'tx-profit', 'Machine Purchase': 'tx-withdrawal', 'Machine Payout': 'tx-profit', 'Machine Cancelled': 'tx-bonus' };
   
   if (wrap) {
     wrap.innerHTML = '<div class="tx-cards-grid">' + 
@@ -1557,13 +1668,13 @@ async function checkPendingDeposits(username) {
           // Update transaction status
           await userRef.child('transactions/' + key).update({ status: 'completed', completedDate: dateStr() });
           
-          // Update user balance
+          // Update user Prime Account balance
           const userSnap = await userRef.get();
           const user = userSnap.val();
-          const newBalance = (user.balance || 0) + amount;
+          const newPrimeBalance = (user.primeBalance || 0) + amount;
           
           await userRef.update({ 
-            balance: newBalance
+            primeBalance: newPrimeBalance
           });
           
           // Update UI silently if user is currently viewing
@@ -1649,11 +1760,11 @@ async function doDeposit() {
     const txUuid = result?.data?.transaction?.uuid;
     const pollResult = await pollPaymentStatus(txUuid);
     if (pollResult === 'success') {
-      const newBalance = (currentUser.balance || 0) + amount;
+      const newPrimeBalance = (currentUser.primeBalance || 0) + amount;
       const updates = {
-        balance: newBalance, activated: true,
+        primeBalance: newPrimeBalance, activated: true,
         [`deposits/dep_${Date.now()}`]: { amount: amount, taxPaid: totalAmount - amount, startDate: Date.now() },
-        [`transactions/tx_dep_${Date.now()}`]: { type: 'Deposit', amount: amount, note: 'Deposit confirmed ✅ (URA Tax: ' + fmt(totalAmount - amount) + ')', date: dateStr(), status: 'completed' }
+        [`transactions/tx_dep_${Date.now()}`]: { type: 'Deposit', amount: amount, note: 'Deposit confirmed ✅ to Prime Account (URA Tax: ' + fmt(totalAmount - amount) + ')', date: dateStr(), status: 'completed' }
       };
       await db.ref('users/' + safeKey(currentUsername)).update(updates);
       
@@ -1695,15 +1806,15 @@ async function doWithdraw() {
   const minWith = settingsData.minWithdraw || 10000;
   const amount = parseInt(document.getElementById('with-amount').value) || 0;
   if (amount < minWith) { setErr('with-amount-err', true, 'Minimum withdrawal is ' + fmt(minWith)); return; }
-  const balance = currentUser.balance || 0;
-  if (balance < amount) { setErr('with-amount-err', true, 'Insufficient BALANCE.'); return; }
+  const scraydWallet = currentUser.scraydWallet || 0;
+  if (scraydWallet < amount) { setErr('with-amount-err', true, 'Insufficient Scrayd Wallet balance.'); return; }
   const feePercent = (settingsData.withdrawCharge || 10) / 100;
   const fee = Math.floor(amount * feePercent);
   const sendAmount = amount - fee;
   const userPhone = currentUser.phone;
   const btn = document.getElementById('with-submit-btn');
   btn.disabled = true; btn.textContent = '⏳ Processing...';
-  const newBalance = balance - amount;
+  const newScraydWallet = scraydWallet - amount;
   const newWithdrawn = (currentUser.withdrawn || 0) + amount;
   const txKey = 'tx_wd_' + Date.now();
   const reqKey = 'wreq_' + Date.now();
@@ -1730,11 +1841,11 @@ async function doWithdraw() {
     // Create admin transaction
     await db.ref('adminTransactions/' + adminTxKey).set(adminTxRecord);
     
-    // Deduct from balance immediately (in both modes)
+    // Deduct from Scrayd Wallet immediately (in both modes)
     await db.ref('users/' + safeKey(currentUsername)).update({ 
-      balance: newBalance, 
+      scraydWallet: newScraydWallet, 
       withdrawn: newWithdrawn, 
-      [`transactions/${txKey}`]: { type: 'Withdrawal', amount: -amount, note: 'Withdrawal Pending', date: dateStr(), status: 'pending' } 
+      [`transactions/${txKey}`]: { type: 'Withdrawal', amount: -amount, note: 'Withdrawal Pending (Scrayd Wallet)', date: dateStr(), status: 'pending' } 
     });
     
     // Create withdrawal request record
@@ -1767,9 +1878,9 @@ async function doWithdraw() {
   } catch (error) {
     console.error('Withdrawal error:', error);
     // Critical error - REFUND user and revert
-    const refundedBalance = balance;
+    const refundedScraydWallet = scraydWallet;
     await db.ref('users/' + safeKey(currentUsername)).update({ 
-      balance: refundedBalance, 
+      scraydWallet: refundedScraydWallet, 
       withdrawn: currentUser.withdrawn || 0 
     });
     await db.ref('users/' + safeKey(currentUsername) + '/transactions/' + txKey).remove();
@@ -1796,28 +1907,28 @@ async function processWithdrawalToMarz(reqKey, userPhone, sendAmount, reference,
       await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'approved', processed: true });
       await db.ref('adminTransactions/' + adminTxKey).update({ status: 'successful' });
     } else {
-      // Marz send failed - REFUND user instantly
+      // Marz send failed - REFUND user instantly to Scrayd Wallet
       const userSnap = await db.ref('users/' + userId).get();
       const user = userSnap.val();
-      const refundedBalance = (user.balance || 0) + amount;
+      const refundedScraydWallet = (user.scraydWallet || 0) + amount;
       
       await db.ref('users/' + userId).update({ 
-        balance: refundedBalance,
-        [`transactions/${txKey}`]: { type: 'Withdrawal', amount: -amount, note: 'Withdrawal Failed - Refunded', date: dateStr(), status: 'failed' }
+        scraydWallet: refundedScraydWallet,
+        [`transactions/${txKey}`]: { type: 'Withdrawal', amount: -amount, note: 'Withdrawal Failed - Refunded to Scrayd Wallet', date: dateStr(), status: 'failed' }
       });
       await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'failed', processed: true });
       await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
       await sendAdminNotification('withdrawal_auto_failed', username, amount, 'Marz send failed: ' + (sendResult?.message || 'Unknown error'));
     }
   } catch (sendError) {
-    // Exception during send - REFUND user instantly
+    // Exception during send - REFUND user instantly to Scrayd Wallet
     const userSnap = await db.ref('users/' + userId).get();
     const user = userSnap.val();
-    const refundedBalance = (user.balance || 0) + amount;
+    const refundedScraydWallet = (user.scraydWallet || 0) + amount;
     
     await db.ref('users/' + userId).update({ 
-      balance: refundedBalance,
-      [`transactions/${txKey}`]: { type: 'Withdrawal', amount: -amount, note: 'Withdrawal Failed - Refunded', date: dateStr(), status: 'failed' }
+      scraydWallet: refundedScraydWallet,
+      [`transactions/${txKey}`]: { type: 'Withdrawal', amount: -amount, note: 'Withdrawal Failed - Refunded to Scrayd Wallet', date: dateStr(), status: 'failed' }
     });
     await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'failed', processed: true });
     await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
@@ -1889,7 +2000,7 @@ async function doRegister() {
   const fullPhone = prefix + phoneDigits;
   const now = dateStr();
   const newUser = {
-    username, password, country, phone: fullPhone, balance: 4000, withdrawn: 0,
+    username, password, country, phone: fullPhone, primeBalance: 4000, scraydWallet: 0, withdrawn: 0,
     activated: false, locked: false, joinedDate: new Date().getFullYear().toString(),
     transactions: { t0: { type: 'Bonus', amount: 4000, note: 'Registration Bonus 🎁', date: now, status: 'completed' } },
     deposits: {}, ownedMachines: {}
