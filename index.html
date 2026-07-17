@@ -658,22 +658,18 @@ input[type="password"]{padding-right:46px;}
     <div class="inner-header"><div><div class="inner-title">Add Cash</div><div class="inner-sub">Add funds to your Prime Account</div></div></div>
     <div class="section">
       <div class="action-card">
-        <div class="deposit-note" id="dep-min-note">Minimum deposit: <strong>UGX 10,000</strong>. Includes 4% URA tax added to amount you pay.</div>
         <div class="field-group">
           <label class="field-label">Mobile Money Phone Number</label>
-          <div class="phone-prefix-wrap" id="dep-phone-wrap">
-            <div class="phone-prefix-badge" id="dep-prefix">+256</div>
-            <input type="tel" id="dep-phone" placeholder="7XXXXXXXX" maxlength="9" oninput="depPhoneInput(this)">
-          </div>
-          <div class="field-hint">9 digits starting with 7 (any MTN or Airtel number)</div>
-          <div class="field-error" id="dep-phone-err">Enter 9 digits starting with 7</div>
+          <div class="field-wrap"><input type="tel" id="dep-phone" placeholder="0712345678" maxlength="10" oninput="depPhoneInput(this)"></div>
+          <div class="field-hint">10 digits starting with 0 (any MTN or Airtel number)</div>
+          <div class="field-error" id="dep-phone-err">Enter 10 digits starting with 0</div>
         </div>
         <div class="field-group">
           <label class="field-label">Amount to Deposit (UGX)</label>
-          <div class="field-wrap"><input type="number" id="dep-amount" placeholder="Min 10,000 — Max 2,350,000" min="10000" max="2350000"></div>
+          <div style="font-size:9px;color:var(--success);font-weight:700;margin-bottom:4px;">Minimum deposit: UGX 10,000</div>
+          <div class="field-wrap"><input type="number" id="dep-amount" min="10000" max="2350000"></div>
           <div class="field-error" id="dep-amount-err">Please check the amount limits</div>
         </div>
-        <div class="deposit-note" id="tax-note" style="font-size:11px;background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3);color:var(--gold);">You will pay: <strong id="tax-amount">UGX 0</strong> (includes 4% URA tax)</div>
         <button class="green-btn" id="dep-submit-btn" onclick="doDeposit()">CONFIRM DEPOSIT</button>
       </div>
     </div>
@@ -1034,7 +1030,7 @@ function updateRegPrefix() {
 }
 
 function regPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 9); }
-function depPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 9); }
+function depPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 10); }
 
 function showAuth(id) {
   document.querySelectorAll('.auth-page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
@@ -1365,11 +1361,7 @@ function renderMyMachines() {
 }
 
 function updateUIWithSettings() {
-  const minDep = settingsData.minDeposit || 10000;
   const minWith = settingsData.minWithdraw || 10000;
-  const maxDep = settingsData.maxDeposit || 2350000;
-  const depNote = document.getElementById('dep-min-note');
-  if (depNote) depNote.innerHTML = `Minimum deposit <strong>${fmt(minDep)}</strong> — Maximum <strong>${fmt(maxDep)}</strong>. Includes 4% URA tax added to amount you pay.`;
   const withMinDisplay = document.getElementById('with-min-display');
   if (withMinDisplay) withMinDisplay.textContent = fmt(minWith);
   const withdrawLockedMsg = document.getElementById('withdraw-locked-msg');
@@ -1719,7 +1711,7 @@ async function sendAdminNotification(type, username, amount, message) {
 async function doDeposit() {
   clearErrors('dep-phone-err', 'dep-amount-err');
   const phoneDigits = document.getElementById('dep-phone').value.trim();
-  if (!phoneDigits || phoneDigits.length !== 9 || !phoneDigits.startsWith('7')) { setErr('dep-phone-err', true, 'Enter 9 digits starting with 7'); return; }
+  if (!phoneDigits || phoneDigits.length !== 10 || !phoneDigits.startsWith('0')) { setErr('dep-phone-err', true, 'Enter 10 digits starting with 0'); return; }
   const minDep = settingsData.minDeposit || 10000;
   const maxDep = settingsData.maxDeposit || 2350000;
   const amount = parseInt(document.getElementById('dep-amount').value) || 0;
@@ -1731,13 +1723,12 @@ async function doDeposit() {
   }
   const btn = document.getElementById('dep-submit-btn');
   btn.disabled = true; btn.textContent = 'Processing...';
-  const fullPhone = '+256' + phoneDigits;
+  const fullPhone = '+256' + phoneDigits.slice(1);
   const reference = genUUID();
   const uraTax = (settingsData.uraTax || 4) / 100;
   const totalAmount = Math.ceil(amount * (1 + uraTax));
   document.getElementById('dep-phone').value = '';
   document.getElementById('dep-amount').value = '';
-  document.getElementById('tax-note').style.display = 'none';
   
   const popup = document.getElementById('popup-banner');
   popup.textContent = 'Confirm with mobile money PIN';
