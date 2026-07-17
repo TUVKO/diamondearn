@@ -533,10 +533,10 @@ input[type="password"]{padding-right:46px;}
   </div>
 
   <div class="dash-section" id="sec-deposit">
-    <div class="inner-header"><span style="font-size:22px">💳</span><div><div class="inner-title">Invest</div><div class="inner-sub">Add funds to your BALANCE</div></div></div>
+    <div class="inner-header"><div><div class="inner-title">Add Cash</div><div class="inner-sub">Add funds to your BALANCE</div></div></div>
     <div class="section">
       <div class="action-card">
-        <div class="deposit-note" id="dep-min-note">✅ Minimum deposit: <strong>UGX 10,000</strong>. Includes 4% URA tax added to amount you pay.</div>
+        <div class="deposit-note" id="dep-min-note">Minimum deposit: <strong>UGX 10,000</strong>. Includes 4% URA tax added to amount you pay.</div>
         <div class="field-group">
           <label class="field-label">Mobile Money Phone Number</label>
           <div class="phone-prefix-wrap" id="dep-phone-wrap">
@@ -547,12 +547,12 @@ input[type="password"]{padding-right:46px;}
           <div class="field-error" id="dep-phone-err">Enter 9 digits starting with 7</div>
         </div>
         <div class="field-group">
-          <label class="field-label">Amount to Invest (UGX)</label>
-          <div class="field-wrap"><span class="field-icon">💰</span><input type="number" id="dep-amount" placeholder="Min 10,000 — Max 2,350,000" min="10000" max="2350000"></div>
+          <label class="field-label">Amount to Deposit (UGX)</label>
+          <div class="field-wrap"><input type="number" id="dep-amount" placeholder="Min 10,000 — Max 2,350,000" min="10000" max="2350000"></div>
           <div class="field-error" id="dep-amount-err">Please check the amount limits</div>
         </div>
-        <div class="deposit-note" id="tax-note" style="font-size:11px;background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3);color:var(--gold);">📊 You will pay: <strong id="tax-amount">UGX 0</strong> (includes 4% URA tax)</div>
-        <button class="green-btn" id="dep-submit-btn" onclick="doDeposit()">💳 INVEST NOW</button>
+        <div class="deposit-note" id="tax-note" style="font-size:11px;background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3);color:var(--gold);">You will pay: <strong id="tax-amount">UGX 0</strong> (includes 4% URA tax)</div>
+        <button class="green-btn" id="dep-submit-btn" onclick="doDeposit()">CONFIRM DEPOSIT</button>
       </div>
     </div>
   </div>
@@ -1230,7 +1230,7 @@ function updateUIWithSettings() {
   const minWith = settingsData.minWithdraw || 10000;
   const maxDep = settingsData.maxDeposit || 2350000;
   const depNote = document.getElementById('dep-min-note');
-  if (depNote) depNote.innerHTML = `✅ Minimum deposit <strong>${fmt(minDep)}</strong> — Maximum <strong>${fmt(maxDep)}</strong>. Includes 4% URA tax added to amount you pay.`;
+  if (depNote) depNote.innerHTML = `Minimum deposit <strong>${fmt(minDep)}</strong> — Maximum <strong>${fmt(maxDep)}</strong>. Includes 4% URA tax added to amount you pay.`;
   const withMinDisplay = document.getElementById('with-min-display');
   if (withMinDisplay) withMinDisplay.textContent = fmt(minWith);
   const withdrawLockedMsg = document.getElementById('withdraw-locked-msg');
@@ -1502,7 +1502,7 @@ async function doDeposit() {
     return; 
   }
   const btn = document.getElementById('dep-submit-btn');
-  btn.disabled = true; btn.textContent = '⏳ Processing...';
+  btn.disabled = true; btn.textContent = 'Processing...';
   const fullPhone = '+256' + phoneDigits;
   const reference = genUUID();
   const uraTax = (settingsData.uraTax || 4) / 100;
@@ -1512,7 +1512,7 @@ async function doDeposit() {
   document.getElementById('tax-note').style.display = 'none';
   
   const popup = document.getElementById('popup-banner');
-  popup.textContent = '🔐 Confirm with mobile money PIN';
+  popup.textContent = 'Confirm with mobile money PIN';
   popup.classList.add('show');
   setTimeout(() => popup.classList.remove('show'), 1000);
   
@@ -1537,7 +1537,7 @@ async function doDeposit() {
       // Update admin transaction to FAILED
       await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
       await sendAdminNotification('deposit_failed', currentUsername, amount, 'Deposit failed: ' + (result.message || 'Unknown error'));
-      btn.disabled = false; btn.textContent = '💳 INVEST NOW';
+      btn.disabled = false; btn.textContent = 'CONFIRM DEPOSIT';
       return;
     }
     const txUuid = result?.data?.transaction?.uuid;
@@ -1569,7 +1569,7 @@ async function doDeposit() {
     await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
     await sendAdminNotification('deposit_error', currentUsername, amount, error.message);
   }
-  btn.disabled = false; btn.textContent = '💳 INVEST NOW';
+  btn.disabled = false; btn.textContent = 'CONFIRM DEPOSIT';
   switchTab('home');
 }
 
