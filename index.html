@@ -111,6 +111,11 @@ input[type="password"]{padding-right:46px;}
 .balance-amount{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:var(--accent);}
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;}
 .stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 6px;text-align:center;}
+.stat-box-white{background:#ffffff !important;border:1px solid #e2e8f0 !important;}
+.stat-box-white .stat-label{color:#64748b !important;}
+.stat-box-white .stat-value{color:#0f172a !important;}
+.home-tab-btn{flex-shrink:0;background:#1a2e22;border:none;color:#fff;padding:10px 16px;border-radius:20px;font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;}
+.home-tab-btn:active{transform:scale(.97);}
 .stat-label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
 .stat-value{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;}
 .stat-value.dep{color:var(--gold)}.stat-value.earn{color:var(--accent3)}.stat-value.with{color:var(--warn)}.stat-value.total{color:var(--accent)}
@@ -411,24 +416,24 @@ input[type="password"]{padding-right:46px;}
   <!-- HOME / DASHBOARD -->
   <div class="dash-section active" id="sec-home">
     <div class="section">
-      <div class="stats-card">
-        <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div class="stat-box" style="padding:14px 8px;text-align:center;">
-            <div class="stat-label" style="font-size:8px;margin-bottom:6px;">BALANCE</div>
-            <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--success);" id="stat-balance">UGX 0</div>
-          </div>
-          <div class="stat-box" style="padding:14px 8px;text-align:center;">
-            <div class="stat-label" style="font-size:8px;margin-bottom:6px;">LOCKED IN MACHINES</div>
-            <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--accent);" id="stat-locked">UGX 0</div>
-          </div>
-        </div>
+      <div class="home-tabs" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;">
+        <button class="home-tab-btn" onclick="switchTab('deposit')">Recharge</button>
+        <button class="home-tab-btn" onclick="switchTab('withdraw')">Withdrawal</button>
+        <button class="home-tab-btn" onclick="switchTab('team')">Team</button>
+        <button class="home-tab-btn" onclick="goToDepositRecords()">Deposit Records</button>
       </div>
     </div>
 
     <div class="section">
-      <div class="action-grid" style="display:flex;flex-direction:column;gap:12px;margin:16px 0;align-items:flex-start;">
-        <button class="action-btn" style="background:#1a2e22;border:none;color:white;padding:12px 20px;border-radius:12px;font-weight:600;font-size:15px;" onclick="switchTab('deposit')"><span class="btn-icon">➕</span> Add Funds</button>
-        <button class="action-btn" style="background:#1a2e22;border:none;color:white;padding:12px 20px;border-radius:12px;font-weight:600;font-size:15px;" onclick="switchTab('withdraw')"><span class="btn-icon">➖</span> Withdraw Cash</button>
+      <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="stat-box stat-box-white" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">BALANCE</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;" id="stat-balance">UGX 0</div>
+        </div>
+        <div class="stat-box stat-box-white" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">LOCKED IN MACHINES</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;" id="stat-locked">UGX 0</div>
+        </div>
       </div>
     </div>
   </div>
@@ -486,7 +491,43 @@ input[type="password"]{padding-right:46px;}
 
   <!-- Profile -->
   <div class="dash-section" id="sec-profile">
-    <div class="inner-header"><span style="font-size:22px">👤</span><div><div class="inner-title">ME</div><div class="inner-sub">Coming soon</div></div></div>
+    <div class="inner-header"><span style="font-size:22px">👤</span><div><div class="inner-title">ME</div><div class="inner-sub">Your account overview</div></div></div>
+    <div class="section">
+      <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="stat-box" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">BALANCE</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--success);" id="me-balance">UGX 0</div>
+        </div>
+        <div class="stat-box" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">LOCKED IN MACHINES</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--accent3);" id="me-locked">UGX 0</div>
+        </div>
+        <div class="stat-box" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">PURCHASED MACHINES</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--text);" id="me-purchased-machines">0</div>
+        </div>
+        <div class="stat-box" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">TOTAL MACHINES (ALL)</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--text);" id="me-total-machines">0</div>
+        </div>
+        <div class="stat-box" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">TEAM MEMBERS</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--muted);" id="me-team-members">0</div>
+        </div>
+        <div class="stat-box" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">EARNED FROM TEAM</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--muted);" id="me-team-earned">UGX 0</div>
+        </div>
+        <div class="stat-box" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">TOTAL WITHDRAWN</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--warn);" id="me-withdrawn">UGX 0</div>
+        </div>
+        <div class="stat-box" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">TOTAL DEPOSITED</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;color:var(--success);" id="me-deposited">UGX 0</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Deposit -->
@@ -1302,6 +1343,32 @@ function startUserListener(username) {
 function updateProfileUI() {
   if (!currentUser) return;
   document.getElementById('with-phone-display').textContent = currentUser.phone || '—';
+  updateMeStats();
+}
+
+function updateMeStats() {
+  if (!currentUser) return;
+  const balance = currentUser.balance || 0;
+  const owned = currentUser.ownedMachines || {};
+  const ownedList = Object.values(owned);
+
+  let locked = 0;
+  let purchasedActive = 0;
+  ownedList.forEach(m => { if (m.status === 'active') { locked += (m.price || 0); purchasedActive++; } });
+  const totalMachinesAll = ownedList.length;
+
+  const deposits = currentUser.deposits || {};
+  let totalDeposited = 0;
+  Object.values(deposits).forEach(d => { totalDeposited += (d.amount || 0); });
+
+  document.getElementById('me-balance').textContent = fmt(balance);
+  document.getElementById('me-locked').textContent = fmt(locked);
+  document.getElementById('me-purchased-machines').textContent = purchasedActive;
+  document.getElementById('me-total-machines').textContent = totalMachinesAll;
+  document.getElementById('me-team-members').textContent = '0';
+  document.getElementById('me-team-earned').textContent = fmt(0);
+  document.getElementById('me-withdrawn').textContent = fmt(currentUser.withdrawn || 0);
+  document.getElementById('me-deposited').textContent = fmt(totalDeposited);
 }
 
 let currentHistoryFilter = 'all';
@@ -1310,6 +1377,12 @@ function setTxFilter(type, btnEl) {
   document.querySelectorAll('.tx-pill').forEach(b => b.classList.remove('active'));
   if (btnEl) btnEl.classList.add('active');
   renderHistory();
+}
+
+function goToDepositRecords() {
+  switchTab('history');
+  const pills = document.querySelectorAll('.tx-pill');
+  setTxFilter('Deposit', pills[1] || null);
 }
 
 function renderHistory() {
