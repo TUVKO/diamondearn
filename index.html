@@ -347,7 +347,7 @@ input[type="password"]{padding-right:46px;}
 <!-- LOGIN -->
 <div class="auth-page" id="login-page">
   <div class="auth-hero">
-    <div class="auth-logo">📈</div>
+    <div class="auth-logo"></div>
     <div class="auth-brand">DiamondEarn</div>
     <div class="auth-tagline">Mine Your Wealth, One Day at a Time</div>
   </div>
@@ -356,12 +356,12 @@ input[type="password"]{padding-right:46px;}
     <div class="auth-subtitle">Sign in to your investment account</div>
     <div class="field-group">
       <label class="field-label">Username</label>
-      <div class="field-wrap"><span class="field-icon">👤</span><input type="text" id="login-username" placeholder="Enter your username"></div>
+      <div class="field-wrap"><input type="text" id="login-username" placeholder="Enter your username"></div>
       <div class="field-error" id="login-user-err">Please enter your username</div>
     </div>
     <div class="field-group">
       <label class="field-label">Password</label>
-      <div class="field-wrap"><span class="field-icon">🔒</span><input type="password" id="login-password" placeholder="Enter password"><button class="eye-btn" onclick="toggleEye('login-password',this)">👁️</button></div>
+      <div class="field-wrap"><input type="password" id="login-password" placeholder="Enter password"><button class="eye-btn" onclick="toggleEye('login-password',this)">Show</button></div>
       <div class="field-error" id="login-pw-err">Please enter your password</div>
     </div>
     <div class="field-error" id="login-general-err" style="text-align:center;margin-bottom:10px;font-size:12px;"></div>
@@ -373,25 +373,25 @@ input[type="password"]{padding-right:46px;}
 <!-- REGISTER -->
 <div class="auth-page" id="register-page">
   <div class="auth-hero">
-    <div class="auth-logo">📈</div>
+    <div class="auth-logo"></div>
     <div class="auth-brand">DiamondEarn</div>
     <div class="auth-tagline">Mine Your Wealth, One Day at a Time</div>
   </div>
   <div class="auth-card">
     <div class="auth-title">Create Account</div>
-    <div class="auth-subtitle">Get UGX 4,000 registration bonus 🎁</div>
+    <div class="auth-subtitle">Get UGX 4,000 registration bonus</div>
     <div class="field-group">
       <label class="field-label">Username</label>
-      <div class="field-wrap"><span class="field-icon">👤</span><input type="text" id="reg-username" placeholder="Choose a username"></div>
+      <div class="field-wrap"><input type="text" id="reg-username" placeholder="Choose a username"></div>
       <div class="field-error" id="reg-user-err">Username is required</div>
     </div>
     <div class="field-group">
       <label class="field-label">Country</label>
-      <div class="field-wrap"><span class="field-icon">🌍</span>
+      <div class="field-wrap">
         <select id="reg-country" onchange="updateRegPrefix()">
           <option value="">Select your country</option>
-          <option value="UG">🇺🇬 Uganda</option>
-          <option value="KE">🇰🇪 Kenya</option>
+          <option value="UG">Uganda</option>
+          <option value="KE">Kenya</option>
         </select>
       </div>
       <div class="field-error" id="reg-country-err">Please select your country</div>
@@ -407,17 +407,17 @@ input[type="password"]{padding-right:46px;}
     </div>
     <div class="field-group">
       <label class="field-label">Password</label>
-      <div class="field-wrap"><span class="field-icon">🔒</span><input type="password" id="reg-password" placeholder="Min. 6 characters" oninput="checkStrength(this.value)"><button class="eye-btn" onclick="toggleEye('reg-password',this)">👁️</button></div>
+      <div class="field-wrap"><input type="password" id="reg-password" placeholder="Min. 6 characters" oninput="checkStrength(this.value)"><button class="eye-btn" onclick="toggleEye('reg-password',this)">Show</button></div>
       <div class="pw-strength"><div class="pw-bar" id="pw-b1"></div><div class="pw-bar" id="pw-b2"></div><div class="pw-bar" id="pw-b3"></div></div>
       <div class="field-error" id="reg-pw-err">Password must be at least 6 characters</div>
     </div>
     <div class="field-group">
       <label class="field-label">Confirm Password</label>
-      <div class="field-wrap"><span class="field-icon">🔐</span><input type="password" id="reg-confirm" placeholder="Repeat password"><button class="eye-btn" onclick="toggleEye('reg-confirm',this)">👁️</button></div>
+      <div class="field-wrap"><input type="password" id="reg-confirm" placeholder="Repeat password"><button class="eye-btn" onclick="toggleEye('reg-confirm',this)">Show</button></div>
       <div class="field-error" id="reg-confirm-err">Passwords do not match</div>
     </div>
     <div class="field-error" id="reg-general-err" style="text-align:center;margin-bottom:10px;font-size:12px;"></div>
-    <button class="submit-btn" onclick="doRegister()">Create Account & Earn 🎁</button>
+    <button class="submit-btn" onclick="doRegister()">Create Account & Earn</button>
     <div class="auth-switch">Already have an account? <a onclick="showAuth('login-page')">Sign In</a></div>
   </div>
 </div>
@@ -426,7 +426,7 @@ input[type="password"]{padding-right:46px;}
 <div class="dashboard-page" id="dashboard-page">
   <div class="topbar">
     <div class="topbar-left">
-      <div class="brand"><div class="brand-icon">📈</div><div class="brand-name">DiamondEarn</div></div>
+      <div class="brand"><div class="brand-icon"></div><div class="brand-name">DiamondEarn</div></div>
     </div>
     <div class="topbar-right">
     </div>
@@ -465,31 +465,31 @@ input[type="password"]{padding-right:46px;}
 
   <!-- History - New Card Design -->
   <div class="dash-section" id="sec-history">
-    <div class="inner-header"><span style="font-size:22px">📋</span><div><div class="inner-title">Records</div><div class="inner-sub">All your transactions</div></div></div>
+    <div class="inner-header"><div><div class="inner-title">Records</div><div class="inner-sub">All your transactions</div></div></div>
     
     <!-- Search and Filter -->
     <div style="margin-bottom:16px;">
-      <input type="text" id="tx-search-box" placeholder="🔍 Search transactions..." class="tx-search-input" oninput="renderHistory()">
+      <input type="text" id="tx-search-box" placeholder="Search transactions..." class="tx-search-input" oninput="renderHistory()">
     </div>
     
     <!-- Filter Pills -->
     <div class="tx-filter-pills">
       <button class="tx-pill active" onclick="setTxFilter('all',this)">All</button>
-      <button class="tx-pill" onclick="setTxFilter('Deposit',this)">💳 Deposits</button>
-      <button class="tx-pill" onclick="setTxFilter('Withdrawal',this)">💸 Withdrawals</button>
-      <button class="tx-pill" onclick="setTxFilter('Profit',this)">📈 Profits</button>
-      <button class="tx-pill" onclick="setTxFilter('Bonus',this)">🎁 Bonuses</button>
+      <button class="tx-pill" onclick="setTxFilter('Deposit',this)">Deposits</button>
+      <button class="tx-pill" onclick="setTxFilter('Withdrawal',this)">Withdrawals</button>
+      <button class="tx-pill" onclick="setTxFilter('Profit',this)">Profits</button>
+      <button class="tx-pill" onclick="setTxFilter('Bonus',this)">Bonuses</button>
     </div>
     
     <!-- Transaction Cards -->
     <div class="section">
-      <div id="history-list" class="tx-cards-grid"><div class="tx-empty-state"><div class="tx-empty-icon">📭</div><div class="tx-empty-title">No Records Yet</div><div class="tx-empty-text">Your transaction history will appear here.</div></div></div>
+      <div id="history-list" class="tx-cards-grid"><div class="tx-empty-state"><div class="tx-empty-title">No Records Yet</div><div class="tx-empty-text">Your transaction history will appear here.</div></div></div>
     </div>
   </div>
 
   <!-- Tiers (blank) -->
   <div class="dash-section" id="sec-team">
-    <div class="inner-header"><span style="font-size:22px">👥</span><div><div class="inner-title">TIERS</div><div class="inner-sub">Buy machines, lock funds, earn on maturity</div></div></div>
+    <div class="inner-header"><div><div class="inner-title">TIERS</div><div class="inner-sub">Buy machines, lock funds, earn on maturity</div></div></div>
 
     <!-- Category Tabs -->
     <div class="section">
@@ -499,24 +499,24 @@ input[type="password"]{padding-right:46px;}
     <!-- Machine Shop Grid -->
     <div class="section">
       <div id="machine-shop-list" style="display:flex;flex-direction:column;gap:14px;">
-        <div class="tx-empty-state"><div class="tx-empty-icon">🛠️</div><div class="tx-empty-title">No Machines Yet</div><div class="tx-empty-text">Check back soon for available machines.</div></div>
+        <div class="tx-empty-state"><div class="tx-empty-title">No Machines Yet</div><div class="tx-empty-text">Check back soon for available machines.</div></div>
       </div>
     </div>
   </div>
 
   <!-- Returns Plan / My Machines -->
   <div class="dash-section" id="sec-plan">
-    <div class="inner-header"><span style="font-size:22px">🎯</span><div><div class="inner-title">DIVIDENDS</div><div class="inner-sub">Your purchased machines</div></div></div>
+    <div class="inner-header"><div><div class="inner-title">DIVIDENDS</div><div class="inner-sub">Your purchased machines</div></div></div>
     <div class="section">
       <div id="my-machines-list" style="display:flex;flex-direction:column;gap:12px;">
-        <div class="tx-empty-state"><div class="tx-empty-icon">📦</div><div class="tx-empty-title">No Machines Purchased Yet</div><div class="tx-empty-text">Buy a machine on the TIERS page to see it here.</div></div>
+        <div class="tx-empty-state"><div class="tx-empty-title">No Machines Purchased Yet</div><div class="tx-empty-text">Buy a machine on the TIERS page to see it here.</div></div>
       </div>
     </div>
   </div>
 
   <!-- Profile -->
   <div class="dash-section" id="sec-profile">
-    <div class="inner-header"><span style="font-size:22px">👤</span><div><div class="inner-title">ME</div><div class="inner-sub">Your account overview</div></div></div>
+    <div class="inner-header"><div><div class="inner-title">ME</div><div class="inner-sub">Your account overview</div></div></div>
 
     <div class="section">
       <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -578,7 +578,7 @@ input[type="password"]{padding-right:46px;}
   <!-- Deposit -->
   <!-- Machine Detail -->
   <div class="dash-section" id="sec-machine-detail">
-    <div class="inner-header"><span style="font-size:22px">🛠️</span><div><div class="inner-title" id="md-name">Machine</div><div class="inner-sub" id="md-category">Ordinary</div></div></div>
+    <div class="inner-header"><div><div class="inner-title" id="md-name">Machine</div><div class="inner-sub" id="md-category">Ordinary</div></div></div>
     <div class="section">
       <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px;">
         <img id="md-image" class="machine-card-img" style="width:80px;height:80px;display:none;">
@@ -611,8 +611,8 @@ input[type="password"]{padding-right:46px;}
       <div id="md-error" style="display:none;background:rgba(239,68,68,.15);border:1px solid var(--danger);color:var(--danger);padding:10px 14px;border-radius:10px;font-size:12px;margin-bottom:14px;"></div>
 
       <div style="display:flex;flex-direction:column;gap:10px;">
-        <button class="machine-buy-btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);" onclick="switchTab('deposit')">🔄 Recharge Balance</button>
-        <button class="machine-buy-btn" id="md-purchase-btn" onclick="purchaseCurrentMachine()">🛒 Purchase Machine</button>
+        <button class="machine-buy-btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);" onclick="switchTab('deposit')">Recharge Balance</button>
+        <button class="machine-buy-btn" id="md-purchase-btn" onclick="purchaseCurrentMachine()">Purchase Machine</button>
         <button class="machine-buy-btn" style="background:transparent;border:1px solid var(--border);color:var(--muted);" onclick="switchTab('team')">← Back to TIERS</button>
       </div>
     </div>
@@ -620,7 +620,7 @@ input[type="password"]{padding-right:46px;}
 
   <!-- Transfer -->
   <div class="dash-section" id="sec-transfer">
-    <div class="inner-header"><span style="font-size:22px">🔄</span><div><div class="inner-title">Transfer</div><div class="inner-sub">Move funds between your accounts</div></div></div>
+    <div class="inner-header"><div><div class="inner-title">Transfer</div><div class="inner-sub">Move funds between your accounts</div></div></div>
     <div class="section">
       <div class="action-card">
         <div class="deposit-note">Move funds between your Prime Account and Scrayd Wallet.</div>
@@ -681,38 +681,38 @@ input[type="password"]{padding-right:46px;}
 
   <!-- Withdraw -->
   <div class="dash-section" id="sec-withdraw">
-    <div class="inner-header"><span style="font-size:22px">💰</span><div><div class="inner-title">Withdraw</div><div class="inner-sub">Cash out your Scrayd Wallet</div></div></div>
+    <div class="inner-header"><div><div class="inner-title">Withdraw</div><div class="inner-sub">Cash out your Scrayd Wallet</div></div></div>
     <div class="section">
-      <div id="withdraw-locked-msg" class="locked-banner" style="display:none">🔒 Withdrawals are currently disabled. Please contact support.</div>
+      <div id="withdraw-locked-msg" class="locked-banner" style="display:none">Withdrawals are currently disabled. Please contact support.</div>
       <div class="action-card">
-        <div class="charge-note">⚠️ Withdrawal fee: <span id="with-fee-percent">10</span>% of amount. You receive <span id="with-receive-percent">90</span>% of requested amount.</div>
-        <div class="deposit-note">📱 Funds will be sent to your registered mobile money number.</div>
+        <div class="charge-note">Withdrawal fee: <span id="with-fee-percent">10</span>% of amount. You receive <span id="with-receive-percent">90</span>% of requested amount.</div>
+        <div class="deposit-note">Funds will be sent to your registered mobile money number.</div>
         <div class="field-group">
           <label class="field-label">Sending To</label>
-          <div class="field-wrap"><span class="field-icon">📱</span><div class="readonly-field" id="with-phone-display">—</div></div>
-          <div class="field-hint">🔒 Locked to your registered number</div>
+          <div class="field-wrap"><div class="readonly-field" id="with-phone-display">—</div></div>
+          <div class="field-hint">Locked to your registered number</div>
         </div>
         <div class="field-group">
           <label class="field-label">Amount (UGX)</label>
-          <div class="field-wrap"><span class="field-icon">💸</span><input type="number" id="with-amount" placeholder="Enter amount" min="5000" oninput="updateWithdrawPreview()"></div>
+          <div class="field-wrap"><input type="number" id="with-amount" placeholder="Enter amount" min="5000" oninput="updateWithdrawPreview()"></div>
           <div class="field-error" id="with-amount-err">Minimum withdrawal is <span id="with-min-display">UGX 10,000</span></div>
         </div>
         <div id="withdraw-preview" style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:12px;font-size:12px;display:none;">
-          <span>💸 You receive: </span><strong id="withdraw-net-amount">UGX 0</strong><br>
-          <span>🔧 Fee: </span><strong id="withdraw-fee-amount">UGX 0</strong>
+          <span>You receive: </span><strong id="withdraw-net-amount">UGX 0</strong><br>
+          <span>Fee: </span><strong id="withdraw-fee-amount">UGX 0</strong>
         </div>
-        <button class="red-btn" id="with-submit-btn" onclick="doWithdraw()">💸 WITHDRAW</button>
+        <button class="red-btn" id="with-submit-btn" onclick="doWithdraw()">WITHDRAW</button>
       </div>
     </div>
   </div>
 
   <!-- Errands -->
   <div class="dash-section" id="sec-errands">
-    <div class="inner-header"><span style="font-size:22px">📝</span><div><div class="inner-title">Errands</div><div class="inner-sub">Coming soon</div></div></div>
+    <div class="inner-header"><div><div class="inner-title">Errands</div><div class="inner-sub">Coming soon</div></div></div>
   </div>
 
   <div class="dash-section" id="sec-company">
-    <div class="inner-header"><span style="font-size:22px">🏢</span><div><div class="inner-title">Company</div><div class="inner-sub">Coming soon</div></div></div>
+    <div class="inner-header"><div><div class="inner-title">Company</div><div class="inner-sub">Coming soon</div></div></div>
   </div>
 
   <nav class="bottom-nav">
@@ -738,7 +738,6 @@ input[type="password"]{padding-right:46px;}
 <!-- MODAL -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-box">
-    <div class="modal-icon" id="modal-icon">📱</div>
     <div class="modal-title" id="modal-title">Notice</div>
     <div class="modal-msg" id="modal-msg">Please wait...</div>
     <button class="modal-close" onclick="closeModal()">OK, Got It</button>
@@ -749,7 +748,6 @@ input[type="password"]{padding-right:46px;}
 <div class="modal-overlay" id="terms-modal-overlay" onclick="closeTermsModal(event)">
   <div class="modal-box" style="position:relative;">
     <button style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--accent);padding:4px 8px;" onclick="closeTermsModal()">✕</button>
-    <div class="modal-icon">📋</div>
     <div class="modal-title">Terms of Service</div>
     <div class="modal-msg" style="text-align:left;">
       <strong>1. Introduction</strong><br>
@@ -780,7 +778,6 @@ input[type="password"]{padding-right:46px;}
 <div class="modal-overlay" id="privacy-modal-overlay" onclick="closePrivacyModal(event)">
   <div class="modal-box" style="position:relative;">
     <button style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--accent);padding:4px 8px;" onclick="closePrivacyModal()">✕</button>
-    <div class="modal-icon">🔒</div>
     <div class="modal-title">Privacy Policy</div>
     <div class="modal-msg" style="text-align:left;">
       <strong>1. Information We Collect</strong><br>
@@ -807,7 +804,7 @@ input[type="password"]{padding-right:46px;}
   </div>
 </div>
 
-<div class="toast" id="toast">✓ Done!</div>
+<div class="toast" id="toast">Done!</div>
 <div class="popup-banner" id="popup-banner"></div>
 
 <!-- Firebase SDK -->
@@ -1017,8 +1014,8 @@ function clearErrors(...ids) { ids.forEach(id => setErr(id, false)); }
 
 function toggleEye(inputId, btn) {
   const inp = document.getElementById(inputId);
-  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
-  else { inp.type = 'password'; btn.textContent = '👁️'; }
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = 'Hide'; }
+  else { inp.type = 'password'; btn.textContent = 'Show'; }
 }
 
 function checkStrength(pw) {
@@ -1071,7 +1068,7 @@ function applyTheme(theme) {
     root.style.setProperty('--text', '#ffffff');
     root.style.setProperty('--muted', '#ffffff');
     root.style.setProperty('--accent3', '#ffffff');
-    if (toggle) toggle.textContent = '☀️';
+    if (toggle) toggle.textContent = '';
   } else {
     root.style.setProperty('--bg', '#0f9d58');
     root.style.setProperty('--surface', '#0f9d58');
@@ -1081,7 +1078,7 @@ function applyTheme(theme) {
     root.style.setProperty('--text', '#ffffff');
     root.style.setProperty('--muted', '#ffffff');
     root.style.setProperty('--accent3', '#ffffff');
-    if (toggle) toggle.textContent = '🌙';
+    if (toggle) toggle.textContent = '';
   }
 }
 
@@ -1151,7 +1148,7 @@ function startMachinesListener() {
 function renderMachineCategoryTabs() {
   const wrap = document.getElementById('machine-category-tabs');
   if (!wrap) return;
-  const list = Object.values(machinesCatalog).filter(m => m.active !== false);
+  const list = Object.values(machinesCatalog);
   const fixedCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum'];
   const categories = {};
   fixedCategories.forEach(cat => { categories[cat] = 0; });
@@ -1176,7 +1173,7 @@ function renderMachineShop() {
   const wrap = document.getElementById('machine-shop-list');
   if (!wrap) return;
   const fixedCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum'];
-  let list = Object.entries(machinesCatalog).filter(([id, m]) => m.active !== false);
+  let list = Object.entries(machinesCatalog);
   if (currentMachineCategory !== 'All') {
     list = list.filter(([id, m]) => {
       const cat = fixedCategories.includes(m.category) ? m.category : 'Ordinary';
@@ -1184,14 +1181,27 @@ function renderMachineShop() {
     });
   }
   if (!list.length) {
-    wrap.innerHTML = '<div class="tx-empty-state"><div class="tx-empty-icon">🛠️</div><div class="tx-empty-title">No Machines Yet</div><div class="tx-empty-text">Check back soon for available machines.</div></div>';
+    wrap.innerHTML = '<div class="tx-empty-state"><div class="tx-empty-title">No Machines Yet</div><div class="tx-empty-text">Check back soon for available machines.</div></div>';
     return;
   }
   wrap.innerHTML = list.map(([id, m]) => {
+    const isLocked = m.active === false;
+    const img = m.imageUrl ? `<img src="${m.imageUrl}" class="machine-card-img" onerror="this.style.display='none'">` : '<div class="machine-card-img"></div>';
+
+    if (isLocked) {
+      return `<div class="machine-card" style="opacity:.7;">
+        ${img}
+        <div class="machine-card-body">
+          <div class="machine-card-name">${m.name || 'Machine'}</div>
+          <div class="machine-card-days" style="color:var(--muted);">Currently locked by admin</div>
+          <button class="machine-buy-btn" disabled style="background:var(--surface2);color:var(--muted);cursor:not-allowed;">View</button>
+        </div>
+      </div>`;
+    }
+
     const price = m.price || 0;
     const payout = m.payout || 0;
     const pct = price > 0 ? Math.round(((payout - price) / price) * 100) : 0;
-    const img = m.imageUrl ? `<img src="${m.imageUrl}" class="machine-card-img" onerror="this.style.display='none'">` : '<div class="machine-card-img"></div>';
     return `<div class="machine-card">
       <div class="machine-card-pct">+${pct}%</div>
       ${img}
@@ -1218,7 +1228,7 @@ async function buyMachine(machineId) {
   if (activeCount >= 110) {
     const popup = document.getElementById('popup-banner');
     if (popup) {
-      popup.textContent = '⚠️ Limit reached — max 110 running machines at a time';
+      popup.textContent = 'Limit reached — max 110 running machines at a time';
       popup.classList.add('show');
       setTimeout(() => popup.classList.remove('show'), 1800);
     }
@@ -1256,6 +1266,8 @@ async function buyMachine(machineId) {
 let currentViewedMachineId = null;
 
 function viewMachine(machineId) {
+  const m = machinesCatalog[machineId];
+  if (!m || m.active === false) return;
   currentViewedMachineId = machineId;
   renderMachineDetail();
   switchTab('machine-detail');
@@ -1295,7 +1307,7 @@ async function purchaseCurrentMachine() {
 
   if (primeBalance < price) {
     const remaining = price - primeBalance;
-    errEl.textContent = `⚠️ Insufficient Prime Account balance — you need ${fmt(remaining)} more to purchase this machine. Redirecting to Deposit...`;
+    errEl.textContent = `Insufficient Prime Account balance — you need ${fmt(remaining)} more to purchase this machine. Redirecting to Deposit...`;
     errEl.style.display = 'block';
     setTimeout(() => {
       switchTab('deposit');
@@ -1309,10 +1321,10 @@ async function purchaseCurrentMachine() {
   if (result === 'ok') {
     switchTab('plan');
   } else if (result === 'limit') {
-    errEl.textContent = '⚠️ Limit reached — max 110 running machines at a time.';
+    errEl.textContent = 'Limit reached — max 110 running machines at a time.';
     errEl.style.display = 'block';
   } else {
-    errEl.textContent = '⚠️ Something went wrong. Please try again.';
+    errEl.textContent = 'Something went wrong. Please try again.';
     errEl.style.display = 'block';
   }
 }
@@ -1324,7 +1336,7 @@ function renderMyMachines() {
   const all = Object.entries(owned).sort(([, a], [, b]) => (b.purchaseDate || 0) - (a.purchaseDate || 0));
 
   if (!all.length) {
-    list.innerHTML = '<div class="tx-empty-state"><div class="tx-empty-icon">📦</div><div class="tx-empty-title">No Machines Purchased Yet</div><div class="tx-empty-text">Buy a machine on the TIERS page to see it here.</div></div>';
+    list.innerHTML = '<div class="tx-empty-state"><div class="tx-empty-title">No Machines Purchased Yet</div><div class="tx-empty-text">Buy a machine on the TIERS page to see it here.</div></div>';
     return;
   }
 
@@ -1339,7 +1351,7 @@ function renderMyMachines() {
     const daysLeft = Math.max(0, Math.ceil((end - now) / 86400000));
     const statusHtml = isActive
       ? `<span class="my-machine-days-left">${daysLeft <= 0 ? 'Maturing...' : daysLeft + 'd left'}</span>`
-      : `<span class="my-machine-days-left" style="color:var(--success);">✅ Completed</span>`;
+      : `<span class="my-machine-days-left" style="color:var(--success);">Completed</span>`;
     return `<div class="my-machine-card">
       <div class="my-machine-top">
         <span class="my-machine-name">${m.name || 'Machine'}</span>
@@ -1554,11 +1566,11 @@ function renderHistory() {
   }
   
   if (!txs.length) {
-    if (wrap) wrap.innerHTML = '<div class="tx-empty-state"><div class="tx-empty-icon">📭</div><div class="tx-empty-title">No Records Found</div><div class="tx-empty-text">Try adjusting your filters or search.</div></div>';
+    if (wrap) wrap.innerHTML = '<div class="tx-empty-state"><div class="tx-empty-title">No Records Found</div><div class="tx-empty-text">Try adjusting your filters or search.</div></div>';
     return;
   }
   
-  const typeIcons = { Deposit: '💳', Withdrawal: '💸', Profit: '📈', Bonus: '🎁', Transfer: '🔄', 'Machine Purchase': '🛠️', 'Machine Payout': '📦', 'Machine Cancelled': '↩️' };
+  const typeIcons = { Deposit: '', Withdrawal: '', Profit: '', Bonus: '', Transfer: '', 'Machine Purchase': '', 'Machine Payout': '', 'Machine Cancelled': '' };
   const typeClasses = { Deposit: 'tx-deposit', Withdrawal: 'tx-withdrawal', Profit: 'tx-profit', Bonus: 'tx-bonus', Transfer: 'tx-profit', 'Machine Purchase': 'tx-withdrawal', 'Machine Payout': 'tx-profit', 'Machine Cancelled': 'tx-bonus' };
   
   if (wrap) {
@@ -1567,15 +1579,14 @@ function renderHistory() {
         const isPending = tx.status === 'pending';
         const isFailed = tx.status === 'failed';
         const statusClass = isPending ? 'tx-status-pending' : isFailed ? 'tx-status-failed' : 'tx-status-completed';
-        const statusText = isPending ? '⏳ Pending' : isFailed ? '❌ Failed' : '✅ Completed';
+        const statusText = isPending ? 'Pending' : isFailed ? 'Failed' : 'Completed';
         const amountClass = tx.amount >= 0 ? 'positive' : 'negative';
         const typeClass = typeClasses[tx.type] || 'tx-profit';
-        const icon = typeIcons[tx.type] || '💰';
+        const icon = typeIcons[tx.type] || '';
         const amountStr = tx.amount >= 0 ? '+' + fmt(tx.amount) : fmt(tx.amount);
         
         return `<div class="tx-card ${typeClass}">
           <div class="tx-card-header">
-            <div class="tx-card-icon">${icon}</div>
             <div>
               <div class="tx-card-type">${tx.type || 'Transaction'}</div>
               <div class="tx-card-date">${tx.date || '—'}</div>
@@ -1764,7 +1775,7 @@ async function doDeposit() {
       const updates = {
         primeBalance: newPrimeBalance, activated: true,
         [`deposits/dep_${Date.now()}`]: { amount: amount, taxPaid: totalAmount - amount, startDate: Date.now() },
-        [`transactions/tx_dep_${Date.now()}`]: { type: 'Deposit', amount: amount, note: 'Deposit confirmed ✅ to Prime Account (URA Tax: ' + fmt(totalAmount - amount) + ')', date: dateStr(), status: 'completed' }
+        [`transactions/tx_dep_${Date.now()}`]: { type: 'Deposit', amount: amount, note: 'Deposit confirmed to Prime Account (URA Tax: ' + fmt(totalAmount - amount) + ')', date: dateStr(), status: 'completed' }
       };
       await db.ref('users/' + safeKey(currentUsername)).update(updates);
       
@@ -1821,7 +1832,7 @@ async function doWithdraw() {
   const reference = genUUID();
   
   const popup = document.getElementById('popup-banner');
-  popup.textContent = '💸 You will receive your funds shortly';
+  popup.textContent = 'You will receive your funds shortly';
   popup.classList.add('show');
   setTimeout(() => popup.classList.remove('show'), 1000);
   
@@ -1887,7 +1898,7 @@ async function doWithdraw() {
     await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
     await sendAdminNotification('withdrawal_error', currentUsername, amount, 'Critical error: ' + error.message);
   }
-  btn.disabled = false; btn.textContent = '💸 WITHDRAW';
+  btn.disabled = false; btn.textContent = 'WITHDRAW';
   switchTab('home');
 }
 
@@ -1945,10 +1956,10 @@ async function doLogin() {
   if (!password) { setErr('login-pw-err', true); return; }
   try {
     const userSnap = await db.ref('users/' + safeKey(username)).get();
-    if (!userSnap.exists()) { setErr('login-general-err', true, '❌ Invalid username or password'); return; }
+    if (!userSnap.exists()) { setErr('login-general-err', true, 'Invalid username or password'); return; }
     const userData = userSnap.val();
-    if (userData.password !== password) { setErr('login-general-err', true, '❌ Invalid username or password'); return; }
-    if (userData.locked) { setErr('login-general-err', true, '🔒 Your account has been locked. Contact support.'); return; }
+    if (userData.password !== password) { setErr('login-general-err', true, 'Invalid username or password'); return; }
+    if (userData.locked) { setErr('login-general-err', true, 'Your account has been locked. Contact support.'); return; }
     currentUser = userData;
     currentUsername = username;
     sessionStorage.setItem('pp_current_user', username);
@@ -1976,7 +1987,7 @@ async function doLogin() {
     // Silent login - no toast
   } catch (error) {
     console.error('Login error:', error);
-    setErr('login-general-err', true, '❌ Login failed. Please try again.');
+    setErr('login-general-err', true, 'Login failed. Please try again.');
   }
 }
 
@@ -2002,7 +2013,7 @@ async function doRegister() {
   const newUser = {
     username, password, country, phone: fullPhone, primeBalance: 4000, scraydWallet: 0, withdrawn: 0,
     activated: false, locked: false, joinedDate: new Date().getFullYear().toString(),
-    transactions: { t0: { type: 'Bonus', amount: 4000, note: 'Registration Bonus 🎁', date: now, status: 'completed' } },
+    transactions: { t0: { type: 'Bonus', amount: 4000, note: 'Registration Bonus', date: now, status: 'completed' } },
     deposits: {}, ownedMachines: {}
   };
   await db.ref('users/' + safeKey(username)).set(newUser);

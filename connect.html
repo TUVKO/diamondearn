@@ -1091,10 +1091,10 @@ function renderMachinesTable() {
       <td class="mono">${m.days || 0}d</td>
       <td class="mono" style="color:var(--success)">${fmt(payout)}</td>
       <td class="mono" style="color:var(--accent3)">+${pct}%</td>
-      <td><span class="badge ${m.active === false ? 'badge-locked' : 'badge-active'}">${m.active === false ? 'Inactive' : 'Active'}</span></td>
+      <td><span class="badge ${m.active === false ? 'badge-locked' : 'badge-active'}">${m.active === false ? 'Locked' : 'Unlocked'}</span></td>
       <td style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn btn-edit" onclick="editMachine('${id}')">✏️ Edit</button>
-        <button class="btn ${m.active === false ? 'btn-approve' : 'btn-reject'}" onclick="toggleMachineActive('${id}', ${m.active === false})">${m.active === false ? '✅ Activate' : '⛔ Deactivate'}</button>
+        <button class="btn ${m.active === false ? 'btn-approve' : 'btn-reject'}" onclick="toggleMachineActive('${id}', ${m.active === false})">${m.active === false ? '🔓 Unlock' : '🔒 Lock'}</button>
         <button class="btn btn-delete" onclick="deleteMachine('${id}')">🗑️</button>
       </td>
     </tr>`;
@@ -1239,7 +1239,7 @@ function cancelMachineEdit() {
 
 async function toggleMachineActive(id, newActive) {
   await db.ref('machines/' + id + '/active').set(newActive);
-  toast(newActive ? '✅ Machine activated' : '⛔ Machine deactivated', newActive ? undefined : '#f87171');
+  toast(newActive ? '🔓 Machine unlocked' : '🔒 Machine locked', newActive ? undefined : '#f87171');
 }
 
 async function deleteMachine(id) {
