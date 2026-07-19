@@ -378,7 +378,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
             <div><label class="f-label">Price (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-price" placeholder="24000" min="0" oninput="updateMachinePayoutPreview()"></div>
             <div><label class="f-label">Days</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-days" placeholder="14" min="1"></div>
-            <div><label class="f-label">Return %</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-percent" placeholder="e.g. 50" min="1" max="100" step="0.1" oninput="updateMachinePayoutPreview()"></div>
+            <div><label class="f-label">Total Return (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-return-total" placeholder="e.g. 12000" min="1" oninput="updateMachinePayoutPreview()"></div>
           </div>
           <input type="hidden" id="machine-payout">
           <div id="machine-payout-preview" style="font-size:12px;color:var(--muted);margin-bottom:14px;">💰 Payout will be calculated automatically</div>
@@ -1154,16 +1154,17 @@ function handleMachineImageUpload(input) {
 
 function updateMachinePayoutPreview() {
   const price = parseFloat(document.getElementById('machine-price').value) || 0;
-  const percent = parseFloat(document.getElementById('machine-percent').value) || 0;
+  const returnTotal = parseFloat(document.getElementById('machine-return-total').value) || 0;
   const preview = document.getElementById('machine-payout-preview');
-  if (price <= 0 || percent <= 0) {
+  if (price <= 0 || returnTotal <= 0) {
     document.getElementById('machine-payout').value = '';
     preview.textContent = '💰 Payout will be calculated automatically';
     return;
   }
-  const payout = Math.round(price + (price * percent / 100));
+  const payout = Math.round(price + returnTotal);
+  const pct = Math.round((returnTotal / price) * 100);
   document.getElementById('machine-payout').value = payout;
-  preview.innerHTML = `💰 Payout: <strong style="color:var(--success)">${fmt(payout)}</strong> (Price ${fmt(price)} + ${percent}% return)`;
+  preview.innerHTML = `💰 Payout: <strong style="color:var(--success)">${fmt(payout)}</strong> (Price ${fmt(price)} + ${fmt(returnTotal)} return — ${pct}%)`;
 }
 
 async function saveMachine() {
@@ -1173,13 +1174,14 @@ async function saveMachine() {
   const imageUrl = document.getElementById('machine-image').value.trim();
   const price = parseInt(document.getElementById('machine-price').value) || 0;
   const days = parseInt(document.getElementById('machine-days').value) || 0;
-  const percent = parseFloat(document.getElementById('machine-percent').value) || 0;
-  const payout = Math.round(price + (price * percent / 100));
+  const returnTotal = parseInt(document.getElementById('machine-return-total').value) || 0;
+  const payout = Math.round(price + returnTotal);
+  const percent = price > 0 ? Math.round((returnTotal / price) * 100) : 0;
 
   if (!name) { toast('Machine name is required', '#f87171'); return; }
   if (price <= 0) { toast('Price must be greater than 0', '#f87171'); return; }
   if (days <= 0) { toast('Days must be greater than 0', '#f87171'); return; }
-  if (percent <= 0 || percent > 100) { toast('Return % must be between 1 and 100', '#f87171'); return; }
+  if (returnTotal <= 0) { toast('Total Return must be greater than 0', '#f87171'); return; }
 
   const machineData = { name, category, imageUrl, price, days, payout, percent, active: true };
 
@@ -1209,8 +1211,8 @@ function editMachine(id) {
   document.getElementById('machine-days').value = m.days || 0;
   const price = m.price || 0;
   const payout = m.payout || 0;
-  const percent = m.percent !== undefined ? m.percent : (price > 0 ? Math.round(((payout - price) / price) * 10000) / 100 : 0);
-  document.getElementById('machine-percent').value = percent;
+  const returnTotal = payout - price;
+  document.getElementById('machine-return-total').value = returnTotal > 0 ? returnTotal : '';
   document.getElementById('machine-payout').value = payout;
   document.getElementById('machine-form-title').textContent = '✏️ Edit Machine — ' + (m.name || '');
   document.getElementById('machine-cancel-btn').style.display = 'inline-block';
@@ -1228,7 +1230,7 @@ function cancelMachineEdit() {
   document.getElementById('machine-image-file').value = '';
   document.getElementById('machine-price').value = '';
   document.getElementById('machine-days').value = '';
-  document.getElementById('machine-percent').value = '';
+  document.getElementById('machine-return-total').value = '';
   document.getElementById('machine-payout').value = '';
   document.getElementById('machine-form-title').textContent = '➕ Add New Machine';
   document.getElementById('machine-cancel-btn').style.display = 'none';

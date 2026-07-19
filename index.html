@@ -299,6 +299,17 @@ input[type="password"]{padding-right:46px;}
 .tx-status-pending{background:rgba(245, 158, 11, 0.2);color:#f59e0b;border:1px solid #f59e0b;}
 .tx-status-failed{background:rgba(239, 68, 68, 0.2);color:#ef4444;border:1px solid #ef4444;}
 
+.tx-list-compact{display:flex;flex-direction:column;gap:8px;}
+.tx-row{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
+.tx-row-left{display:flex;flex-direction:column;gap:2px;}
+.tx-row-type{font-size:13px;font-weight:700;color:var(--text);}
+.tx-row-date{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.tx-row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.tx-row-amount{font-size:14px;font-weight:800;font-family:'JetBrains Mono',monospace;}
+.tx-row-amount.positive{color:#10b981;}
+.tx-row-amount.negative{color:#ef4444;}
+.tx-row-status{font-size:9px;font-weight:800;padding:2px 8px;border-radius:8px;text-transform:uppercase;letter-spacing:0.5px;}
+
 .tx-empty-state{text-align:center;padding:60px 20px;}
 .tx-empty-icon{font-size:48px;margin-bottom:12px;}
 .tx-empty-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;}
@@ -465,7 +476,7 @@ input[type="password"]{padding-right:46px;}
 
   <!-- History - New Card Design -->
   <div class="dash-section" id="sec-history">
-    <div class="inner-header"><div><div class="inner-title">Records</div><div class="inner-sub">All your transactions</div></div></div>
+    <div class="inner-header"><div><div class="inner-title">Activity</div></div></div>
     
     <!-- Search and Filter -->
     <div style="margin-bottom:16px;">
@@ -474,16 +485,13 @@ input[type="password"]{padding-right:46px;}
     
     <!-- Filter Pills -->
     <div class="tx-filter-pills">
-      <button class="tx-pill active" onclick="setTxFilter('all',this)">All</button>
-      <button class="tx-pill" onclick="setTxFilter('Deposit',this)">Deposits</button>
+      <button class="tx-pill active" onclick="setTxFilter('Deposit',this)">Deposits</button>
       <button class="tx-pill" onclick="setTxFilter('Withdrawal',this)">Withdrawals</button>
-      <button class="tx-pill" onclick="setTxFilter('Profit',this)">Profits</button>
-      <button class="tx-pill" onclick="setTxFilter('Bonus',this)">Bonuses</button>
     </div>
     
-    <!-- Transaction Cards -->
+    <!-- Transaction List -->
     <div class="section">
-      <div id="history-list" class="tx-cards-grid"><div class="tx-empty-state"><div class="tx-empty-title">No Records Yet</div><div class="tx-empty-text">Your transaction history will appear here.</div></div></div>
+      <div id="history-list" class="tx-list-compact"><div class="tx-empty-state"><div class="tx-empty-title">No Records Yet</div><div class="tx-empty-text">Your transaction history will appear here.</div></div></div>
     </div>
   </div>
 
@@ -1189,7 +1197,7 @@ function renderMachineShop() {
         ${img}
         <div class="machine-card-body">
           <div class="machine-card-name">${m.name || 'Machine'}</div>
-          <div class="machine-card-days" style="color:var(--muted);">Currently locked by admin</div>
+          <div class="machine-card-days" style="color:var(--muted);">Currently unavailable</div>
           <button class="machine-buy-btn" disabled style="background:var(--surface2);color:var(--muted);cursor:not-allowed;">View</button>
         </div>
       </div>`;
@@ -1513,7 +1521,7 @@ function updateMeStats() {
   setText('me-deposited', fmt(totalDeposited));
 }
 
-let currentHistoryFilter = 'all';
+let currentHistoryFilter = 'Deposit';
 function setTxFilter(type, btnEl) {
   currentHistoryFilter = type;
   document.querySelectorAll('.tx-pill').forEach(b => b.classList.remove('active'));
@@ -1524,13 +1532,13 @@ function setTxFilter(type, btnEl) {
 function goToDepositRecords() {
   switchTab('history');
   const pills = document.querySelectorAll('.tx-pill');
-  setTxFilter('Deposit', pills[1] || null);
+  setTxFilter('Deposit', pills[0] || null);
 }
 
 function goToWithdrawalRecords() {
   switchTab('history');
   const pills = document.querySelectorAll('.tx-pill');
-  setTxFilter('Withdrawal', pills[2] || null);
+  setTxFilter('Withdrawal', pills[1] || null);
 }
 
 function renderHistory() {
@@ -1542,11 +1550,8 @@ function renderHistory() {
   const searchBox = document.getElementById('tx-search-box');
   const searchQuery = (searchBox?.value || '').toLowerCase().trim();
   
-  // Filter by type
-  let txs = allTxs;
-  if (currentHistoryFilter !== 'all') {
-    txs = allTxs.filter(tx => tx.type === currentHistoryFilter);
-  }
+  // Filter by type (Deposit or Withdrawal only)
+  let txs = allTxs.filter(tx => tx.type === currentHistoryFilter);
   
   // Filter by search
   if (searchQuery) {
@@ -1562,34 +1567,26 @@ function renderHistory() {
     return;
   }
   
-  const typeIcons = { Deposit: '', Withdrawal: '', Profit: '', Bonus: '', Transfer: '', 'Machine Purchase': '', 'Machine Payout': '', 'Machine Cancelled': '' };
-  const typeClasses = { Deposit: 'tx-deposit', Withdrawal: 'tx-withdrawal', Profit: 'tx-profit', Bonus: 'tx-bonus', Transfer: 'tx-profit', 'Machine Purchase': 'tx-withdrawal', 'Machine Payout': 'tx-profit', 'Machine Cancelled': 'tx-bonus' };
-  
   if (wrap) {
-    wrap.innerHTML = '<div class="tx-cards-grid">' + 
-      txs.map(tx => {
-        const isPending = tx.status === 'pending';
-        const isFailed = tx.status === 'failed';
-        const statusClass = isPending ? 'tx-status-pending' : isFailed ? 'tx-status-failed' : 'tx-status-completed';
-        const statusText = isPending ? 'Pending' : isFailed ? 'Failed' : 'Completed';
-        const amountClass = tx.amount >= 0 ? 'positive' : 'negative';
-        const typeClass = typeClasses[tx.type] || 'tx-profit';
-        const icon = typeIcons[tx.type] || '';
-        const amountStr = tx.amount >= 0 ? '+' + fmt(tx.amount) : fmt(tx.amount);
-        
-        return `<div class="tx-card ${typeClass}">
-          <div class="tx-card-header">
-            <div>
-              <div class="tx-card-type">${tx.type || 'Transaction'}</div>
-              <div class="tx-card-date">${tx.date || '—'}</div>
-            </div>
-          </div>
-          <div class="tx-card-amount ${amountClass}">${amountStr}</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span class="tx-card-status ${statusClass}">${statusText}</span>
-          </div>
-        </div>`;
-      }).join('') + '</div>';
+    wrap.innerHTML = txs.map(tx => {
+      const isPending = tx.status === 'pending';
+      const isFailed = tx.status === 'failed';
+      const statusClass = isPending ? 'tx-status-pending' : isFailed ? 'tx-status-failed' : 'tx-status-completed';
+      const statusText = isPending ? 'Pending' : isFailed ? 'Failed' : 'Completed';
+      const amountClass = tx.amount >= 0 ? 'positive' : 'negative';
+      const amountStr = tx.amount >= 0 ? '+' + fmt(tx.amount) : fmt(tx.amount);
+      
+      return `<div class="tx-row">
+        <div class="tx-row-left">
+          <div class="tx-row-type">${tx.type || 'Transaction'}</div>
+          <div class="tx-row-date">${tx.date || '—'}</div>
+        </div>
+        <div class="tx-row-right">
+          <div class="tx-row-amount ${amountClass}">${amountStr}</div>
+          <span class="tx-row-status ${statusClass}">${statusText}</span>
+        </div>
+      </div>`;
+    }).join('');
   }
 }
 
