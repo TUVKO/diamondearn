@@ -466,10 +466,11 @@ input[type="password"]{padding-right:46px;}
       <div class="home-tabs" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
         <button class="home-tab-btn" onclick="switchTab('deposit')">Recharge</button>
         <button class="home-tab-btn" onclick="switchTab('withdraw')">Withdrawal</button>
-        <button class="home-tab-btn" onclick="switchTab('team')">Team</button>
+        <button class="home-tab-btn" onclick="switchTab('myteam')">Team</button>
         <button class="home-tab-btn" onclick="goToDepositRecords()">Deposits</button>
         <button class="home-tab-btn" onclick="goToWithdrawalRecords()">Withdrawals</button>
         <button class="home-tab-btn" onclick="switchTab('company')">Company</button>
+        <button class="home-tab-btn" onclick="switchTab('invite')">Invite</button>
       </div>
     </div>
   </div>
@@ -719,6 +720,47 @@ input[type="password"]{padding-right:46px;}
     <div class="inner-header"><div><div class="inner-title">Company</div><div class="inner-sub">Coming soon</div></div></div>
   </div>
 
+  <!-- Invite -->
+  <div class="dash-section" id="sec-invite">
+    <div class="inner-header"><div><div class="inner-title">Invite</div><div class="inner-sub">Share your link and earn on machine purchases</div></div></div>
+    <div class="section">
+      <div class="action-card" style="text-align:center;">
+        <div style="background:#fff;border-radius:16px;padding:16px;display:inline-block;margin-bottom:16px;">
+          <img id="invite-qr-img" src="" alt="QR Code" style="width:180px;height:180px;display:block;">
+        </div>
+        <div class="field-group" style="text-align:left;">
+          <label class="field-label">Your Referral Link</label>
+          <div class="field-wrap"><input type="text" id="invite-link-display" readonly style="font-size:12px;"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:14px;">
+          <button class="machine-buy-btn" style="flex:1;" onclick="copyInviteLink()">Copy Link</button>
+          <button class="machine-buy-btn" style="flex:1;background:var(--surface2);color:var(--text);" onclick="shareInviteLink()">Share</button>
+        </div>
+        <div class="deposit-note" style="margin-top:16px;text-align:left;">Earn a percentage on every machine your referrals purchase — credited directly to your Prime Account.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team (Referrals) -->
+  <div class="dash-section" id="sec-myteam">
+    <div class="inner-header"><div><div class="inner-title">Team</div><div class="inner-sub">People you've invited</div></div></div>
+    <div class="section">
+      <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div class="stat-box stat-box-white" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">TEAM MEMBERS</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;" id="myteam-count">0</div>
+        </div>
+        <div class="stat-box stat-box-white" style="padding:14px 8px;text-align:center;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:6px;">EARNED FROM TEAM</div>
+          <div class="stat-value" style="font-size:14px;font-weight:800;" id="myteam-earned">UGX 0</div>
+        </div>
+      </div>
+      <div id="myteam-list" style="display:flex;flex-direction:column;gap:10px;">
+        <div class="tx-empty-state"><div class="tx-empty-title">No Team Members Yet</div><div class="tx-empty-text">Share your invite link to start building your team.</div></div>
+      </div>
+    </div>
+  </div>
+
   <nav class="bottom-nav">
     <div class="nav-item active" onclick="switchTab('home')"><span class="nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11L12 4l9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg></span><span class="nav-label">HOME</span></div>
     <div class="nav-item" onclick="switchTab('errands')"><span class="nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></span><span class="nav-label">ERRANDS</span></div>
@@ -873,8 +915,9 @@ function genUUID() { return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^
 
 let currentUser = null;
 let currentUsername = null;
+const pendingRefCode = new URLSearchParams(window.location.search).get('ref');
 let settingsData = {
-  uraTax: 4, withdrawCharge: 10,
+  uraTax: 4, withdrawCharge: 10, referralPercent: 5,
   withdrawLocked: false, withdrawApproval: false,
   minDeposit: 10000, maxDeposit: 2350000, minWithdraw: 10000, marzApiKey: ''
 };
@@ -1106,7 +1149,7 @@ function closePrivacyModal(event) {
   document.getElementById('privacy-modal-overlay').classList.remove('open');
 }
 
-const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company', transfer: 'sec-transfer' };
+const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company', transfer: 'sec-transfer', invite: 'sec-invite', myteam: 'sec-myteam' };
 const navOrder = ['home', 'errands', 'team', 'plan', 'profile'];
 
 function switchTab(tab) {
@@ -1123,6 +1166,8 @@ function switchTab(tab) {
   if (tab === 'team') { renderMachineCategoryTabs(); renderMachineShop(); }
   if (tab === 'plan') { renderMyMachines(); }
   if (tab === 'transfer') { renderTransferPage(); }
+  if (tab === 'invite') { renderInvitePage(); }
+  if (tab === 'myteam') { renderMyTeamPage(); }
 }
 
 
@@ -1260,7 +1305,33 @@ async function buyMachine(machineId) {
   updateBalanceUI();
   renderMyMachines();
   renderHistory();
+
+  // Credit referral bonus (flat % of this purchase) to the referrer's Prime Account
+  if (currentUser.referredBy) {
+    creditReferralBonus(currentUser.referredBy, currentUsername, price).catch(err => console.warn('Referral bonus error:', err));
+  }
+
   return 'ok';
+}
+
+async function creditReferralBonus(referrerUsername, buyerUsername, purchasePrice) {
+  const refSk = safeKey(referrerUsername);
+  const refSnap = await db.ref('users/' + refSk).get();
+  if (!refSnap.exists()) return;
+  const referrer = refSnap.val();
+  const pct = (settingsData.referralPercent || 0) / 100;
+  const bonus = Math.round(purchasePrice * pct);
+  if (bonus <= 0) return;
+
+  const newPrimeBalance = (referrer.primeBalance || 0) + bonus;
+  const existingBonus = (referrer.referrals && referrer.referrals[safeKey(buyerUsername)] && referrer.referrals[safeKey(buyerUsername)].bonusEarned) || 0;
+
+  const updates = {
+    primeBalance: newPrimeBalance,
+    [`referrals/${safeKey(buyerUsername)}/bonusEarned`]: existingBonus + bonus,
+    [`transactions/tx_refbonus_${Date.now()}`]: { type: 'Bonus', amount: bonus, note: 'Referral bonus from ' + buyerUsername + ' machine purchase', date: dateStr(), status: 'completed' }
+  };
+  await db.ref('users/' + refSk).update(updates);
 }
 
 // ============================================================
@@ -1474,6 +1545,96 @@ async function doTransfer() {
   switchTab('home');
 }
 
+// ============================================================
+// INVITE / TEAM (Referrals) — link generation, QR, copy/share,
+// and the referred-users list with bonus earnings.
+// ============================================================
+function getReferralLink() {
+  const base = window.location.origin + window.location.pathname;
+  return base + '?ref=' + encodeURIComponent(currentUsername || '');
+}
+
+function renderInvitePage() {
+  if (!currentUsername) return;
+  const link = getReferralLink();
+  const linkInput = document.getElementById('invite-link-display');
+  if (linkInput) linkInput.value = link;
+  const qrImg = document.getElementById('invite-qr-img');
+  if (qrImg) qrImg.src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(link);
+}
+
+function copyInviteLink() {
+  const link = getReferralLink();
+  navigator.clipboard.writeText(link).then(() => {
+    const popup = document.getElementById('popup-banner');
+    if (popup) {
+      popup.textContent = 'Referral link copied';
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 1500);
+    }
+  }).catch(() => {});
+}
+
+function shareInviteLink() {
+  const link = getReferralLink();
+  if (navigator.share) {
+    navigator.share({ title: 'DiamondEarn', text: 'Join DiamondEarn using my referral link:', url: link }).catch(() => {});
+  } else {
+    copyInviteLink();
+  }
+}
+
+function maskPhone(phone) {
+  if (!phone) return '—';
+  const str = String(phone);
+  if (str.length <= 6) return str;
+  const start = str.slice(0, 4);
+  const end = str.slice(-3);
+  const maskLen = Math.max(3, str.length - 7);
+  return start + '*'.repeat(maskLen) + end;
+}
+
+const teamEmojis = ['🙂', '😊', '🧑', '👩', '👨', '🧑‍💼', '🧑‍🚀', '🧑‍🎓', '🧑‍💻', '🧑‍🌾', '🧑‍🍳', '🧑‍🔧'];
+function emojiForUsername(name) {
+  let sum = 0;
+  for (let i = 0; i < (name || '').length; i++) sum += name.charCodeAt(i);
+  return teamEmojis[sum % teamEmojis.length];
+}
+
+function renderMyTeamPage() {
+  if (!currentUser) return;
+  const referrals = currentUser.referrals || {};
+  const list = Object.values(referrals);
+  const countEl = document.getElementById('myteam-count');
+  const earnedEl = document.getElementById('myteam-earned');
+  const listEl = document.getElementById('myteam-list');
+  let totalEarned = 0;
+  list.forEach(r => { totalEarned += (r.bonusEarned || 0); });
+  if (countEl) countEl.textContent = list.length;
+  if (earnedEl) earnedEl.textContent = fmt(totalEarned);
+  if (!listEl) return;
+  if (!list.length) {
+    listEl.innerHTML = '<div class="tx-empty-state"><div class="tx-empty-title">No Team Members Yet</div><div class="tx-empty-text">Share your invite link to start building your team.</div></div>';
+    return;
+  }
+  listEl.innerHTML = list.map(r => {
+    const emoji = emojiForUsername(r.username || '');
+    const masked = maskPhone(r.phone || '');
+    return `<div class="tx-row">
+      <div class="tx-row-left" style="flex-direction:row;align-items:center;gap:10px;">
+        <span style="font-size:22px;">${emoji}</span>
+        <div>
+          <div class="tx-row-type">${masked}</div>
+          <div class="tx-row-date">Joined ${r.joinedDate || '—'}</div>
+        </div>
+      </div>
+      <div class="tx-row-right">
+        <div class="tx-row-amount positive">${fmt(r.bonusEarned || 0)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function startUserListener(username) {
   if (userListener) db.ref('users/' + safeKey(username)).off('value', userListener);
   userListener = db.ref('users/' + safeKey(username)).on('value', (snap) => {
@@ -1509,14 +1670,19 @@ function updateMeStats() {
   let totalDeposited = 0;
   Object.values(deposits).forEach(d => { totalDeposited += (d.amount || 0); });
 
+  const referrals = currentUser.referrals || {};
+  const referralList = Object.values(referrals);
+  let teamEarned = 0;
+  referralList.forEach(r => { teamEarned += (r.bonusEarned || 0); });
+
   const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   setText('me-prime', fmt(prime));
   setText('me-scrayd', fmt(scrayd));
   setText('me-locked', fmt(locked));
   setText('me-purchased-machines', purchasedActive);
   setText('me-total-machines', totalMachinesAll);
-  setText('me-team-members', '0');
-  setText('me-team-earned', fmt(0));
+  setText('me-team-members', referralList.length);
+  setText('me-team-earned', fmt(teamEarned));
   setText('me-withdrawn', fmt(currentUser.withdrawn || 0));
   setText('me-deposited', fmt(totalDeposited));
 }
@@ -1998,13 +2164,29 @@ async function doRegister() {
   const prefix = country === 'KE' ? '+254' : '+256';
   const fullPhone = prefix + phoneDigits;
   const now = dateStr();
+  const joinedYear = new Date().getFullYear().toString();
+
+  // Validate referral code (if present) against an existing user
+  let referredBy = null;
+  if (pendingRefCode && pendingRefCode.toLowerCase() !== username.toLowerCase()) {
+    const refSnap = await db.ref('users/' + safeKey(pendingRefCode)).get();
+    if (refSnap.exists()) referredBy = pendingRefCode;
+  }
+
   const newUser = {
     username, password, country, phone: fullPhone, primeBalance: 4000, scraydWallet: 0, withdrawn: 0,
-    activated: false, locked: false, joinedDate: new Date().getFullYear().toString(),
+    activated: false, locked: false, joinedDate: joinedYear, referredBy: referredBy || null,
     transactions: { t0: { type: 'Bonus', amount: 4000, note: 'Registration Bonus', date: now, status: 'completed' } },
     deposits: {}, ownedMachines: {}
   };
   await db.ref('users/' + safeKey(username)).set(newUser);
+
+  if (referredBy) {
+    await db.ref('users/' + safeKey(referredBy) + '/referrals/' + safeKey(username)).set({
+      username, phone: fullPhone, joinedDate: joinedYear, bonusEarned: 0
+    });
+  }
+
   currentUser = newUser;
   currentUsername = username;
   sessionStorage.setItem('pp_current_user', username);
