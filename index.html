@@ -95,6 +95,8 @@ input[type="password"]{padding-right:46px;}
 .topbar-left{display:flex;align-items:center;gap:12px;}
 .brand{display:flex;align-items:center;gap:8px;}
 .brand-icon{width:34px;height:34px;background:var(--btn);border-radius:10px;display:grid;place-items:center;font-size:16px;color:#fff;}
+.settings-icon-btn{width:36px;height:36px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);display:grid;place-items:center;color:var(--text);cursor:pointer;}
+.settings-icon-btn:active{transform:scale(.95);}
 .brand-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--accent);}
 .topbar-right{display:flex;align-items:center;gap:10px;}
 .theme-toggle{background:none;border:none;font-size:18px;cursor:pointer;padding:6px;color:var(--accent);transition:.3s;}
@@ -322,7 +324,7 @@ input[type="password"]{padding-right:46px;}
 .cat-tab{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;}
 .cat-tab.active{background:var(--btn);color:#fff;border-color:var(--btn);}
 .machine-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;gap:12px;position:relative;}
-.machine-card-img{width:72px;height:72px;border-radius:12px;object-fit:cover;background:var(--surface2);flex-shrink:0;}
+.machine-card-img{width:110px;height:110px;border-radius:14px;object-fit:cover;background:var(--surface2);flex-shrink:0;}
 .machine-card-body{flex:1;min-width:0;}
 .machine-card-name{font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px;}
 .machine-card-days{font-size:11px;color:var(--muted);margin-bottom:6px;}
@@ -440,6 +442,9 @@ input[type="password"]{padding-right:46px;}
       <div class="brand"><div class="brand-icon"></div><div class="brand-name">DiamondEarn</div></div>
     </div>
     <div class="topbar-right">
+      <button class="settings-icon-btn" onclick="switchTab('account')" aria-label="Account settings">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
     </div>
   </div>
 
@@ -691,11 +696,27 @@ input[type="password"]{padding-right:46px;}
       <div id="withdraw-locked-msg" class="locked-banner" style="display:none">Withdrawals are currently disabled. Please contact support.</div>
       <div class="action-card">
         <div class="charge-note">Withdrawal fee: <span id="with-fee-percent">10</span>% of amount. You receive <span id="with-receive-percent">90</span>% of requested amount.</div>
-        <div class="deposit-note">Funds will be sent to your registered mobile money number.</div>
+        <div class="deposit-note">All withdrawals are reviewed and processed manually — funds are sent once approved.</div>
         <div class="field-group">
-          <label class="field-label">Sending To</label>
-          <div class="field-wrap"><div class="readonly-field" id="with-phone-display">—</div></div>
-          <div class="field-hint">Locked to your registered number</div>
+          <label class="field-label">Withdraw To</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button type="button" class="cat-tab" id="with-method-mobile-btn" style="width:100%;" onclick="setWithdrawMethod('mobile')">Mobile Money</button>
+            <button type="button" class="cat-tab" id="with-method-bank-btn" style="width:100%;" onclick="setWithdrawMethod('bank')">Bank</button>
+          </div>
+        </div>
+        <div id="with-mobile-fields">
+          <div class="field-group">
+            <label class="field-label">Sending To</label>
+            <div class="field-wrap"><div class="readonly-field" id="with-phone-display">—</div></div>
+            <div class="field-hint">Locked to your registered number</div>
+          </div>
+        </div>
+        <div id="with-bank-fields" style="display:none;">
+          <div class="field-group">
+            <label class="field-label">Sending To</label>
+            <div class="field-wrap"><div class="readonly-field" id="with-bank-display">—</div></div>
+            <div class="field-hint" id="with-bank-hint">Locked to your saved bank account</div>
+          </div>
         </div>
         <div class="field-group">
           <label class="field-label">Amount (UGX)</label>
@@ -757,6 +778,88 @@ input[type="password"]{padding-right:46px;}
       </div>
       <div id="myteam-list" style="display:flex;flex-direction:column;gap:10px;">
         <div class="tx-empty-state"><div class="tx-empty-title">No Team Members Yet</div><div class="tx-empty-text">Share your invite link to start building your team.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Settings -->
+  <div class="dash-section" id="sec-account">
+    <div class="inner-header"><div><div class="inner-title">Account</div><div class="inner-sub">Manage your profile and security</div></div></div>
+
+    <div class="section" style="text-align:center;">
+      <div id="account-avatar" style="width:76px;height:76px;border-radius:50%;background:var(--btn);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="profile-simple-info" style="display:flex;flex-direction:column;gap:12px;">
+        <div class="profile-simple-item" style="display:flex;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+          <span class="profile-simple-label" style="font-size:11px;color:var(--muted);">Phone Number</span>
+          <span class="profile-simple-value" id="account-phone" style="font-weight:700;">—</span>
+        </div>
+        <div class="profile-simple-item" style="display:flex;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+          <span class="profile-simple-label" style="font-size:11px;color:var(--muted);">Registered Date</span>
+          <span class="profile-simple-value" id="account-registered-date" style="font-weight:700;">—</span>
+        </div>
+        <div class="profile-simple-item" style="display:flex;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+          <span class="profile-simple-label" style="font-size:11px;color:var(--muted);">Country</span>
+          <span class="profile-simple-value" id="account-country" style="font-weight:700;">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password Change -->
+    <div class="section">
+      <div class="section-title" style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px;">Change Password</div>
+      <div class="action-card">
+        <div class="field-group">
+          <label class="field-label">Current Password</label>
+          <div class="field-wrap"><input type="password" id="acct-old-password" placeholder="Enter current password"></div>
+          <div class="field-error" id="acct-old-password-err">Incorrect current password</div>
+        </div>
+        <button class="green-btn" id="acct-pw-next-btn" onclick="acctPasswordNext()">Next</button>
+
+        <div id="acct-pw-new-fields" style="display:none;">
+          <div class="field-group" style="margin-top:14px;">
+            <label class="field-label">New Password</label>
+            <div class="field-wrap"><input type="password" id="acct-new-password" placeholder="Min. 6 characters"></div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Confirm New Password</label>
+            <div class="field-wrap"><input type="password" id="acct-confirm-password" placeholder="Re-enter new password"></div>
+            <div class="field-error" id="acct-new-password-err">Passwords do not match or too short</div>
+          </div>
+          <button class="green-btn" onclick="acctChangePassword()">Change</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bank Withdrawal -->
+    <div class="section">
+      <div class="section-title" style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px;">Bank Withdrawal</div>
+      <div class="action-card" id="acct-bank-form">
+        <div class="deposit-note">Set your bank account once to enable bank withdrawals. These details cannot be changed after saving.</div>
+        <div class="field-group">
+          <label class="field-label">Bank Name</label>
+          <div class="field-wrap"><input type="text" id="acct-bank-name" placeholder="e.g. Stanbic Bank"></div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Account Number</label>
+          <div class="field-wrap"><input type="text" id="acct-bank-account" placeholder="Enter account number"></div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Account Holder Name</label>
+          <div class="field-wrap"><input type="text" id="acct-bank-holder" placeholder="Full name on the account"></div>
+          <div class="field-error" id="acct-bank-err">Please fill in all bank details</div>
+        </div>
+        <button class="green-btn" onclick="saveBankDetails()">Save Bank Details</button>
+      </div>
+      <div class="action-card" id="acct-bank-saved" style="display:none;">
+        <div class="deposit-note">✅ Your bank details are saved and locked for security.</div>
+        <div class="profile-simple-item" style="display:flex;justify-content:space-between;padding:10px 0;"><span class="profile-simple-label" style="font-size:11px;color:var(--muted);">Bank Name</span><span class="profile-simple-value" id="acct-bank-name-display" style="font-weight:700;">—</span></div>
+        <div class="profile-simple-item" style="display:flex;justify-content:space-between;padding:10px 0;"><span class="profile-simple-label" style="font-size:11px;color:var(--muted);">Account Number</span><span class="profile-simple-value" id="acct-bank-account-display" style="font-weight:700;">—</span></div>
+        <div class="profile-simple-item" style="display:flex;justify-content:space-between;padding:10px 0;"><span class="profile-simple-label" style="font-size:11px;color:var(--muted);">Account Holder</span><span class="profile-simple-value" id="acct-bank-holder-display" style="font-weight:700;">—</span></div>
       </div>
     </div>
   </div>
@@ -1149,7 +1252,7 @@ function closePrivacyModal(event) {
   document.getElementById('privacy-modal-overlay').classList.remove('open');
 }
 
-const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company', transfer: 'sec-transfer', invite: 'sec-invite', myteam: 'sec-myteam' };
+const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company', transfer: 'sec-transfer', invite: 'sec-invite', myteam: 'sec-myteam', account: 'sec-account' };
 const navOrder = ['home', 'errands', 'team', 'plan', 'profile'];
 
 function switchTab(tab) {
@@ -1168,6 +1271,7 @@ function switchTab(tab) {
   if (tab === 'transfer') { renderTransferPage(); }
   if (tab === 'invite') { renderInvitePage(); }
   if (tab === 'myteam') { renderMyTeamPage(); }
+  if (tab === 'account') { renderAccountPage(); }
 }
 
 
@@ -1594,11 +1698,8 @@ function maskPhone(phone) {
   return start + '*'.repeat(maskLen) + end;
 }
 
-const teamEmojis = ['🙂', '😊', '🧑', '👩', '👨', '🧑‍💼', '🧑‍🚀', '🧑‍🎓', '🧑‍💻', '🧑‍🌾', '🧑‍🍳', '🧑‍🔧'];
-function emojiForUsername(name) {
-  let sum = 0;
-  for (let i = 0; i < (name || '').length; i++) sum += name.charCodeAt(i);
-  return teamEmojis[sum % teamEmojis.length];
+function avatarInitial(name) {
+  return (name || '?').trim().charAt(0).toUpperCase() || '?';
 }
 
 function renderMyTeamPage() {
@@ -1618,11 +1719,11 @@ function renderMyTeamPage() {
     return;
   }
   listEl.innerHTML = list.map(r => {
-    const emoji = emojiForUsername(r.username || '');
+    const initial = avatarInitial(r.username || '');
     const masked = maskPhone(r.phone || '');
     return `<div class="tx-row">
       <div class="tx-row-left" style="flex-direction:row;align-items:center;gap:10px;">
-        <span style="font-size:22px;">${emoji}</span>
+        <span style="width:32px;height:32px;border-radius:50%;background:var(--btn);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;">${initial}</span>
         <div>
           <div class="tx-row-type">${masked}</div>
           <div class="tx-row-date">Joined ${r.joinedDate || '—'}</div>
@@ -1633,6 +1734,85 @@ function renderMyTeamPage() {
       </div>
     </div>`;
   }).join('');
+}
+
+// ============================================================
+// ACCOUNT — profile info, password change, bank withdrawal setup
+// ============================================================
+function renderAccountPage() {
+  if (!currentUser) return;
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setText('account-phone', currentUser.phone || '—');
+  setText('account-registered-date', currentUser.registeredDate || currentUser.joinedDate || '—');
+  const countryNames = { UG: 'Uganda', KE: 'Kenya' };
+  setText('account-country', countryNames[currentUser.country] || currentUser.country || '—');
+
+  // Reset password flow to initial state
+  document.getElementById('acct-old-password').value = '';
+  document.getElementById('acct-new-password').value = '';
+  document.getElementById('acct-confirm-password').value = '';
+  document.getElementById('acct-pw-new-fields').style.display = 'none';
+  document.getElementById('acct-pw-next-btn').style.display = 'block';
+  clearErrors('acct-old-password-err', 'acct-new-password-err');
+
+  // Bank details lock state
+  const bankForm = document.getElementById('acct-bank-form');
+  const bankSaved = document.getElementById('acct-bank-saved');
+  if (currentUser.bankDetails) {
+    bankForm.style.display = 'none';
+    bankSaved.style.display = 'block';
+    setText('acct-bank-name-display', currentUser.bankDetails.bankName || '—');
+    setText('acct-bank-account-display', currentUser.bankDetails.accountNumber || '—');
+    setText('acct-bank-holder-display', currentUser.bankDetails.accountHolder || '—');
+  } else {
+    bankForm.style.display = 'block';
+    bankSaved.style.display = 'none';
+  }
+}
+
+function acctPasswordNext() {
+  clearErrors('acct-old-password-err');
+  const oldPw = document.getElementById('acct-old-password').value;
+  if (!oldPw || oldPw !== currentUser.password) {
+    setErr('acct-old-password-err', true, 'Incorrect current password');
+    return;
+  }
+  document.getElementById('acct-pw-new-fields').style.display = 'block';
+  document.getElementById('acct-pw-next-btn').style.display = 'none';
+}
+
+async function acctChangePassword() {
+  clearErrors('acct-new-password-err');
+  const newPw = document.getElementById('acct-new-password').value;
+  const confirmPw = document.getElementById('acct-confirm-password').value;
+  if (!newPw || newPw.length < 6 || newPw !== confirmPw) {
+    setErr('acct-new-password-err', true, 'Passwords do not match or too short');
+    return;
+  }
+  await db.ref('users/' + safeKey(currentUsername)).update({ password: newPw });
+  currentUser.password = newPw;
+  const popup = document.getElementById('popup-banner');
+  if (popup) {
+    popup.textContent = 'Password updated successfully';
+    popup.classList.add('show');
+    setTimeout(() => popup.classList.remove('show'), 1800);
+  }
+  renderAccountPage();
+}
+
+async function saveBankDetails() {
+  clearErrors('acct-bank-err');
+  const bankName = document.getElementById('acct-bank-name').value.trim();
+  const accountNumber = document.getElementById('acct-bank-account').value.trim();
+  const accountHolder = document.getElementById('acct-bank-holder').value.trim();
+  if (!bankName || !accountNumber || !accountHolder) {
+    setErr('acct-bank-err', true, 'Please fill in all bank details');
+    return;
+  }
+  const bankDetails = { bankName, accountNumber, accountHolder };
+  await db.ref('users/' + safeKey(currentUsername)).update({ bankDetails });
+  currentUser.bankDetails = bankDetails;
+  renderAccountPage();
 }
 
 function startUserListener(username) {
@@ -1958,6 +2138,26 @@ async function doDeposit() {
 // ============================================================
 // WITHDRAWAL - confirmation popup only, auto-closes 1 sec, redirect to home
 // ============================================================
+let currentWithdrawMethod = 'mobile';
+function setWithdrawMethod(method) {
+  currentWithdrawMethod = method;
+  document.getElementById('with-method-mobile-btn').classList.toggle('active', method === 'mobile');
+  document.getElementById('with-method-bank-btn').classList.toggle('active', method === 'bank');
+  document.getElementById('with-mobile-fields').style.display = method === 'mobile' ? 'block' : 'none';
+  document.getElementById('with-bank-fields').style.display = method === 'bank' ? 'block' : 'none';
+  if (method === 'bank') {
+    const hint = document.getElementById('with-bank-hint');
+    const display = document.getElementById('with-bank-display');
+    if (currentUser && currentUser.bankDetails) {
+      display.textContent = currentUser.bankDetails.bankName + ' — ' + currentUser.bankDetails.accountNumber;
+      hint.textContent = 'Locked to your saved bank account';
+    } else {
+      display.textContent = 'No bank account saved';
+      hint.textContent = 'Set up your bank details in Account settings first';
+    }
+  }
+}
+
 async function doWithdraw() {
   clearErrors('with-amount-err');
   if (settingsData.withdrawLocked) { 
@@ -1967,6 +2167,10 @@ async function doWithdraw() {
   if (!currentUser.activated) { 
     sendAdminNotification('withdrawal_not_activated', currentUsername, 0, 'Inactive account tried to withdraw');
     return; 
+  }
+  if (currentWithdrawMethod === 'bank' && !currentUser.bankDetails) {
+    setErr('with-amount-err', true, 'Please set up your bank details in Account settings first');
+    return;
   }
   const minWith = settingsData.minWithdraw || 10000;
   const amount = parseInt(document.getElementById('with-amount').value) || 0;
@@ -1978,7 +2182,7 @@ async function doWithdraw() {
   const sendAmount = amount - fee;
   const userPhone = currentUser.phone;
   const btn = document.getElementById('with-submit-btn');
-  btn.disabled = true; btn.textContent = '⏳ Processing...';
+  btn.disabled = true; btn.textContent = 'Processing...';
   const newScraydWallet = scraydWallet - amount;
   const newWithdrawn = (currentUser.withdrawn || 0) + amount;
   const txKey = 'tx_wd_' + Date.now();
@@ -1986,9 +2190,9 @@ async function doWithdraw() {
   const reference = genUUID();
   
   const popup = document.getElementById('popup-banner');
-  popup.textContent = 'You will receive your funds shortly';
+  popup.textContent = 'Withdrawal request submitted for review';
   popup.classList.add('show');
-  setTimeout(() => popup.classList.remove('show'), 1000);
+  setTimeout(() => popup.classList.remove('show'), 1500);
   
   // Create admin transaction record with PENDING status
   const adminTxKey = 'adm_wd_' + Date.now();
@@ -1998,6 +2202,8 @@ async function doWithdraw() {
     phone: userPhone,
     amount: amount,
     reference: reference,
+    method: currentWithdrawMethod,
+    bankDetails: currentWithdrawMethod === 'bank' ? currentUser.bankDetails : null,
     date: dateStr(),
     status: 'pending'
   };
@@ -2006,37 +2212,30 @@ async function doWithdraw() {
     // Create admin transaction
     await db.ref('adminTransactions/' + adminTxKey).set(adminTxRecord);
     
-    // Deduct from Scrayd Wallet immediately (in both modes)
+    // Deduct from Scrayd Wallet immediately
     await db.ref('users/' + safeKey(currentUsername)).update({ 
       scraydWallet: newScraydWallet, 
       withdrawn: newWithdrawn, 
       [`transactions/${txKey}`]: { type: 'Withdrawal', amount: -amount, note: 'Withdrawal Pending (Scrayd Wallet)', date: dateStr(), status: 'pending' } 
     });
     
-    // Create withdrawal request record
+    // Create withdrawal request record — ALL withdrawals are manual/admin-approved now
     await db.ref('pendingWithdrawals/' + reqKey).set({ 
       username: currentUsername, 
       userId: safeKey(currentUsername), 
       phone: userPhone, 
+      method: currentWithdrawMethod,
+      bankDetails: currentWithdrawMethod === 'bank' ? currentUser.bankDetails : null,
       amount, 
       fee, 
       sendAmount, 
       txKey, 
       adminTxKey,
       date: dateStr(), 
-      status: 'pending',
-      processed: false // Track if Marz was already attempted
+      status: 'pending'
     });
     
-    // Check if manual approval is enabled
-    if (settingsData.withdrawApproval === true) {
-      // MANUAL APPROVAL MODE - Wait for admin to approve/reject
-      // Admin will either approve (then doWithdrawalApprove is called) or reject (then rejectWithdrawal is called)
-      await sendAdminNotification('withdrawal_pending', currentUsername, amount, 'Withdrawal request pending approval');
-    } else {
-      // AUTOMATIC MODE - Process withdrawal immediately
-      await processWithdrawalToMarz(reqKey, userPhone, sendAmount, reference, txKey, adminTxKey, amount, fee);
-    }
+    await sendAdminNotification('withdrawal_pending', currentUsername, amount, 'Withdrawal request pending approval (' + currentWithdrawMethod + ')');
     
     document.getElementById('with-amount').value = '';
     document.getElementById('withdraw-preview').style.display = 'none';
@@ -2054,51 +2253,6 @@ async function doWithdraw() {
   }
   btn.disabled = false; btn.textContent = 'WITHDRAW';
   switchTab('home');
-}
-
-// Helper function to process withdrawal to Marz
-async function processWithdrawalToMarz(reqKey, userPhone, sendAmount, reference, txKey, adminTxKey, amount, fee) {
-  const username = currentUsername;
-  const userId = safeKey(username);
-  
-  try {
-    const sendResult = await marzSend(userPhone, sendAmount, reference, 'DiamondEarn Withdrawal');
-    if (sendResult && sendResult.status === 'success') {
-      // Success - update transaction and admin record
-      await db.ref('users/' + userId + '/transactions/' + txKey).update({ 
-        status: 'completed', 
-        note: `Withdrawal sent to ${userPhone} (Fee: ${fmt(fee)}, Received: ${fmt(sendAmount)})` 
-      });
-      await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'approved', processed: true });
-      await db.ref('adminTransactions/' + adminTxKey).update({ status: 'successful' });
-    } else {
-      // Marz send failed - REFUND user instantly to Scrayd Wallet
-      const userSnap = await db.ref('users/' + userId).get();
-      const user = userSnap.val();
-      const refundedScraydWallet = (user.scraydWallet || 0) + amount;
-      
-      await db.ref('users/' + userId).update({ 
-        scraydWallet: refundedScraydWallet,
-        [`transactions/${txKey}`]: { type: 'Withdrawal', amount: -amount, note: 'Withdrawal Failed - Refunded to Scrayd Wallet', date: dateStr(), status: 'failed' }
-      });
-      await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'failed', processed: true });
-      await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
-      await sendAdminNotification('withdrawal_auto_failed', username, amount, 'Marz send failed: ' + (sendResult?.message || 'Unknown error'));
-    }
-  } catch (sendError) {
-    // Exception during send - REFUND user instantly to Scrayd Wallet
-    const userSnap = await db.ref('users/' + userId).get();
-    const user = userSnap.val();
-    const refundedScraydWallet = (user.scraydWallet || 0) + amount;
-    
-    await db.ref('users/' + userId).update({ 
-      scraydWallet: refundedScraydWallet,
-      [`transactions/${txKey}`]: { type: 'Withdrawal', amount: -amount, note: 'Withdrawal Failed - Refunded to Scrayd Wallet', date: dateStr(), status: 'failed' }
-    });
-    await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'failed', processed: true });
-    await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
-    await sendAdminNotification('withdrawal_auto_failed', username, amount, 'Withdrawal error: ' + sendError.message);
-  }
 }
 
 async function doLogin() {
@@ -2165,6 +2319,8 @@ async function doRegister() {
   const fullPhone = prefix + phoneDigits;
   const now = dateStr();
   const joinedYear = new Date().getFullYear().toString();
+  const nowDate = new Date();
+  const registeredDate = String(nowDate.getDate()).padStart(2, '0') + '/' + String(nowDate.getMonth() + 1).padStart(2, '0') + '/' + nowDate.getFullYear();
 
   // Validate referral code (if present) against an existing user
   let referredBy = null;
@@ -2175,7 +2331,7 @@ async function doRegister() {
 
   const newUser = {
     username, password, country, phone: fullPhone, primeBalance: 4000, scraydWallet: 0, withdrawn: 0,
-    activated: false, locked: false, joinedDate: joinedYear, referredBy: referredBy || null,
+    activated: false, locked: false, joinedDate: joinedYear, registeredDate, referredBy: referredBy || null,
     transactions: { t0: { type: 'Bonus', amount: 4000, note: 'Registration Bonus', date: now, status: 'completed' } },
     deposits: {}, ownedMachines: {}
   };

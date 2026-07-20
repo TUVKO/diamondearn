@@ -450,7 +450,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         </div>
         <table>
           <thead>
-            <tr><th>Date</th><th>Username</th><th>Phone</th><th>Amount</th><th>Fee</th><th>Net Amount</th><th>Status</th><th>Actions</th></tr>
+            <tr><th>Date</th><th>Username</th><th>Destination</th><th>Amount</th><th>Fee</th><th>Net Amount</th><th>Status</th><th>Actions</th></tr>
           </thead>
           <tbody id="wd-table-body"><tr class="empty-row"><td colspan="8">No withdrawal requests yet</tr></tbody>
         </table>
@@ -562,13 +562,8 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 
       <!-- Withdrawal Approval Toggle -->
       <div class="settings-section">
-        <div class="settings-title">✅ Withdrawal Approval Mode</div>
-        <div class="settings-sub">When ON, admin must approve each withdrawal. When OFF, withdrawals are automatic.</div>
-        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-          <button class="btn btn-success" onclick="setWithdrawApproval(true)">✅ Manual Approval ON</button>
-          <button class="btn btn-danger" onclick="setWithdrawApproval(false)">⚡ Automatic OFF</button>
-          <span id="approval-status" style="font-size:13px;color:var(--muted);">Checking...</span>
-        </div>
+        <div class="settings-title">✅ Withdrawal Processing</div>
+        <div class="settings-sub">All withdrawals (mobile money and bank) are now processed manually. Every request waits in the Withdrawals queue below until you approve or reject it — there is no automatic sending.</div>
       </div>
 
       <!-- Withdrawal Control -->
@@ -1393,6 +1388,9 @@ function renderWithdrawalsTable() {
     const si = v.status === 'approved' ? '✅ Approved' : v.status === 'rejected' ? '❌ Rejected' : '⏳ Pending';
     const fee = Math.round((v.amount || 0) * 0.10);
     const sendAmt = v.sendAmount || (v.amount - fee);
+    const destination = v.method === 'bank' && v.bankDetails
+      ? `<div style="font-size:11px;"><strong>${v.bankDetails.bankName || '—'}</strong><br>Acc: ${v.bankDetails.accountNumber || '—'}<br>${v.bankDetails.accountHolder || '—'}</div>`
+      : `<span class="mono">${v.phone || '—'}</span>`;
     const actions = v.status === 'pending' ? `
       <button class="btn btn-approve" onclick="approveWithdrawal('${k}', '${v.userId}', '${v.username}', ${v.amount}, ${sendAmt})">✅ Approve</button>
       <button class="btn btn-reject" onclick="rejectWithdrawal('${k}', '${v.userId}', '${v.username}', ${v.amount})">❌ Reject</button>
@@ -1400,7 +1398,7 @@ function renderWithdrawalsTable() {
     return `<tr>
       <td class="mono" style="font-size:11px;">${v.date || '—'}</td>
       <td><strong>${v.username || '—'}</strong></td>
-      <td class="mono">${v.phone || '—'}</td>
+      <td>${destination}</td>
       <td class="mono" style="color:var(--warn);font-weight:800;">${fmt(v.amount)}</td>
       <td class="mono" style="color:var(--gold);">${fmt(fee)}</td>
       <td class="mono" style="color:var(--success);font-weight:800;">${fmt(sendAmt)}</td>
@@ -1411,87 +1409,28 @@ function renderWithdrawalsTable() {
 }
 
 async function approveWithdrawal(reqKey, userId, username, amount, sendAmount) {
-  const confirmed = await confirmAction('Approve Withdrawal?', 'Approve withdrawal for ' + username + '? Amount: ' + fmt(amount) + '. Net to send: ' + fmt(sendAmount));
+  const confirmed = await confirmAction('Confirm Withdrawal Sent?', 'Approve withdrawal for ' + username + '? Amount: ' + fmt(amount) + '. Net to send: ' + fmt(sendAmount) + '. This confirms YOU have manually sent the funds — the system does not send anything automatically.');
   if (!confirmed) return;
-  
+
   try {
     const withdrawal = allWithdrawals[reqKey];
     const txKey = withdrawal?.txKey;
     const adminTxKey = withdrawal?.adminTxKey;
-    const userPhone = withdrawal?.phone;
-    const fee = withdrawal?.fee;
-    const reference = genUUID();
-    
-    // First mark as processing in pendingWithdrawals
-    await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'processing' });
-    
-    // Now attempt to send via Marz (same as automatic mode)
-    try {
-      const sendResult = await marzSend(userPhone, sendAmount, reference, 'DiamondEarn Withdrawal');
-      
-      if (sendResult && sendResult.status === 'success') {
-        // Success - update transaction and admin record
-        await db.ref('users/' + userId + '/transactions/' + txKey).update({
-          status: 'completed',
-          note: `Withdrawal approved and sent to ${userPhone} (Fee: ${fmt(fee)}, Received: ${fmt(sendAmount)})`
-        });
-        await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'approved', processed: true });
-        await db.ref('adminTransactions/' + adminTxKey).update({ status: 'successful' });
-        
-        toast('✅ Withdrawal approved and sent for ' + username);
-      } else {
-        // Marz send failed - REFUND user instantly to Scrayd Wallet
-        const userSnap = await db.ref('users/' + userId).get();
-        const user = userSnap.val();
-        const refundedScraydWallet = (user.scraydWallet || 0) + amount;
-        
-        await db.ref('users/' + userId).update({
-          scraydWallet: refundedScraydWallet,
-          ['transactions/' + txKey + '/status']: 'failed',
-          ['transactions/' + txKey + '/note']: 'Withdrawal Failed at Marz - Refunded to Scrayd Wallet'
-        });
-        await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'failed', processed: true });
-        await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
-        
-        await db.ref('adminNotifications/notif_' + Date.now()).set({
-          type: 'withdrawal_marz_failed',
-          username: username,
-          amount: amount,
-          message: `Withdrawal Marz Failed: ${username} | Phone: ${userPhone} | Amount: ${fmt(amount)} | Error: ${sendResult?.message || 'Unknown error'} | Full refund issued`,
-          date: new Date().toLocaleDateString('en-UG', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit' }),
-          read: false
-        });
-        
-        toast('❌ Marz processing failed - refund issued to ' + username, '#f87171');
-      }
-    } catch (marzError) {
-      // Exception during Marz send - REFUND user instantly to Scrayd Wallet
-      const userSnap = await db.ref('users/' + userId).get();
-      const user = userSnap.val();
-      const refundedScraydWallet = (user.scraydWallet || 0) + amount;
-      
-      await db.ref('users/' + userId).update({
-        scraydWallet: refundedScraydWallet,
-        ['transactions/' + txKey + '/status']: 'failed',
-        ['transactions/' + txKey + '/note']: 'Withdrawal Error - Refunded to Scrayd Wallet'
-      });
-      await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'failed', processed: true });
-      await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
-      
-      await db.ref('adminNotifications/notif_' + Date.now()).set({
-        type: 'withdrawal_marz_failed',
-        username: username,
-        amount: amount,
-        message: `Withdrawal Marz Error: ${username} | Phone: ${userPhone} | Amount: ${fmt(amount)} | Error: ${marzError.message} | Full refund issued`,
-        date: new Date().toLocaleDateString('en-UG', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit' }),
-        read: false
-      });
-      
-      toast('❌ Marz error - refund issued to ' + username, '#f87171');
-    }
-  } catch (error) { 
+    const destination = withdrawal?.method === 'bank' && withdrawal?.bankDetails
+      ? (withdrawal.bankDetails.bankName + ' — ' + withdrawal.bankDetails.accountNumber)
+      : (withdrawal?.phone || '—');
+
+    await db.ref('users/' + userId + '/transactions/' + txKey).update({
+      status: 'completed',
+      note: `Withdrawal approved and sent to ${destination} (Fee: ${fmt(withdrawal?.fee || 0)}, Received: ${fmt(sendAmount)})`
+    });
+    await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'approved' });
+    await db.ref('adminTransactions/' + adminTxKey).update({ status: 'successful' });
+
+    toast('✅ Withdrawal marked as sent for ' + username);
+  } catch (error) {
     console.error('Error approving withdrawal:', error);
-    toast('Error approving withdrawal', '#f87171'); 
+    toast('Error approving withdrawal', '#f87171');
   }
 }
 
@@ -1693,12 +1632,6 @@ function loadSettingsUI() {
     lockStatus.textContent = s.withdrawLocked ? '🔒 LOCKED' : '🔓 OPEN';
     lockStatus.style.color = s.withdrawLocked ? 'var(--warn)' : 'var(--success)';
   }
-  
-  const approvalStatus = document.getElementById('approval-status');
-  if (approvalStatus) {
-    approvalStatus.textContent = s.withdrawApproval ? '✅ Manual Approval ON' : '⚡ Automatic';
-    approvalStatus.style.color = s.withdrawApproval ? 'var(--gold)' : 'var(--success)';
-  }
 }
 
 function toggleApiKeyVis() {
@@ -1783,11 +1716,6 @@ async function saveReferralPct() {
 async function lockWithdrawals(lock) {
   await db.ref('settings/withdrawLocked').set(lock);
   toast(lock ? '🔒 Withdrawals LOCKED' : '🔓 Withdrawals UNLOCKED', lock ? '#f87171' : undefined);
-}
-
-async function setWithdrawApproval(val) {
-  await db.ref('settings/withdrawApproval').set(val);
-  toast(val ? '✅ Manual approval ON — admin must approve withdrawals' : '⚡ Automatic withdrawals ON', val ? undefined : '#38bdf8');
 }
 
 async function deleteAllUsers() {
