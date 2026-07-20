@@ -97,6 +97,24 @@ input[type="password"]{padding-right:46px;}
 .brand-icon{width:34px;height:34px;background:var(--btn);border-radius:10px;display:grid;place-items:center;font-size:16px;color:#fff;}
 .settings-icon-btn{width:36px;height:36px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);display:grid;place-items:center;color:var(--text);cursor:pointer;}
 .settings-icon-btn:active{transform:scale(.95);}
+
+.welcome-banner{position:relative;overflow:hidden;border-radius:18px;padding:22px 20px;background:linear-gradient(135deg, #0c8046 0%, #14a05a 55%, #d4af37 130%);box-shadow:0 6px 20px rgba(0,0,0,.18);}
+.welcome-banner-circle{position:absolute;border-radius:50%;background:rgba(255,255,255,.12);}
+.wb-c1{width:110px;height:110px;top:-40px;right:-30px;}
+.wb-c2{width:70px;height:70px;bottom:-30px;left:-20px;background:rgba(255,255,255,.08);}
+.welcome-banner-title{position:relative;font-family:'Playfair Display',serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:6px;}
+.welcome-banner-text{position:relative;font-size:13px;color:rgba(255,255,255,.92);font-weight:600;max-width:80%;}
+
+.machine-carousel-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;overflow:hidden;}
+.carousel-cat-label{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;}
+.carousel-slide-wrap{position:relative;min-height:118px;overflow:hidden;}
+.carousel-inner{transition:transform .4s ease, opacity .4s ease;position:relative;}
+.carousel-inner.slide-out{transform:translateX(-100%);opacity:0;}
+.carousel-inner.slide-in-start{transform:translateX(100%);opacity:0;}
+.carousel-machine-name{font-size:15px;font-weight:800;color:var(--text);padding-right:60px;}
+.carousel-machine-pct{position:absolute;top:0;right:0;background:var(--btn);color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;}
+.carousel-machine-row{font-size:12px;color:var(--text);margin-top:4px;}
+.carousel-empty{color:var(--muted);font-size:12px;text-align:center;padding:20px 0;}
 .brand-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--accent);}
 .topbar-right{display:flex;align-items:center;gap:10px;}
 .theme-toggle{background:none;border:none;font-size:18px;cursor:pointer;padding:6px;color:var(--accent);transition:.3s;}
@@ -438,18 +456,24 @@ input[type="password"]{padding-right:46px;}
 <!-- DASHBOARD -->
 <div class="dashboard-page" id="dashboard-page">
   <div class="topbar">
-    <div class="topbar-left">
+    <div class="topbar-left" id="topbar-brand">
       <div class="brand"><div class="brand-icon"></div><div class="brand-name">DiamondEarn</div></div>
     </div>
     <div class="topbar-right">
-      <button class="settings-icon-btn" onclick="switchTab('account')" aria-label="Account settings">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
     </div>
   </div>
 
   <!-- HOME / DASHBOARD -->
   <div class="dash-section active" id="sec-home">
+    <div class="section" id="home-welcome-banner">
+      <div class="welcome-banner">
+        <div class="welcome-banner-circle wb-c1"></div>
+        <div class="welcome-banner-circle wb-c2"></div>
+        <div class="welcome-banner-title">Welcome</div>
+        <div class="welcome-banner-text">Small steps today, bigger rewards tomorrow</div>
+      </div>
+    </div>
+
     <div class="section">
       <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
         <div class="stat-box stat-box-white" style="padding:12px 6px;text-align:center;">
@@ -476,6 +500,27 @@ input[type="password"]{padding-right:46px;}
         <button class="home-tab-btn" onclick="goToWithdrawalRecords()">Withdrawals</button>
         <button class="home-tab-btn" onclick="switchTab('company')">Company</button>
         <button class="home-tab-btn" onclick="switchTab('invite')">Invite</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="machine-carousel-box">
+          <div class="carousel-cat-label">Ordinary</div>
+          <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-Ordinary"></div></div>
+        </div>
+        <div class="machine-carousel-box">
+          <div class="carousel-cat-label">VIP</div>
+          <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-VIP"></div></div>
+        </div>
+        <div class="machine-carousel-box">
+          <div class="carousel-cat-label">VVIP</div>
+          <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-VVIP"></div></div>
+        </div>
+        <div class="machine-carousel-box">
+          <div class="carousel-cat-label">Platinum</div>
+          <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-Platinum"></div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -530,7 +575,12 @@ input[type="password"]{padding-right:46px;}
 
   <!-- Profile -->
   <div class="dash-section" id="sec-profile">
-    <div class="inner-header"><div><div class="inner-title">ME</div><div class="inner-sub">Your account overview</div></div></div>
+    <div class="inner-header" style="justify-content:space-between;">
+      <div><div class="inner-title">ME</div><div class="inner-sub">Your account overview</div></div>
+      <button class="settings-icon-btn" onclick="switchTab('account')" aria-label="Account settings">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
 
     <div class="section">
       <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -1272,6 +1322,14 @@ function switchTab(tab) {
   if (tab === 'invite') { renderInvitePage(); }
   if (tab === 'myteam') { renderMyTeamPage(); }
   if (tab === 'account') { renderAccountPage(); }
+
+  const topbarBrand = document.getElementById('topbar-brand');
+  if (topbarBrand) topbarBrand.style.display = tab === 'home' ? 'none' : 'flex';
+  if (tab === 'home') {
+    initHomeCarousels();
+  } else {
+    stopHomeCarousels();
+  }
 }
 
 
@@ -1295,6 +1353,8 @@ function startMachinesListener() {
     machinesCatalog = snap.exists() ? snap.val() : {};
     renderMachineCategoryTabs();
     renderMachineShop();
+    const homeSection = document.getElementById('sec-home');
+    if (homeSection && homeSection.classList.contains('active')) initHomeCarousels();
   });
 }
 
@@ -1367,6 +1427,77 @@ function renderMachineShop() {
       </div>
     </div>`;
   }).join('');
+}
+
+// ============================================================
+// HOME CAROUSELS — 4 independent auto-cycling machine previews,
+// one per category (Ordinary/VIP/VVIP/Platinum), 5s each, sliding
+// right to left.
+// ============================================================
+const homeCarouselCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum'];
+let homeCarouselState = {};
+let homeCarouselIntervals = {};
+
+function initHomeCarousels() {
+  const fixedCategories = homeCarouselCategories;
+  homeCarouselCategories.forEach(cat => {
+    const list = Object.entries(machinesCatalog).filter(([id, m]) => {
+      if (m.active === false) return false;
+      const c = fixedCategories.includes(m.category) ? m.category : 'Ordinary';
+      return c === cat;
+    });
+    if (!homeCarouselState[cat]) homeCarouselState[cat] = { machines: [], idx: 0 };
+    homeCarouselState[cat].machines = list;
+    if (homeCarouselState[cat].idx >= list.length) homeCarouselState[cat].idx = 0;
+    renderCarouselSlide(cat);
+
+    if (homeCarouselIntervals[cat]) clearInterval(homeCarouselIntervals[cat]);
+    if (list.length > 1) {
+      homeCarouselIntervals[cat] = setInterval(() => advanceCarousel(cat), 5000);
+    }
+  });
+}
+
+function stopHomeCarousels() {
+  Object.values(homeCarouselIntervals).forEach(iv => clearInterval(iv));
+  homeCarouselIntervals = {};
+}
+
+function renderCarouselSlide(cat) {
+  const state = homeCarouselState[cat];
+  const wrap = document.getElementById('carousel-inner-' + cat);
+  if (!wrap || !state) return;
+  if (!state.machines.length) {
+    wrap.innerHTML = '<div class="carousel-empty">No machines yet</div>';
+    return;
+  }
+  const [id, m] = state.machines[state.idx];
+  const price = m.price || 0;
+  const payout = m.payout || 0;
+  const pct = price > 0 ? Math.round(((payout - price) / price) * 100) : 0;
+  wrap.innerHTML = `
+    <div class="carousel-machine-pct">+${pct}%</div>
+    <div class="carousel-machine-name">${m.name || 'Machine'}</div>
+    <div class="carousel-machine-row">Buy: ${fmt(price)}</div>
+    <div class="carousel-machine-row" style="color:var(--success);">Return: ${fmt(payout)}</div>
+    <button class="machine-buy-btn" style="margin-top:8px;" onclick="viewMachine('${id}')">View</button>
+  `;
+}
+
+function advanceCarousel(cat) {
+  const state = homeCarouselState[cat];
+  const wrap = document.getElementById('carousel-inner-' + cat);
+  if (!wrap || !state || state.machines.length <= 1) return;
+  wrap.classList.add('slide-out');
+  setTimeout(() => {
+    state.idx = (state.idx + 1) % state.machines.length;
+    renderCarouselSlide(cat);
+    wrap.classList.remove('slide-out');
+    wrap.classList.add('slide-in-start');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { wrap.classList.remove('slide-in-start'); });
+    });
+  }, 400);
 }
 
 async function buyMachine(machineId) {
