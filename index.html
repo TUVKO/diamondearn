@@ -106,15 +106,20 @@ input[type="password"]{padding-right:46px;}
 .welcome-banner-text{position:relative;font-size:13px;color:rgba(255,255,255,.92);font-weight:600;max-width:80%;}
 
 .machine-carousel-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;overflow:hidden;}
-.carousel-cat-label{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;}
+.carousel-box-ordinary{background:#5c4a38;border-color:#7a6249;}
+.carousel-box-vip{background:#3a5266;border-color:#4d6b83;}
+.carousel-box-vvip{background:#4e3f66;border-color:#665283;}
+.carousel-box-platinum{background:#5a5d63;border-color:#75797f;}
+.carousel-cat-label{font-size:10px;font-weight:800;letter-spacing:1px;color:rgba(255,255,255,.65);margin-bottom:8px;text-transform:uppercase;}
 .carousel-slide-wrap{position:relative;min-height:118px;overflow:hidden;}
 .carousel-inner{transition:transform .4s ease, opacity .4s ease;position:relative;}
 .carousel-inner.slide-out{transform:translateX(-100%);opacity:0;}
 .carousel-inner.slide-in-start{transform:translateX(100%);opacity:0;}
-.carousel-machine-name{font-size:15px;font-weight:800;color:var(--text);padding-right:60px;}
+.carousel-machine-name{font-size:15px;font-weight:800;color:#fff;padding-right:60px;}
 .carousel-machine-pct{position:absolute;top:0;right:0;background:var(--btn);color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;}
-.carousel-machine-row{font-size:12px;color:var(--text);margin-top:4px;}
-.carousel-empty{color:var(--muted);font-size:12px;text-align:center;padding:20px 0;}
+.carousel-machine-row{font-size:12px;color:#fff;margin-top:4px;}
+.carousel-machine-row.carousel-return{color:#5eead4;font-weight:700;}
+.carousel-empty{color:rgba(255,255,255,.6);font-size:12px;text-align:center;padding:20px 0;}
 .brand-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--accent);}
 .topbar-right{display:flex;align-items:center;gap:10px;}
 .theme-toggle{background:none;border:none;font-size:18px;cursor:pointer;padding:6px;color:var(--accent);transition:.3s;}
@@ -320,7 +325,7 @@ input[type="password"]{padding-right:46px;}
 .tx-status-failed{background:rgba(239, 68, 68, 0.2);color:#ef4444;border:1px solid #ef4444;}
 
 .tx-list-compact{display:flex;flex-direction:column;gap:8px;}
-.tx-row{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
+.tx-row{display:flex;justify-content:space-between;align-items:center;background:#0f2318;border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
 .tx-row-left{display:flex;flex-direction:column;gap:2px;}
 .tx-row-type{font-size:13px;font-weight:700;color:var(--text);}
 .tx-row-date{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
@@ -505,19 +510,19 @@ input[type="password"]{padding-right:46px;}
 
     <div class="section">
       <div style="display:flex;flex-direction:column;gap:14px;">
-        <div class="machine-carousel-box">
+        <div class="machine-carousel-box carousel-box-ordinary">
           <div class="carousel-cat-label">Ordinary</div>
           <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-Ordinary"></div></div>
         </div>
-        <div class="machine-carousel-box">
+        <div class="machine-carousel-box carousel-box-vip">
           <div class="carousel-cat-label">VIP</div>
           <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-VIP"></div></div>
         </div>
-        <div class="machine-carousel-box">
+        <div class="machine-carousel-box carousel-box-vvip">
           <div class="carousel-cat-label">VVIP</div>
           <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-VVIP"></div></div>
         </div>
-        <div class="machine-carousel-box">
+        <div class="machine-carousel-box carousel-box-platinum">
           <div class="carousel-cat-label">Platinum</div>
           <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-Platinum"></div></div>
         </div>
@@ -745,8 +750,6 @@ input[type="password"]{padding-right:46px;}
     <div class="section">
       <div id="withdraw-locked-msg" class="locked-banner" style="display:none">Withdrawals are currently disabled. Please contact support.</div>
       <div class="action-card">
-        <div class="charge-note">Withdrawal fee: <span id="with-fee-percent">10</span>% of amount. You receive <span id="with-receive-percent">90</span>% of requested amount.</div>
-        <div class="deposit-note">All withdrawals are reviewed and processed manually — funds are sent once approved.</div>
         <div class="field-group">
           <label class="field-label">Withdraw To</label>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -892,10 +895,37 @@ input[type="password"]{padding-right:46px;}
         <div class="deposit-note">Set your bank account once to enable bank withdrawals. These details cannot be changed after saving.</div>
         <div class="field-group">
           <label class="field-label">Bank Name</label>
-          <div class="field-wrap"><input type="text" id="acct-bank-name" placeholder="e.g. Stanbic Bank"></div>
+          <select class="field-wrap" id="acct-bank-name" style="width:100%;padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;">
+            <option value="">Select your bank</option>
+            <option>Stanbic Bank Uganda</option>
+            <option>Centenary Bank</option>
+            <option>DFCU Bank</option>
+            <option>Absa Bank Uganda</option>
+            <option>Standard Chartered Bank</option>
+            <option>Bank of Baroda</option>
+            <option>Equity Bank Uganda</option>
+            <option>Housing Finance Bank</option>
+            <option>KCB Bank Uganda</option>
+            <option>Diamond Trust Bank (DTB)</option>
+            <option>Bank of Africa Uganda</option>
+            <option>Cairo International Bank</option>
+            <option>Ecobank Uganda</option>
+            <option>Exim Bank Uganda</option>
+            <option>Guaranty Trust Bank (GTBank)</option>
+            <option>NCBA Bank Uganda</option>
+            <option>Opportunity Bank Uganda</option>
+            <option>Tropical Bank</option>
+          </select>
         </div>
         <div class="field-group">
-          <label class="field-label">Account Number</label>
+          <label class="field-label">Withdraw Using</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button type="button" class="cat-tab active" id="acct-bank-type-account-btn" style="width:100%;" onclick="setBankAccountType('account')">Account Number</button>
+            <button type="button" class="cat-tab" id="acct-bank-type-card-btn" style="width:100%;" onclick="setBankAccountType('card')">Card Number</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" id="acct-bank-account-label">Account Number</label>
           <div class="field-wrap"><input type="text" id="acct-bank-account" placeholder="Enter account number"></div>
         </div>
         <div class="field-group">
@@ -906,9 +936,9 @@ input[type="password"]{padding-right:46px;}
         <button class="green-btn" onclick="saveBankDetails()">Save Bank Details</button>
       </div>
       <div class="action-card" id="acct-bank-saved" style="display:none;">
-        <div class="deposit-note">✅ Your bank details are saved and locked for security.</div>
+        <div class="deposit-note">Your bank details are saved and locked for security.</div>
         <div class="profile-simple-item" style="display:flex;justify-content:space-between;padding:10px 0;"><span class="profile-simple-label" style="font-size:11px;color:var(--muted);">Bank Name</span><span class="profile-simple-value" id="acct-bank-name-display" style="font-weight:700;">—</span></div>
-        <div class="profile-simple-item" style="display:flex;justify-content:space-between;padding:10px 0;"><span class="profile-simple-label" style="font-size:11px;color:var(--muted);">Account Number</span><span class="profile-simple-value" id="acct-bank-account-display" style="font-weight:700;">—</span></div>
+        <div class="profile-simple-item" style="display:flex;justify-content:space-between;padding:10px 0;"><span class="profile-simple-label" style="font-size:11px;color:var(--muted);" id="acct-bank-account-type-label">Account Number</span><span class="profile-simple-value" id="acct-bank-account-display" style="font-weight:700;">—</span></div>
         <div class="profile-simple-item" style="display:flex;justify-content:space-between;padding:10px 0;"><span class="profile-simple-label" style="font-size:11px;color:var(--muted);">Account Holder</span><span class="profile-simple-value" id="acct-bank-holder-display" style="font-weight:700;">—</span></div>
       </div>
     </div>
@@ -1479,7 +1509,7 @@ function renderCarouselSlide(cat) {
     <div class="carousel-machine-pct">+${pct}%</div>
     <div class="carousel-machine-name">${m.name || 'Machine'}</div>
     <div class="carousel-machine-row">Buy: ${fmt(price)}</div>
-    <div class="carousel-machine-row" style="color:var(--success);">Return: ${fmt(payout)}</div>
+    <div class="carousel-machine-row carousel-return">Return: ${fmt(payout)}</div>
     <button class="machine-buy-btn" style="margin-top:8px;" onclick="viewMachine('${id}')">View</button>
   `;
 }
@@ -1525,7 +1555,11 @@ async function buyMachine(machineId) {
   const purchaseId = 'mch_' + Date.now();
   const now = Date.now();
   const days = m.days || 0;
-  const maturityDate = now + days * 86400000;
+  // Maturity lands on the UTC midnight that is `days` calendar-days after
+  // the purchase date, not exactly days*24h from the purchase moment.
+  const nowD = new Date(now);
+  const purchaseUtcMidnight = Date.UTC(nowD.getUTCFullYear(), nowD.getUTCMonth(), nowD.getUTCDate());
+  const maturityDate = purchaseUtcMidnight + days * 86400000;
   const newPrimeBalance = primeBalance - price;
   const updates = {
     primeBalance: newPrimeBalance,
@@ -1886,12 +1920,17 @@ function renderAccountPage() {
   document.getElementById('acct-pw-next-btn').style.display = 'block';
   clearErrors('acct-old-password-err', 'acct-new-password-err');
 
+  // Reset bank account/card type selector
+  setBankAccountType('account');
+
   // Bank details lock state
   const bankForm = document.getElementById('acct-bank-form');
   const bankSaved = document.getElementById('acct-bank-saved');
   if (currentUser.bankDetails) {
     bankForm.style.display = 'none';
     bankSaved.style.display = 'block';
+    const typeLabel = currentUser.bankDetails.accountType === 'card' ? 'Card Number' : 'Account Number';
+    setText('acct-bank-account-type-label', typeLabel);
     setText('acct-bank-name-display', currentUser.bankDetails.bankName || '—');
     setText('acct-bank-account-display', currentUser.bankDetails.accountNumber || '—');
     setText('acct-bank-holder-display', currentUser.bankDetails.accountHolder || '—');
@@ -1899,6 +1938,17 @@ function renderAccountPage() {
     bankForm.style.display = 'block';
     bankSaved.style.display = 'none';
   }
+}
+
+let currentBankAccountType = 'account';
+function setBankAccountType(type) {
+  currentBankAccountType = type;
+  document.getElementById('acct-bank-type-account-btn').classList.toggle('active', type === 'account');
+  document.getElementById('acct-bank-type-card-btn').classList.toggle('active', type === 'card');
+  const label = document.getElementById('acct-bank-account-label');
+  const input = document.getElementById('acct-bank-account');
+  if (label) label.textContent = type === 'card' ? 'Card Number' : 'Account Number';
+  if (input) input.placeholder = type === 'card' ? 'Enter card number' : 'Enter account number';
 }
 
 function acctPasswordNext() {
@@ -1940,7 +1990,7 @@ async function saveBankDetails() {
     setErr('acct-bank-err', true, 'Please fill in all bank details');
     return;
   }
-  const bankDetails = { bankName, accountNumber, accountHolder };
+  const bankDetails = { bankName, accountNumber, accountHolder, accountType: currentBankAccountType };
   await db.ref('users/' + safeKey(currentUsername)).update({ bankDetails });
   currentUser.bankDetails = bankDetails;
   renderAccountPage();
