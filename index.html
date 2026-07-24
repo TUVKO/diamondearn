@@ -110,6 +110,10 @@ input[type="password"]{padding-right:46px;}
 .carousel-box-vip{background:#3a5266;border-color:#4d6b83;}
 .carousel-box-vvip{background:#4e3f66;border-color:#665283;}
 .carousel-box-platinum{background:#5a5d63;border-color:#75797f;}
+.carousel-box-diamond{background:#2e5a5a;border-color:#3d7373;}
+.carousel-box-royal{background:#5a2e3f;border-color:#733d54;}
+.carousel-box-infinite{background:#2e3a5a;border-color:#3d4d73;}
+.carousel-box-sovereign{background:#5a4a2e;border-color:#73613d;}
 .carousel-cat-label{font-size:10px;font-weight:800;letter-spacing:1px;color:rgba(255,255,255,.65);margin-bottom:8px;text-transform:uppercase;}
 .carousel-slide-wrap{position:relative;min-height:118px;overflow:hidden;}
 .carousel-inner{transition:transform .4s ease, opacity .4s ease;position:relative;}
@@ -525,6 +529,22 @@ input[type="password"]{padding-right:46px;}
         <div class="machine-carousel-box carousel-box-platinum">
           <div class="carousel-cat-label">Platinum</div>
           <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-Platinum"></div></div>
+        </div>
+        <div class="machine-carousel-box carousel-box-diamond">
+          <div class="carousel-cat-label">Diamond</div>
+          <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-Diamond"></div></div>
+        </div>
+        <div class="machine-carousel-box carousel-box-royal">
+          <div class="carousel-cat-label">Royal</div>
+          <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-Royal"></div></div>
+        </div>
+        <div class="machine-carousel-box carousel-box-infinite">
+          <div class="carousel-cat-label">Infinite</div>
+          <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-Infinite"></div></div>
+        </div>
+        <div class="machine-carousel-box carousel-box-sovereign">
+          <div class="carousel-cat-label">Sovereign</div>
+          <div class="carousel-slide-wrap"><div class="carousel-inner" id="carousel-inner-Sovereign"></div></div>
         </div>
       </div>
     </div>
@@ -1426,7 +1446,7 @@ function renderMachineCategoryTabs() {
   const wrap = document.getElementById('machine-category-tabs');
   if (!wrap) return;
   const list = Object.values(machinesCatalog);
-  const fixedCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum'];
+  const fixedCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum', 'Diamond', 'Royal', 'Infinite', 'Sovereign'];
   const categories = {};
   fixedCategories.forEach(cat => { categories[cat] = 0; });
   list.forEach(m => {
@@ -1449,7 +1469,7 @@ function setMachineCategory(cat) {
 function renderMachineShop() {
   const wrap = document.getElementById('machine-shop-list');
   if (!wrap) return;
-  const fixedCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum'];
+  const fixedCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum', 'Diamond', 'Royal', 'Infinite', 'Sovereign'];
   let list = Object.entries(machinesCatalog);
   if (currentMachineCategory !== 'All') {
     list = list.filter(([id, m]) => {
@@ -1496,7 +1516,7 @@ function renderMachineShop() {
 // one per category (Ordinary/VIP/VVIP/Platinum), 5s each, sliding
 // right to left.
 // ============================================================
-const homeCarouselCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum'];
+const homeCarouselCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum', 'Diamond', 'Royal', 'Infinite', 'Sovereign'];
 let homeCarouselState = {};
 let homeCarouselIntervals = {};
 

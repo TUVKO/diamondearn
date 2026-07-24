@@ -354,6 +354,10 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
                 <option value="VIP">VIP</option>
                 <option value="VVIP">VVIP</option>
                 <option value="Platinum">Platinum</option>
+                <option value="Diamond">Diamond</option>
+                <option value="Royal">Royal</option>
+                <option value="Infinite">Infinite</option>
+                <option value="Sovereign">Sovereign</option>
               </select>
             </div>
           </div>
@@ -1205,7 +1209,7 @@ function editMachine(id) {
   if (!m) return;
   document.getElementById('machine-edit-id').value = id;
   document.getElementById('machine-name').value = m.name || '';
-  const validCats = ['Ordinary', 'VIP', 'VVIP', 'Platinum'];
+  const validCats = ['Ordinary', 'VIP', 'VVIP', 'Platinum', 'Diamond', 'Royal', 'Infinite', 'Sovereign'];
   document.getElementById('machine-category').value = validCats.includes(m.category) ? m.category : 'Ordinary';
   document.getElementById('machine-image').value = m.imageUrl || '';
   document.getElementById('machine-price').value = m.price || 0;
