@@ -73,6 +73,29 @@ input[type="password"]{padding-right:46px;}
 .field-hint{font-size:10px;color:var(--muted);margin-top:5px;padding-left:4px;}
 .field-error{font-size:10px;color:var(--warn);margin-top:5px;padding-left:4px;display:none;}
 .field-error.show{display:block;}
+
+.auth-page-navy{
+  --bg:#050b1a; --surface:rgba(18,28,64,.65); --surface2:rgba(10,18,45,.72); --surface3:rgba(20,32,72,.8);
+  --border:rgba(96,165,250,.28); --accent:#fbbf24; --accent2:#f59e0b; --accent3:#60a5fa;
+  --btn:#1e3a8a; --text:#eef2ff; --muted:#8ea3c9; --warn:#f87171;
+  background:linear-gradient(175deg,#050b1a 0%,#0a1530 45%,#0d1f45 100%);
+  position:relative; overflow:hidden;
+}
+.auth-page-navy::before{
+  content:''; position:absolute; top:-90px; right:-70px; width:300px; height:300px; border-radius:50%;
+  background:radial-gradient(circle, rgba(96,165,250,.22) 0%, transparent 70%);
+  animation:navyDrift1 9s ease-in-out infinite;
+}
+.auth-page-navy::after{
+  content:''; position:absolute; bottom:-110px; left:-70px; width:340px; height:340px; border-radius:50%;
+  background:radial-gradient(circle, rgba(30,58,138,.4) 0%, transparent 70%);
+  animation:navyDrift2 11s ease-in-out infinite;
+}
+@keyframes navyDrift1{0%,100%{transform:translate(0,0);}50%{transform:translate(-14px,16px);}}
+@keyframes navyDrift2{0%,100%{transform:translate(0,0);}50%{transform:translate(14px,-14px);}}
+.auth-page-navy .auth-hero,.auth-page-navy .auth-card{position:relative; z-index:2;}
+.auth-page-navy .auth-wave{position:absolute; left:0; right:0; bottom:0; height:120px; opacity:.35; z-index:1; pointer-events:none;}
+.auth-page-navy .auth-card{box-shadow:0 12px 40px rgba(0,0,0,.45), 0 0 0 1px rgba(96,165,250,.08) inset;}
 .pw-strength{display:flex;gap:4px;margin-top:8px;}
 .pw-bar{flex:1;height:3px;border-radius:3px;background:var(--surface2);}
 .pw-bar.weak{background:var(--warn)}.pw-bar.medium{background:var(--btn)}.pw-bar.strong{background:var(--btn)}
@@ -385,7 +408,8 @@ input[type="password"]{padding-right:46px;}
 </div>
 
 <!-- LOGIN -->
-<div class="auth-page" id="login-page">
+<div class="auth-page auth-page-navy" id="login-page">
+  <svg class="auth-wave" viewBox="0 0 400 120" preserveAspectRatio="none"><path d="M0,60 C80,100 160,20 240,50 C320,80 360,40 400,60 L400,120 L0,120 Z" fill="#60a5fa"></path></svg>
   <div class="auth-hero">
     <div class="auth-logo"></div>
     <div class="auth-brand">First Light Capital</div>
@@ -395,9 +419,12 @@ input[type="password"]{padding-right:46px;}
     <div class="auth-title">Welcome Back</div>
     <div class="auth-subtitle">Sign in to your investment account</div>
     <div class="field-group">
-      <label class="field-label">Username</label>
-      <div class="field-wrap"><input type="text" id="login-username" placeholder="Enter your username"></div>
-      <div class="field-error" id="login-user-err">Please enter your username</div>
+      <label class="field-label">Phone Number</label>
+      <div class="phone-prefix-wrap" id="login-phone-wrap">
+        <div class="phone-prefix-badge">+256</div>
+        <input type="tel" id="login-phone" placeholder="7XXXXXXXX" maxlength="9" oninput="loginPhoneInput(this)">
+      </div>
+      <div class="field-error" id="login-phone-err">Enter 9 digits starting with 7</div>
     </div>
     <div class="field-group">
       <label class="field-label">Password</label>
@@ -411,7 +438,8 @@ input[type="password"]{padding-right:46px;}
 </div>
 
 <!-- REGISTER -->
-<div class="auth-page" id="register-page">
+<div class="auth-page auth-page-navy" id="register-page">
+  <svg class="auth-wave" viewBox="0 0 400 120" preserveAspectRatio="none"><path d="M0,60 C80,100 160,20 240,50 C320,80 360,40 400,60 L400,120 L0,120 Z" fill="#1e3a8a"></path></svg>
   <div class="auth-hero">
     <div class="auth-logo"></div>
     <div class="auth-brand">First Light Capital</div>
@@ -419,23 +447,7 @@ input[type="password"]{padding-right:46px;}
   </div>
   <div class="auth-card">
     <div class="auth-title">Create Account</div>
-    <div class="auth-subtitle">Get UGX 4,000 registration bonus</div>
-    <div class="field-group">
-      <label class="field-label">Username</label>
-      <div class="field-wrap"><input type="text" id="reg-username" placeholder="Choose a username"></div>
-      <div class="field-error" id="reg-user-err">Username is required</div>
-    </div>
-    <div class="field-group">
-      <label class="field-label">Country</label>
-      <div class="field-wrap">
-        <select id="reg-country" onchange="updateRegPrefix()">
-          <option value="">Select your country</option>
-          <option value="UG">Uganda</option>
-          <option value="KE">Kenya</option>
-        </select>
-      </div>
-      <div class="field-error" id="reg-country-err">Please select your country</div>
-    </div>
+    <div class="auth-subtitle">Get UGX 3,000 registration bonus</div>
     <div class="field-group">
       <label class="field-label">Phone Number</label>
       <div class="phone-prefix-wrap" id="reg-phone-wrap">
@@ -455,6 +467,12 @@ input[type="password"]{padding-right:46px;}
       <label class="field-label">Confirm Password</label>
       <div class="field-wrap"><input type="password" id="reg-confirm" placeholder="Repeat password"><button class="eye-btn" onclick="toggleEye('reg-confirm',this)">Show</button></div>
       <div class="field-error" id="reg-confirm-err">Passwords do not match</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Referral Code</label>
+      <div class="field-wrap"><input type="text" id="reg-referral-code" placeholder="Enter referral code" maxlength="7" style="text-transform:uppercase;"></div>
+      <div class="field-hint">A referral code is required to create an account</div>
+      <div class="field-error" id="reg-referral-err">A valid referral code is required</div>
     </div>
     <div class="field-error" id="reg-general-err" style="text-align:center;margin-bottom:10px;font-size:12px;"></div>
     <button class="submit-btn" onclick="doRegister()">Create Account & Earn</button>
@@ -659,6 +677,10 @@ input[type="password"]{padding-right:46px;}
             <div class="me-mini-label">TOTAL DEPOSITED</div>
             <div class="me-mini-value" id="me-deposited" style="color:#059669;">UGX 0</div>
           </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">TOTAL EARNINGS</div>
+            <div class="me-mini-value" id="me-total-earnings" style="color:#b45309;">UGX 0</div>
+          </div>
         </div>
       </div>
     </div>
@@ -842,7 +864,12 @@ input[type="password"]{padding-right:46px;}
   <!-- Invite -->
   <div class="dash-section" id="sec-invite">
     <div class="inner-header"><div><div class="inner-title">Invite</div><div class="inner-sub">Share your link and earn on machine purchases</div></div></div>
-    <div class="section">
+    <div class="section" id="invite-locked-state" style="display:none;">
+      <div style="text-align:center;padding:60px 20px;">
+        <div style="font-size:12px;color:#ef4444;font-weight:700;">Purchase a machine first to unlock referring.</div>
+      </div>
+    </div>
+    <div class="section" id="invite-unlocked-state">
       <div class="action-card" style="text-align:center;">
         <div style="background:#fff;border-radius:16px;padding:16px;display:inline-block;margin-bottom:16px;">
           <img id="invite-qr-img" src="" alt="QR Code" style="width:180px;height:180px;display:block;">
@@ -1253,7 +1280,7 @@ async function initApp() {
       showAuth('login-page');
     }
   } else {
-    showAuth('login-page');
+    showAuth(pendingRefCode ? 'register-page' : 'login-page');
   }
   
   // HIDE LOADING SCREEN IMMEDIATELY
@@ -1311,12 +1338,6 @@ function checkStrength(pw) {
   if (pw.length >= 10 && /[^A-Za-z0-9]/.test(pw)) { if (b[0]) b[0].classList.add('strong'); if (b[1]) b[1].classList.add('strong'); if (b[2]) b[2].classList.add('strong'); }
 }
 
-function updateRegPrefix() {
-  const c = document.getElementById('reg-country').value;
-  const pr = document.getElementById('reg-prefix');
-  if (pr) pr.textContent = c === 'KE' ? '+254' : '+256';
-}
-
 function regPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 9); }
 function depPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 10); }
 
@@ -1324,6 +1345,14 @@ function showAuth(id) {
   document.querySelectorAll('.auth-page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
   const t = document.getElementById(id);
   if (t) { t.style.display = 'flex'; t.classList.add('active'); }
+  if (id === 'register-page' && pendingRefCode) {
+    const codeInput = document.getElementById('reg-referral-code');
+    if (codeInput) {
+      codeInput.value = pendingRefCode.toUpperCase();
+      codeInput.readOnly = true;
+      codeInput.style.opacity = '0.75';
+    }
+  }
 }
 
 function showDashboard() {
@@ -1430,7 +1459,7 @@ function startSettingsListener() {
 // owned-machine tracking (replaces the old daily-profit system)
 // ============================================================
 let machinesCatalog = {};
-let currentMachineCategory = 'All';
+let currentMachineCategory = 'Ordinary';
 
 function startMachinesListener() {
   db.ref('machines').on('value', (snap) => {
@@ -1453,7 +1482,7 @@ function renderMachineCategoryTabs() {
     const cat = fixedCategories.includes(m.category) ? m.category : 'Ordinary';
     categories[cat] = (categories[cat] || 0) + 1;
   });
-  let html = `<div class="cat-tab ${currentMachineCategory === 'All' ? 'active' : ''}" onclick="setMachineCategory('All')">All (${list.length})</div>`;
+  let html = '';
   fixedCategories.forEach(cat => {
     html += `<div class="cat-tab ${currentMachineCategory === cat ? 'active' : ''}" onclick="setMachineCategory('${cat}')">${cat} (${categories[cat]})</div>`;
   });
@@ -1471,12 +1500,10 @@ function renderMachineShop() {
   if (!wrap) return;
   const fixedCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum', 'Diamond', 'Royal', 'Infinite', 'Sovereign'];
   let list = Object.entries(machinesCatalog);
-  if (currentMachineCategory !== 'All') {
-    list = list.filter(([id, m]) => {
-      const cat = fixedCategories.includes(m.category) ? m.category : 'Ordinary';
-      return cat === currentMachineCategory;
-    });
-  }
+  list = list.filter(([id, m]) => {
+    const cat = fixedCategories.includes(m.category) ? m.category : 'Ordinary';
+    return cat === currentMachineCategory;
+  });
   if (!list.length) {
     wrap.innerHTML = '<div class="tx-empty-state"><div class="tx-empty-title">No Machines Yet</div><div class="tx-empty-text">Check back soon for available machines.</div></div>';
     return;
@@ -1910,6 +1937,19 @@ function getReferralLink() {
 async function renderInvitePage() {
   if (!currentUsername || !currentUser) return;
 
+  const owned = currentUser.ownedMachines || {};
+  const hasActiveMachine = Object.values(owned).some(m => m.status === 'active');
+  const lockedState = document.getElementById('invite-locked-state');
+  const unlockedState = document.getElementById('invite-unlocked-state');
+
+  if (!hasActiveMachine) {
+    if (lockedState) lockedState.style.display = 'block';
+    if (unlockedState) unlockedState.style.display = 'none';
+    return;
+  }
+  if (lockedState) lockedState.style.display = 'none';
+  if (unlockedState) unlockedState.style.display = 'block';
+
   // Legacy accounts registered before referral codes existed — generate one now
   if (!currentUser.referralCode) {
     const code = await generateUniqueReferralCode();
@@ -2128,6 +2168,12 @@ function updateMeStats() {
   let teamEarned = 0;
   referralList.forEach(r => { teamEarned += (r.totalEarned || 0); });
 
+  const txs = currentUser.transactions ? Object.values(currentUser.transactions) : [];
+  let totalEarnings = 0;
+  txs.forEach(tx => {
+    if ((tx.type === 'Bonus' || tx.type === 'Machine Payout') && tx.amount > 0) totalEarnings += tx.amount;
+  });
+
   const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   setText('me-prime', fmt(prime));
   setText('me-scrayd', fmt(scrayd));
@@ -2138,6 +2184,7 @@ function updateMeStats() {
   setText('me-team-earned', fmt(teamEarned));
   setText('me-withdrawn', fmt(currentUser.withdrawn || 0));
   setText('me-deposited', fmt(totalDeposited));
+  setText('me-total-earnings', fmt(totalEarnings));
 }
 
 let currentHistoryFilter = 'Deposit';
@@ -2529,34 +2576,35 @@ async function doWithdraw() {
 }
 
 async function doLogin() {
-  clearErrors('login-user-err', 'login-pw-err');
+  clearErrors('login-phone-err', 'login-pw-err');
   setErr('login-general-err', false);
-  const username = document.getElementById('login-username').value.trim();
+  const phoneDigits = document.getElementById('login-phone').value.trim();
   const password = document.getElementById('login-password').value;
-  if (!username) { setErr('login-user-err', true); return; }
+  if (!phoneDigits || phoneDigits.length !== 9 || !phoneDigits.startsWith('7')) { setErr('login-phone-err', true, 'Enter 9 digits starting with 7'); return; }
   if (!password) { setErr('login-pw-err', true); return; }
+  const fullPhone = '+256' + phoneDigits;
   try {
-    const userSnap = await db.ref('users/' + safeKey(username)).get();
-    if (!userSnap.exists()) { setErr('login-general-err', true, 'Invalid username or password'); return; }
+    const userSnap = await db.ref('users/' + safeKey(fullPhone)).get();
+    if (!userSnap.exists()) { setErr('login-general-err', true, 'Invalid phone number or password'); return; }
     const userData = userSnap.val();
-    if (userData.password !== password) { setErr('login-general-err', true, 'Invalid username or password'); return; }
+    if (userData.password !== password) { setErr('login-general-err', true, 'Invalid phone number or password'); return; }
     if (userData.locked) { setErr('login-general-err', true, 'Your account has been locked. Contact support.'); return; }
     currentUser = userData;
-    currentUsername = username;
-    sessionStorage.setItem('pp_current_user', username);
+    currentUsername = fullPhone;
+    sessionStorage.setItem('pp_current_user', fullPhone);
     
     // MACHINE MATURITY CHECK FIRST - before UI updates
     // This ensures balance is updated with any completed machine payouts before UI renders
     await checkMachineMaturity().catch(err => console.warn('Login machine maturity error:', err));
     
     // Re-fetch user data after maturity check to get updated balance
-    const updatedSnap = await db.ref('users/' + safeKey(username)).get();
+    const updatedSnap = await db.ref('users/' + safeKey(fullPhone)).get();
     if (updatedSnap.exists()) {
       currentUser = updatedSnap.val();
     }
     
     // Now show UI with updated balance
-    startUserListener(username);
+    startUserListener(fullPhone);
     updateBalanceUI();
     renderHistory();
     updateProfileUI();
@@ -2572,84 +2620,79 @@ async function doLogin() {
   }
 }
 
+function loginPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 9); }
+
 async function doRegister() {
-  clearErrors('reg-user-err', 'reg-country-err', 'reg-phone-err', 'reg-pw-err', 'reg-confirm-err', 'reg-general-err');
-  const username = document.getElementById('reg-username').value.trim();
-  const country = document.getElementById('reg-country').value;
+  clearErrors('reg-phone-err', 'reg-pw-err', 'reg-confirm-err', 'reg-referral-err', 'reg-general-err');
   const phoneDigits = document.getElementById('reg-phone').value.trim();
   const password = document.getElementById('reg-password').value;
   const confirm = document.getElementById('reg-confirm').value;
+  const referralCodeInput = document.getElementById('reg-referral-code').value.trim().toUpperCase();
   let ok = true;
-  if (!username) { setErr('reg-user-err', true, 'Username is required'); ok = false; }
-  if (!country) { setErr('reg-country-err', true, 'Please select your country'); ok = false; }
   if (!phoneDigits || phoneDigits.length !== 9 || !phoneDigits.startsWith('7')) { setErr('reg-phone-err', true, 'Enter 9 digits starting with 7'); ok = false; }
   if (!password || password.length < 6) { setErr('reg-pw-err', true, 'Password must be at least 6 characters'); ok = false; }
   if (!confirm || confirm !== password) { setErr('reg-confirm-err', true, 'Passwords do not match'); ok = false; }
+  if (!referralCodeInput) { setErr('reg-referral-err', true, 'A valid referral code is required'); ok = false; }
   if (!ok) return;
-  const existing = await db.ref('users/' + safeKey(username)).get();
-  if (existing.exists()) { setErr('reg-user-err', true, 'Username already taken'); return; }
-  const prefix = country === 'KE' ? '+254' : '+256';
-  const fullPhone = prefix + phoneDigits;
+
+  const fullPhone = '+256' + phoneDigits;
+
+  // Referral code is mandatory — must resolve to a real existing user
+  const codeSnap = await db.ref('referralCodes/' + referralCodeInput).get();
+  if (!codeSnap.exists()) { setErr('reg-referral-err', true, 'A valid referral code is required'); return; }
+  const referredBy = codeSnap.val();
+
+  const existing = await db.ref('users/' + safeKey(fullPhone)).get();
+  if (existing.exists()) { setErr('reg-phone-err', true, 'An account with this phone number already exists'); return; }
+
   const now = dateStr();
   const joinedYear = new Date().getFullYear().toString();
   const nowDate = new Date();
   const registeredDate = String(nowDate.getDate()).padStart(2, '0') + '/' + String(nowDate.getMonth() + 1).padStart(2, '0') + '/' + nowDate.getFullYear();
 
-  // Resolve referral code (if present) to an actual referrer username
-  let referredBy = null;
-  if (pendingRefCode) {
-    const codeSnap = await db.ref('referralCodes/' + pendingRefCode.toUpperCase()).get();
-    if (codeSnap.exists()) {
-      const candidate = codeSnap.val();
-      if (candidate && candidate.toLowerCase() !== username.toLowerCase()) referredBy = candidate;
-    }
-  }
-
   // Generate this new user's own unique 7-character referral code
   const myReferralCode = await generateUniqueReferralCode();
 
   const newUser = {
-    username, password, country, phone: fullPhone, primeBalance: 4000, scraydWallet: 0, withdrawn: 0,
-    activated: false, locked: false, joinedDate: joinedYear, registeredDate, referredBy: referredBy || null,
+    username: fullPhone, password, country: 'UG', phone: fullPhone, primeBalance: 3000, scraydWallet: 0, withdrawn: 0,
+    activated: false, locked: false, joinedDate: joinedYear, registeredDate, referredBy: referredBy,
     referralCode: myReferralCode,
-    transactions: { t0: { type: 'Bonus', amount: 4000, note: 'Registration Bonus', date: now, status: 'completed' } },
+    transactions: { t0: { type: 'Bonus', amount: 3000, note: 'Registration Bonus', date: now, status: 'completed' } },
     deposits: {}, ownedMachines: {}
   };
-  await db.ref('users/' + safeKey(username)).set(newUser);
-  await db.ref('referralCodes/' + myReferralCode).set(username);
+  await db.ref('users/' + safeKey(fullPhone)).set(newUser);
+  await db.ref('referralCodes/' + myReferralCode).set(fullPhone);
 
   // Build the 3-level upline network: L1 (direct referrer), L2, L3
-  if (referredBy) {
-    const l1Sk = safeKey(referredBy);
-    await db.ref('users/' + l1Sk + '/network/' + safeKey(username)).set({
-      username, phone: fullPhone, level: 1, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear
+  const l1Sk = safeKey(referredBy);
+  await db.ref('users/' + l1Sk + '/network/' + safeKey(fullPhone)).set({
+    username: fullPhone, phone: fullPhone, level: 1, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear
+  });
+  const l1Snap = await db.ref('users/' + l1Sk).get();
+  const l1Data = l1Snap.exists() ? l1Snap.val() : null;
+  const l2Username = l1Data ? l1Data.referredBy : null;
+
+  if (l2Username) {
+    const l2Sk = safeKey(l2Username);
+    await db.ref('users/' + l2Sk + '/network/' + safeKey(fullPhone)).set({
+      username: fullPhone, phone: fullPhone, level: 2, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear
     });
-    const l1Snap = await db.ref('users/' + l1Sk).get();
-    const l1Data = l1Snap.exists() ? l1Snap.val() : null;
-    const l2Username = l1Data ? l1Data.referredBy : null;
+    const l2Snap = await db.ref('users/' + l2Sk).get();
+    const l2Data = l2Snap.exists() ? l2Snap.val() : null;
+    const l3Username = l2Data ? l2Data.referredBy : null;
 
-    if (l2Username) {
-      const l2Sk = safeKey(l2Username);
-      await db.ref('users/' + l2Sk + '/network/' + safeKey(username)).set({
-        username, phone: fullPhone, level: 2, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear
+    if (l3Username) {
+      const l3Sk = safeKey(l3Username);
+      await db.ref('users/' + l3Sk + '/network/' + safeKey(fullPhone)).set({
+        username: fullPhone, phone: fullPhone, level: 3, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear
       });
-      const l2Snap = await db.ref('users/' + l2Sk).get();
-      const l2Data = l2Snap.exists() ? l2Snap.val() : null;
-      const l3Username = l2Data ? l2Data.referredBy : null;
-
-      if (l3Username) {
-        const l3Sk = safeKey(l3Username);
-        await db.ref('users/' + l3Sk + '/network/' + safeKey(username)).set({
-          username, phone: fullPhone, level: 3, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear
-        });
-      }
     }
   }
 
   currentUser = newUser;
-  currentUsername = username;
-  sessionStorage.setItem('pp_current_user', username);
-  startUserListener(username);
+  currentUsername = fullPhone;
+  sessionStorage.setItem('pp_current_user', fullPhone);
+  startUserListener(fullPhone);
   updateBalanceUI();
   renderHistory();
   updateProfileUI();
@@ -2658,11 +2701,9 @@ async function doRegister() {
   switchTab('home');
   startMachineMaturityLoop();
   // Silent registration - no toast
-  document.getElementById('reg-username').value = '';
   document.getElementById('reg-phone').value = '';
   document.getElementById('reg-password').value = '';
   document.getElementById('reg-confirm').value = '';
-  document.getElementById('reg-country').value = '';
 }
 
 async function doLogout() {
@@ -2674,7 +2715,7 @@ async function doLogout() {
   setTimeout(() => {
     document.getElementById('dashboard-page').style.display = 'none';
     document.getElementById('dashboard-page').classList.remove('active');
-    document.getElementById('login-username').value = '';
+    document.getElementById('login-phone').value = '';
     document.getElementById('login-password').value = '';
     showAuth('login-page');
   }, 800);
