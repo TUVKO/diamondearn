@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
 <meta property="og:title" content="First Light Capital — Mine Your Wealth, One Day at a Time">
 <meta property="og:description" content="Just like mining diamonds — rare, valuable, and worth the investment. With First Light Capital, you mine daily profits effortlessly using AI-powered trading.">
-<meta property="og:image" content="https://profit-pulse.site/logo.png">
-<meta property="og:url" content="https://profit-pulse.site">
+<meta property="og:image" content="https://tuvko.github.io/diamondearn/logo.png">
+<meta property="og:url" content="https://tuvko.github.io/diamondearn/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://profit-pulse.site/logo.png">
+<meta name="twitter:image" content="https://tuvko.github.io/diamondearn/logo.png">
 <title>First Light Capital — Mine Your Wealth, One Day at a Time</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -71,6 +71,7 @@ select{cursor:pointer;}select option{background:var(--surface2);}
 .eye-btn:hover{color:var(--accent);}
 input[type="password"]{padding-right:46px;}
 .field-hint{font-size:10px;color:var(--muted);margin-top:5px;padding-left:4px;}
+.field-hint-top{font-size:11px;color:#4ade80;font-weight:600;margin-bottom:6px;padding-left:2px;}
 .field-error{font-size:10px;color:var(--warn);margin-top:5px;padding-left:4px;display:none;}
 .field-error.show{display:block;}
 
@@ -420,15 +421,17 @@ input[type="password"]{padding-right:46px;}
     <div class="auth-subtitle">Sign in to your investment account</div>
     <div class="field-group">
       <label class="field-label">Phone Number</label>
+      <div class="field-hint-top">Enter Phone 712345678</div>
       <div class="phone-prefix-wrap" id="login-phone-wrap">
         <div class="phone-prefix-badge">+256</div>
-        <input type="tel" id="login-phone" placeholder="7XXXXXXXX" maxlength="9" oninput="loginPhoneInput(this)">
+        <input type="tel" id="login-phone" maxlength="9" oninput="loginPhoneInput(this)">
       </div>
       <div class="field-error" id="login-phone-err">Enter 9 digits starting with 7</div>
     </div>
     <div class="field-group">
       <label class="field-label">Password</label>
-      <div class="field-wrap"><input type="password" id="login-password" placeholder="Enter password"><button class="eye-btn" onclick="toggleEye('login-password',this)">Show</button></div>
+      <div class="field-hint-top">Enter password (min 6 characters)</div>
+      <div class="field-wrap"><input type="password" id="login-password"><button class="eye-btn" onclick="toggleEye('login-password',this)">Show</button></div>
       <div class="field-error" id="login-pw-err">Please enter your password</div>
     </div>
     <div class="field-error" id="login-general-err" style="text-align:center;margin-bottom:10px;font-size:12px;"></div>
@@ -450,32 +453,34 @@ input[type="password"]{padding-right:46px;}
     <div class="auth-subtitle">Get UGX 3,000 registration bonus</div>
     <div class="field-group">
       <label class="field-label">Phone Number</label>
+      <div class="field-hint-top">Enter Phone 712345678</div>
       <div class="phone-prefix-wrap" id="reg-phone-wrap">
         <div class="phone-prefix-badge" id="reg-prefix">+256</div>
-        <input type="tel" id="reg-phone" placeholder="7XXXXXXXX" maxlength="9" oninput="regPhoneInput(this)">
+        <input type="tel" id="reg-phone" maxlength="9" oninput="regPhoneInput(this)">
       </div>
-      <div class="field-hint">9 digits starting with 7</div>
       <div class="field-error" id="reg-phone-err">Enter 9 digits starting with 7</div>
     </div>
     <div class="field-group">
       <label class="field-label">Password</label>
-      <div class="field-wrap"><input type="password" id="reg-password" placeholder="Min. 6 characters" oninput="checkStrength(this.value)"><button class="eye-btn" onclick="toggleEye('reg-password',this)">Show</button></div>
+      <div class="field-hint-top">Enter password (min 6 characters)</div>
+      <div class="field-wrap"><input type="password" id="reg-password" oninput="checkStrength(this.value)"><button class="eye-btn" onclick="toggleEye('reg-password',this)">Show</button></div>
       <div class="pw-strength"><div class="pw-bar" id="pw-b1"></div><div class="pw-bar" id="pw-b2"></div><div class="pw-bar" id="pw-b3"></div></div>
       <div class="field-error" id="reg-pw-err">Password must be at least 6 characters</div>
     </div>
     <div class="field-group">
       <label class="field-label">Confirm Password</label>
-      <div class="field-wrap"><input type="password" id="reg-confirm" placeholder="Repeat password"><button class="eye-btn" onclick="toggleEye('reg-confirm',this)">Show</button></div>
+      <div class="field-hint-top">Re-enter your password</div>
+      <div class="field-wrap"><input type="password" id="reg-confirm"><button class="eye-btn" onclick="toggleEye('reg-confirm',this)">Show</button></div>
       <div class="field-error" id="reg-confirm-err">Passwords do not match</div>
     </div>
     <div class="field-group">
       <label class="field-label">Referral Code</label>
-      <div class="field-wrap"><input type="text" id="reg-referral-code" placeholder="Enter referral code" maxlength="7" style="text-transform:uppercase;"></div>
-      <div class="field-hint">A referral code is required to create an account</div>
+      <div class="field-hint-top">Enter referral code</div>
+      <div class="field-wrap"><input type="text" id="reg-referral-code" maxlength="7" style="text-transform:uppercase;"></div>
       <div class="field-error" id="reg-referral-err">A valid referral code is required</div>
     </div>
     <div class="field-error" id="reg-general-err" style="text-align:center;margin-bottom:10px;font-size:12px;"></div>
-    <button class="submit-btn" onclick="doRegister()">Create Account & Earn</button>
+    <button class="submit-btn" onclick="doRegister()">Open Account</button>
     <div class="auth-switch">Already have an account? <a onclick="showAuth('login-page')">Sign In</a></div>
   </div>
 </div>
