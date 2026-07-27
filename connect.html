@@ -789,7 +789,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 // ============================================================
 // DIAMOND EARN ADMIN - FIREBASE REALTIME DATABASE
 // Username + Password Login | MarzPay Integration
-// ADDED: Support Chat System
+// ADDED: Support Chat System + Auto-cleanup
 // ============================================================
 
 const firebaseConfig = {
@@ -811,11 +811,9 @@ const SESSION_KEY = 'pp_admin_session';
 const MARZ_API = 'https://polished-truth-f9c5.vallazvallax.workers.dev';
 
 function getMarzAuth() {
-  // Use original API key from session if available (set during saveMarzApiKey)
   let key = (window.MARZ_API_KEY || allSettings.marzApiKey || '').trim();
   if (key.toLowerCase().startsWith('basic ')) key = key.slice(6).trim();
   if (key.startsWith('vvvv')) {
-    // If key is masked (starts with vvvv), it won't work - need admin to re-enter
     throw new Error('MarzPay API key needs to be re-entered');
   }
   return 'Basic ' + key;
@@ -880,6 +878,7 @@ let adminTxUnsubscribe = null;
 let machinesUnsubscribe = null;
 let supportMessagesUnsubscribe = null;
 let supportSettingsUnsubscribe = null;
+let cleanupInterval = null;
 
 function fmt(n) { return 'UGX ' + Number(n || 0).toLocaleString(); }
 function dateStr() { const d = new Date(); return d.toLocaleDateString('en-UG', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit' }); }
@@ -892,7 +891,140 @@ function setErr(id, show, msg) { const el = document.getElementById(id); if (!el
 function clearErrors(...ids) { ids.forEach(id => setErr(id, false)); }
 
 // ============================================================
-// SUPPORT CHAT ADMIN FUNCTIONS - NEW
+// AUTO-CLEANUP FUNCTIONS - NEW
+// ============================================================
+
+// Parse date string like "27 Jul 2026 23:10:00" to Date object
+function parseDateString(dateStr) {
+  if (!dateStr) return null;
+  try {
+    // Try to parse as "27 Jul 2026 23:10:00" format
+    const parts = dateStr.split(' ');
+    if (parts.length >= 4) {
+      const day = parseInt(parts[0]);
+      const month = parts[1];
+      const year = parseInt(parts[2]);
+      const timeParts = parts[3].split(':');
+      const hour = parseInt(timeParts[0]);
+      const minute = parseInt(timeParts[1]);
+      const second = timeParts[2] ? parseInt(timeParts[2]) : 0;
+      
+      const monthMap = { 'Jan':0, 'Feb':1, 'Mar':2, 'Apr':3, 'May':4, 'Jun':5, 'Jul':6, 'Aug':7, 'Sep':8, 'Oct':9, 'Nov':10, 'Dec':11 };
+      const monthNum = monthMap[month];
+      if (monthNum !== undefined && !isNaN(day) && !isNaN(year) && !isNaN(hour) && !isNaN(minute)) {
+        return new Date(year, monthNum, day, hour, minute, second);
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
+// Cleanup notifications older than 7 hours - PERMANENT DELETE
+async function cleanupOldNotifications() {
+  try {
+    const snap = await db.ref('adminNotifications').once('value');
+    if (!snap.exists()) return;
+    
+    const notifications = snap.val();
+    const now = Date.now();
+    const sevenHoursMs = 7 * 60 * 60 * 1000;
+    let deletedCount = 0;
+    const toDelete = [];
+
+    for (const [key, notif] of Object.entries(notifications)) {
+      const notifDate = parseDateString(notif.date);
+      if (notifDate) {
+        const ageMs = now - notifDate.getTime();
+        if (ageMs > sevenHoursMs) {
+          toDelete.push(key);
+        }
+      } else {
+        // If date can't be parsed, check if it's older than 7 hours by key (timestamp fallback)
+        const keyTimestamp = parseInt(key.split('_')[1]);
+        if (!isNaN(keyTimestamp)) {
+          const ageMs = now - keyTimestamp;
+          if (ageMs > sevenHoursMs) {
+            toDelete.push(key);
+          }
+        }
+      }
+    }
+
+    if (toDelete.length > 0) {
+      const updates = {};
+      toDelete.forEach(key => {
+        updates[key] = null;
+      });
+      await db.ref('adminNotifications').update(updates);
+      deletedCount = toDelete.length;
+      console.log('🗑️ Auto-deleted ' + deletedCount + ' old notifications (older than 7 hours)');
+    }
+  } catch (error) {
+    console.warn('Error cleaning up notifications:', error);
+  }
+}
+
+// Cleanup admin transactions older than 10 hours - PERMANENT DELETE
+async function cleanupOldAdminTransactions() {
+  try {
+    const snap = await db.ref('adminTransactions').once('value');
+    if (!snap.exists()) return;
+    
+    const transactions = snap.val();
+    const now = Date.now();
+    const tenHoursMs = 10 * 60 * 60 * 1000;
+    let deletedCount = 0;
+    const toDelete = [];
+
+    for (const [key, tx] of Object.entries(transactions)) {
+      const txDate = parseDateString(tx.date);
+      if (txDate) {
+        const ageMs = now - txDate.getTime();
+        if (ageMs > tenHoursMs) {
+          toDelete.push(key);
+        }
+      } else {
+        // If date can't be parsed, check key (adm_dep_ or adm_wd_ timestamp)
+        const keyTimestamp = parseInt(key.split('_')[2]);
+        if (!isNaN(keyTimestamp)) {
+          const ageMs = now - keyTimestamp;
+          if (ageMs > tenHoursMs) {
+            toDelete.push(key);
+          }
+        }
+      }
+    }
+
+    if (toDelete.length > 0) {
+      const updates = {};
+      toDelete.forEach(key => {
+        updates[key] = null;
+      });
+      await db.ref('adminTransactions').update(updates);
+      deletedCount = toDelete.length;
+      console.log('🗑️ Auto-deleted ' + deletedCount + ' old admin transactions (older than 10 hours)');
+    }
+  } catch (error) {
+    console.warn('Error cleaning up admin transactions:', error);
+  }
+}
+
+// Run cleanup immediately and then every 30 minutes
+function startCleanupInterval() {
+  // Run immediately on load
+  cleanupOldNotifications().catch(err => console.warn('Cleanup error:', err));
+  cleanupOldAdminTransactions().catch(err => console.warn('Cleanup error:', err));
+  
+  // Then every 30 minutes
+  if (cleanupInterval) clearInterval(cleanupInterval);
+  cleanupInterval = setInterval(() => {
+    cleanupOldNotifications().catch(err => console.warn('Cleanup error:', err));
+    cleanupOldAdminTransactions().catch(err => console.warn('Cleanup error:', err));
+  }, 30 * 60 * 1000);
+}
+
+// ============================================================
+// SUPPORT CHAT ADMIN FUNCTIONS
 // ============================================================
 
 // Set admin online/offline status
@@ -931,7 +1063,6 @@ async function loadAdminStatus() {
     adminStatus = snap.val();
     updateStatusUI();
   } else {
-    // Set default offline
     await setAdminStatus(false);
   }
 }
@@ -1002,7 +1133,6 @@ function renderConversations() {
   const container = document.getElementById('conversations-list');
   if (!container) return;
 
-  // Group messages by username
   const conversations = {};
   Object.entries(allSupportMessages).forEach(([key, msg]) => {
     const username = msg.username;
@@ -1012,12 +1142,10 @@ function renderConversations() {
     conversations[username].push({ ...msg, key });
   });
 
-  // Sort each conversation by timestamp
   for (const username in conversations) {
     conversations[username].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
   }
 
-  // Sort conversations by latest message
   const sorted = Object.entries(conversations).sort((a, b) => {
     const aLatest = a[1][a[1].length - 1].timestamp || '';
     const bLatest = b[1][b[1].length - 1].timestamp || '';
@@ -1032,7 +1160,6 @@ function renderConversations() {
     return;
   }
 
-  // Build conversation list HTML
   let html = '';
   sorted.forEach(([username, messages]) => {
     const lastMsg = messages[messages.length - 1];
@@ -1066,12 +1193,10 @@ function selectConversation(username) {
   renderConversations();
   renderChatMessages(username);
   
-  // Enable input
   document.getElementById('chat-reply-input').disabled = false;
   document.getElementById('chat-reply-btn').disabled = false;
   document.getElementById('chat-user-name').textContent = username;
   
-  // Mark messages as read
   markMessagesRead(username);
 }
 
@@ -1108,7 +1233,6 @@ function renderChatMessages(username) {
   messages.forEach(msg => {
     const isUser = msg.sender === 'user';
     const cls = isUser ? 'support-chat-msg-user' : 'support-chat-msg-support';
-    const senderName = isUser ? 'User' : 'Support';
     const msgText = msg.message || '';
     const time = msg.timestamp || '';
     html += `
@@ -1120,7 +1244,6 @@ function renderChatMessages(username) {
   });
 
   container.innerHTML = html;
-  // Scroll to bottom
   container.scrollTop = container.scrollHeight;
 }
 
@@ -1144,7 +1267,6 @@ async function sendAdminReply() {
   await db.ref('supportMessages/' + msgId).set(replyData);
   input.value = '';
   
-  // Send notification to user (via adminNotifications)
   await db.ref('adminNotifications/notif_' + Date.now()).set({
     type: 'support_reply',
     username: selectedConversation,
@@ -1203,7 +1325,6 @@ function startRealtimeListeners() {
     updateWithdrawalsBadge();
   });
   
-  // Real-time admin transactions listener
   if (adminTxUnsubscribe) adminTxUnsubscribe();
   adminTxUnsubscribe = db.ref('adminTransactions').on('value', (snap) => {
     allAdminTransactions = snap.val() || {};
@@ -1370,8 +1491,7 @@ async function deleteUser(username) {
 }
 
 // ============================================================
-// USER MACHINES MODAL — view, cancel, or delete a user's
-// purchased machines from the Users page.
+// USER MACHINES MODAL
 // ============================================================
 let umCurrentUsername = null;
 
@@ -1490,8 +1610,7 @@ function renderTube() {
 }
 
 // ============================================================
-// MACHINES — admin CRUD for the machine catalog shown on the
-// user app's TIERS page.
+// MACHINES — admin CRUD
 // ============================================================
 function renderMachinesTable() {
   const tbody = document.getElementById('machines-table-body');
@@ -1552,7 +1671,6 @@ function handleMachineImageUpload(input) {
   reader.onload = (e) => {
     const img = new Image();
     img.onload = () => {
-      // Resize/compress client-side so it stores compactly in the database
       const maxDim = 400;
       let w = img.width, h = img.height;
       if (w > h && w > maxDim) { h = Math.round(h * (maxDim / w)); w = maxDim; }
@@ -1606,7 +1724,6 @@ async function saveMachine() {
   const machineData = { name, category, imageUrl, price, days, payout, percent, active: true };
 
   if (editId) {
-    // Preserve existing active state on edit
     const existing = allMachines[editId];
     machineData.active = existing ? (existing.active !== false) : true;
     await db.ref('machines/' + editId).update(machineData);
@@ -1675,16 +1792,14 @@ async function deleteMachine(id) {
 
 function filterTx(type) { txFilter = type; renderTransactions(); }
 
-// NEW: Delete a single transaction
 async function deleteTransaction(username, txKey, txType) {
   const confirmed = await confirmAction('Delete Transaction?', `Delete this ${txType} transaction for ${username}? This cannot be undone.`);
   if (!confirmed) return;
   
   try {
-    // Remove the transaction from the user's transactions node
     await db.ref('users/' + safeKey(username) + '/transactions/' + txKey).remove();
     toast(`✅ ${txType} transaction deleted for ${username}`);
-    renderTransactions(); // Refresh the table
+    renderTransactions();
   } catch (error) {
     toast('Error deleting transaction', '#f87171');
   }
@@ -1728,7 +1843,6 @@ function renderTransactions() {
   }).join('');
 }
 
-// NEW: Admin Transactions (Deposits & Withdrawals)
 function filterAdmTx(type) { admTxFilter = type; renderAdminTransactions(); }
 
 function renderAdminTransactions() {
@@ -1738,7 +1852,6 @@ function renderAdminTransactions() {
   let txs = Object.entries(allAdminTransactions).map(([key, tx]) => ({ ...tx, key }));
   txs.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
   
-  // Filter by type
   if (admTxFilter !== 'all') {
     txs = txs.filter(t => t.type === admTxFilter);
   }
@@ -1868,28 +1981,24 @@ async function rejectWithdrawal(reqKey, userId, username, amount) {
     const txKey = allWithdrawals[reqKey]?.txKey;
     const adminTxKey = allWithdrawals[reqKey]?.adminTxKey;
     
-    // Refund to user's Scrayd Wallet
     await db.ref('users/' + userId).update({
       scraydWallet: newScraydWallet,
       ['transactions/' + txKey + '/status']: 'failed',
       ['transactions/' + txKey + '/note']: 'Withdrawal Rejected ❌ - Amount refunded to Scrayd Wallet'
     });
     
-    // Update withdrawal request status
     await db.ref('pendingWithdrawals/' + reqKey).update({ status: 'rejected' });
     
-    // Update admin transaction status to failed
     if (adminTxKey) {
       await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
     }
     
-    // Send admin notification about the rejection
     await db.ref('adminNotifications/notif_' + Date.now()).set({ 
       type: 'withdrawal_rejected',
       username: username,
       amount: amount,
       message: `Withdrawal Rejected: ${username} | Phone: ${user.phone} | Amount: ${fmt(amount)} | Status: REJECTED BY ADMIN | Full amount refunded`,
-      date: new Date().toLocaleDateString('en-UG', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit' }),
+      date: dateStr(),
       read: false 
     });
     
@@ -2070,16 +2179,10 @@ async function saveMarzApiKey() {
   const val = document.getElementById('marz-api-key-input').value.trim();
   if (!val) { toast('Please enter a valid API key', '#f87171'); return; }
   
-  // Save the REAL API key to Firebase
   await db.ref('settings/marzApiKey').set(val);
-  
-  // Keep original in session for immediate use
   window.MARZ_API_KEY = val;
-  
-  // Show full API key in input (no masking)
   document.getElementById('marz-api-key-input').type = 'text';
   document.getElementById('marz-api-key-input').value = val;
-  
   toast('✅ MarzPay API key saved securely — Payments enabled!');
 }
 
@@ -2331,6 +2434,7 @@ function showPanel() {
   loadSupportSettings();
   loadAdminStatus();
   startAdminStatusListener();
+  startCleanupInterval();
 }
 
 
@@ -2389,7 +2493,6 @@ async function adminLogin() {
       return;
     }
     
-    // Unmask password from Firebase storage
     const storedPassword = admin.password;
     const unmaskedPassword = unmaskPassword(storedPassword, password);
     
@@ -2399,7 +2502,6 @@ async function adminLogin() {
       return;
     }
     
-    // Login successful
     localStorage.setItem(SESSION_KEY, 'true');
     localStorage.setItem('ADMIN_USERNAME', username);
     localStorage.setItem('ADMIN_POSITION', admin.position || 'Moderator');
@@ -2423,7 +2525,6 @@ async function adminRegister() {
   
   if (err) err.classList.remove('show');
   
-  // Validation
   if (!username || !phone || !pin || !password || !confirmPassword || !position) {
     if (err) { err.textContent = '❌ All fields are required'; err.classList.add('show'); }
     return;
@@ -2455,7 +2556,6 @@ async function adminRegister() {
   }
   
   try {
-    // Check max 4 admin accounts
     const snap = await db.ref('adminAccounts').get();
     const admins = snap.val() || {};
     const adminCount = Object.keys(admins).length;
@@ -2465,16 +2565,13 @@ async function adminRegister() {
       return;
     }
     
-    // Check if username already exists
     if (admins[safeKey(username)]) {
       if (err) { err.textContent = '❌ Username already exists'; err.classList.add('show'); }
       return;
     }
     
-    // Mask password for storage
     const maskedPassword = maskPassword(password);
     
-    // Save to Firebase
     await db.ref('adminAccounts/' + safeKey(username)).set({
       username: username,
       phone: phone,
@@ -2493,7 +2590,6 @@ async function adminRegister() {
     document.getElementById('reg-confirm-password').value = '';
     document.getElementById('reg-position').value = 'Moderator';
     
-    // Switch to login tab
     switchAuthTab('login');
   } catch (error) {
     console.error('Registration error:', error);
@@ -2515,6 +2611,7 @@ function adminLogout() {
   if (withdrawalsUnsubscribe) withdrawalsUnsubscribe();
   if (adminTxUnsubscribe) adminTxUnsubscribe();
   if (supportMessagesUnsubscribe) supportMessagesUnsubscribe();
+  if (cleanupInterval) clearInterval(cleanupInterval);
   document.getElementById('admin-wrap').classList.remove('active');
   document.getElementById('auth-wrap').style.display = 'flex';
   document.getElementById('login-username').value = '';
@@ -2591,17 +2688,11 @@ function showTerms() {
     title: 'Terms of Service',
     html: `<div style="text-align:left;font-size:13px;line-height:1.6;max-height:400px;overflow-y:auto;">
       <p><strong>1. Introduction</strong><br>Welcome to First Light Capital. These Terms of Service govern your use of our investment platform.</p>
-      
       <p><strong>2. User Responsibilities</strong><br>You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account.</p>
-      
       <p><strong>3. Investment Risks</strong><br>All investments carry risk. First Light Capital does not guarantee returns. Past performance is not indicative of future results.</p>
-      
       <p><strong>4. Prohibited Activities</strong><br>You may not use First Light Capital for any illegal activities, fraud, or unauthorized access.</p>
-      
       <p><strong>5. Limitation of Liability</strong><br>First Light Capital is provided "as is" without warranties. We are not liable for any indirect or consequential damages.</p>
-      
       <p><strong>6. Modifications</strong><br>We reserve the right to modify these terms at any time. Your continued use constitutes acceptance of changes.</p>
-      
       <p><strong>7. Governing Law</strong><br>These terms are governed by the laws of Uganda and Kenya as applicable.</p>
     </div>`,
     icon: 'info',
@@ -2616,17 +2707,11 @@ function showPrivacy() {
     title: 'Privacy Policy',
     html: `<div style="text-align:left;font-size:13px;line-height:1.6;max-height:400px;overflow-y:auto;">
       <p><strong>1. Information We Collect</strong><br>We collect personal information including name, phone number, email, and transaction history to provide our services.</p>
-      
       <p><strong>2. How We Use Information</strong><br>Your information is used to process transactions, prevent fraud, improve our services, and comply with legal obligations.</p>
-      
       <p><strong>3. Data Protection</strong><br>We implement industry-standard security measures to protect your data from unauthorized access.</p>
-      
       <p><strong>4. Third-Party Sharing</strong><br>We do not sell your personal information. We may share data with payment processors and legal authorities when required.</p>
-      
       <p><strong>5. Cookies & Tracking</strong><br>We use cookies and similar technologies to enhance user experience and analyze platform usage.</p>
-      
       <p><strong>6. Your Rights</strong><br>You have the right to access, modify, or delete your personal information at any time.</p>
-      
       <p><strong>7. Contact Us</strong><br>For privacy concerns, contact our support team via the support channels.</p>
     </div>`,
     icon: 'info',
