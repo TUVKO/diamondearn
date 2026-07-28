@@ -176,7 +176,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 @media(max-width:900px){.sidebar{width:60px;}.sidebar-brand,.sidebar-sub,.nav-item span:not(.nav-icon){display:none;}.main-content{margin-left:60px;}.stats-row{grid-template-columns:repeat(2,1fr);}.admin-footer{left:60px;}}
 
 /* ============================================================
-   SUPPORT CHAT ADMIN STYLES - NEW
+   SUPPORT CHAT ADMIN STYLES
    ============================================================ */
 .support-convo-item{cursor:pointer;padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:background .2s;}
 .support-convo-item:hover{background:var(--surface2);}
@@ -554,7 +554,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
       <div id="sog-not-found" style="display:none;color:var(--muted);text-align:center;padding:40px 20px;">No user found. Try again.</div>
     </div>
 
-    <!-- SUPPORT CHAT - NEW -->
+    <!-- SUPPORT CHAT -->
     <div class="page" id="pg-support">
       <div class="page-title">💬 Support Chat</div>
       <div class="page-sub">Manage customer support conversations</div>
@@ -568,6 +568,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
           <button class="btn btn-danger" id="status-offline-btn" onclick="setAdminStatus(false)">🔴 Go Offline</button>
           <span id="admin-current-status" style="font-size:13px;color:var(--muted);">Status: Unknown</span>
         </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:8px;" id="status-hint">💡 Click "Go Online" to enable replying to users</div>
       </div>
 
       <div style="display:grid;grid-template-columns:300px 1fr;gap:20px;min-height:500px;">
@@ -595,11 +596,14 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
             <input type="text" id="chat-reply-input" placeholder="Type your reply..." maxlength="500" onkeydown="if(event.key==='Enter') sendAdminReply()" disabled>
             <button onclick="sendAdminReply()" id="chat-reply-btn" disabled>📤</button>
           </div>
+          <div style="padding:4px 16px 8px;font-size:10px;color:var(--muted);background:var(--surface2);border-top:1px solid var(--border);" id="reply-hint">
+            💡 Select a conversation and go online to reply
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- SETTINGS - UPDATED with Support Settings -->
+    <!-- SETTINGS -->
     <div class="page" id="pg-settings">
       <div class="page-title">Settings</div>
       <div class="page-sub">Configure platform settings</div>
@@ -645,7 +649,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         <div class="settings-row"><span class="settings-label">Referral Commission — Level 3</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" class="pct-input" id="referral-pct-l3-input" min="0" max="50" step="0.5" placeholder="1"><span class="pct-label">%</span></div></div>
       </div>
 
-      <!-- Support Settings - NEW -->
+      <!-- Support Settings -->
       <div class="settings-section">
         <div class="settings-title">📱 Support Settings</div>
         <div class="settings-sub">Configure WhatsApp integration and auto-reply messages for customer support.</div>
@@ -788,8 +792,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 <script>
 // ============================================================
 // DIAMOND EARN ADMIN - FIREBASE REALTIME DATABASE
-// Username + Password Login | MarzPay Integration
-// ADDED: Support Chat System + Auto-cleanup
+// ADDED: Support Chat System + Auto-cleanup + UTC Time + Admin Reply Permission
 // ============================================================
 
 const firebaseConfig = {
@@ -805,9 +808,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-
 const SESSION_KEY = 'pp_admin_session';
-
 const MARZ_API = 'https://polished-truth-f9c5.vallazvallax.workers.dev';
 
 function getMarzAuth() {
@@ -836,52 +837,35 @@ async function marzSend(phone, amount, reference, description) {
   return await response.json();
 }
 
-let allUsers = {};
-let allSettings = {
-  uraTax: 4,
-  withdrawCharge: 10,
-  referralPercentL1: 11,
-  referralPercentL2: 4,
-  referralPercentL3: 1,
-  withdrawLocked: false,
-  withdrawApproval: false,
-  minDeposit: 10000,
-  maxDeposit: 2350000,
-  minWithdraw: 10000,
-  marzApiKey: ''
-};
-let allSupportSettings = {
-  whatsappNumber: '+256712345678',
-  whatsappMessage: 'Hello, I need help with First Light Capital',
-  firstReply: 'Welcome! How can we help you today?',
-  offlineReply: 'Thank you for your message. Our support team will get back to you shortly.'
-};
-let currentAdmin = null;
-let searchFilter = '';
-let txFilter = 'all';
-let admTxFilter = 'all';
-let wdFilter = 'pending';
-let debitTargetUser = null;
-let debitHistory = [];
-let allWithdrawals = {};
-let awHistory = [];
-let allAdminTransactions = {};
-let allMachines = {};
-let allSupportMessages = {};
-let selectedConversation = null;
-let adminStatus = { online: false };
-
-let usersUnsubscribe = null;
-let settingsUnsubscribe = null;
-let withdrawalsUnsubscribe = null;
-let adminTxUnsubscribe = null;
-let machinesUnsubscribe = null;
-let supportMessagesUnsubscribe = null;
-let supportSettingsUnsubscribe = null;
-let cleanupInterval = null;
-
+// ============================================================
+// FIX 2: UTC TIME - Use UTC for all date calculations
+// ============================================================
 function fmt(n) { return 'UGX ' + Number(n || 0).toLocaleString(); }
-function dateStr() { const d = new Date(); return d.toLocaleDateString('en-UG', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit' }); }
+
+function dateStr() { 
+  const d = new Date();
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  const month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()];
+  const year = d.getUTCFullYear();
+  const hours = String(d.getUTCHours()).padStart(2, '0');
+  const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(d.getUTCSeconds()).padStart(2, '0');
+  return `${day} ${month} ${year} ${hours}:${minutes}:${seconds} UTC`;
+}
+
+function getDateKey(d) {
+  if (!d) d = new Date();
+  const year = d.getUTCFullYear();
+  const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function parseDateKey(dateStr) {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+}
+
 function safeKey(u) { return (u || '').replace(/[.#$\[\]]/g, '_'); }
 function genUUID() { return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)); }
 
@@ -891,14 +875,12 @@ function setErr(id, show, msg) { const el = document.getElementById(id); if (!el
 function clearErrors(...ids) { ids.forEach(id => setErr(id, false)); }
 
 // ============================================================
-// AUTO-CLEANUP FUNCTIONS - NEW
+// AUTO-CLEANUP FUNCTIONS
 // ============================================================
 
-// Parse date string like "27 Jul 2026 23:10:00" to Date object
 function parseDateString(dateStr) {
   if (!dateStr) return null;
   try {
-    // Try to parse as "27 Jul 2026 23:10:00" format
     const parts = dateStr.split(' ');
     if (parts.length >= 4) {
       const day = parseInt(parts[0]);
@@ -919,7 +901,6 @@ function parseDateString(dateStr) {
   return null;
 }
 
-// Cleanup notifications older than 7 hours - PERMANENT DELETE
 async function cleanupOldNotifications() {
   try {
     const snap = await db.ref('adminNotifications').once('value');
@@ -928,7 +909,6 @@ async function cleanupOldNotifications() {
     const notifications = snap.val();
     const now = Date.now();
     const sevenHoursMs = 7 * 60 * 60 * 1000;
-    let deletedCount = 0;
     const toDelete = [];
 
     for (const [key, notif] of Object.entries(notifications)) {
@@ -939,7 +919,6 @@ async function cleanupOldNotifications() {
           toDelete.push(key);
         }
       } else {
-        // If date can't be parsed, check if it's older than 7 hours by key (timestamp fallback)
         const keyTimestamp = parseInt(key.split('_')[1]);
         if (!isNaN(keyTimestamp)) {
           const ageMs = now - keyTimestamp;
@@ -952,19 +931,14 @@ async function cleanupOldNotifications() {
 
     if (toDelete.length > 0) {
       const updates = {};
-      toDelete.forEach(key => {
-        updates[key] = null;
-      });
+      toDelete.forEach(key => { updates[key] = null; });
       await db.ref('adminNotifications').update(updates);
-      deletedCount = toDelete.length;
-      console.log('🗑️ Auto-deleted ' + deletedCount + ' old notifications (older than 7 hours)');
     }
   } catch (error) {
     console.warn('Error cleaning up notifications:', error);
   }
 }
 
-// Cleanup admin transactions older than 10 hours - PERMANENT DELETE
 async function cleanupOldAdminTransactions() {
   try {
     const snap = await db.ref('adminTransactions').once('value');
@@ -973,7 +947,6 @@ async function cleanupOldAdminTransactions() {
     const transactions = snap.val();
     const now = Date.now();
     const tenHoursMs = 10 * 60 * 60 * 1000;
-    let deletedCount = 0;
     const toDelete = [];
 
     for (const [key, tx] of Object.entries(transactions)) {
@@ -984,7 +957,6 @@ async function cleanupOldAdminTransactions() {
           toDelete.push(key);
         }
       } else {
-        // If date can't be parsed, check key (adm_dep_ or adm_wd_ timestamp)
         const keyTimestamp = parseInt(key.split('_')[2]);
         if (!isNaN(keyTimestamp)) {
           const ageMs = now - keyTimestamp;
@@ -997,25 +969,20 @@ async function cleanupOldAdminTransactions() {
 
     if (toDelete.length > 0) {
       const updates = {};
-      toDelete.forEach(key => {
-        updates[key] = null;
-      });
+      toDelete.forEach(key => { updates[key] = null; });
       await db.ref('adminTransactions').update(updates);
-      deletedCount = toDelete.length;
-      console.log('🗑️ Auto-deleted ' + deletedCount + ' old admin transactions (older than 10 hours)');
     }
   } catch (error) {
     console.warn('Error cleaning up admin transactions:', error);
   }
 }
 
-// Run cleanup immediately and then every 30 minutes
+let cleanupInterval = null;
+
 function startCleanupInterval() {
-  // Run immediately on load
   cleanupOldNotifications().catch(err => console.warn('Cleanup error:', err));
   cleanupOldAdminTransactions().catch(err => console.warn('Cleanup error:', err));
   
-  // Then every 30 minutes
   if (cleanupInterval) clearInterval(cleanupInterval);
   cleanupInterval = setInterval(() => {
     cleanupOldNotifications().catch(err => console.warn('Cleanup error:', err));
@@ -1027,7 +994,6 @@ function startCleanupInterval() {
 // SUPPORT CHAT ADMIN FUNCTIONS
 // ============================================================
 
-// Set admin online/offline status
 async function setAdminStatus(online) {
   if (!currentAdmin) return;
   const adminKey = safeKey(currentAdmin.username);
@@ -1038,15 +1004,20 @@ async function setAdminStatus(online) {
   });
   adminStatus.online = online;
   updateStatusUI();
+  updateReplyInput();
   toast(online ? '🟢 You are now Online' : '🔴 You are now Offline');
 }
 
-// Update admin status UI
 function updateStatusUI() {
   const statusEl = document.getElementById('admin-current-status');
+  const hintEl = document.getElementById('status-hint');
   if (statusEl) {
     statusEl.textContent = adminStatus.online ? '🟢 Online' : '🔴 Offline';
     statusEl.style.color = adminStatus.online ? 'var(--success)' : 'var(--warn)';
+  }
+  if (hintEl) {
+    hintEl.textContent = adminStatus.online ? '✅ You can now reply to users' : '💡 Click "Go Online" to enable replying to users';
+    hintEl.style.color = adminStatus.online ? 'var(--success)' : 'var(--muted)';
   }
   const onlineBtn = document.getElementById('status-online-btn');
   const offlineBtn = document.getElementById('status-offline-btn');
@@ -1054,7 +1025,29 @@ function updateStatusUI() {
   if (offlineBtn) offlineBtn.style.opacity = adminStatus.online ? '1' : '0.5';
 }
 
-// Load admin status from Firebase
+function updateReplyInput() {
+  const input = document.getElementById('chat-reply-input');
+  const btn = document.getElementById('chat-reply-btn');
+  const hint = document.getElementById('reply-hint');
+  
+  if (!selectedConversation) {
+    input.disabled = true;
+    btn.disabled = true;
+    if (hint) hint.textContent = '💡 Select a conversation to reply';
+    return;
+  }
+  
+  if (adminStatus.online) {
+    input.disabled = false;
+    btn.disabled = false;
+    if (hint) hint.textContent = '✅ You can reply to this user';
+  } else {
+    input.disabled = true;
+    btn.disabled = true;
+    if (hint) hint.textContent = '🔴 Go online to reply to this user';
+  }
+}
+
 async function loadAdminStatus() {
   if (!currentAdmin) return;
   const adminKey = safeKey(currentAdmin.username);
@@ -1063,11 +1056,10 @@ async function loadAdminStatus() {
     adminStatus = snap.val();
     updateStatusUI();
   } else {
-    await setAdminStatus(false);
+    await setAdminStatus(true);
   }
 }
 
-// Listen for admin status changes
 function startAdminStatusListener() {
   if (!currentAdmin) return;
   const adminKey = safeKey(currentAdmin.username);
@@ -1075,11 +1067,11 @@ function startAdminStatusListener() {
     if (snap.exists()) {
       adminStatus = snap.val();
       updateStatusUI();
+      updateReplyInput();
     }
   });
 }
 
-// Load support settings
 async function loadSupportSettings() {
   const snap = await db.ref('supportSettings').once('value');
   if (snap.exists()) {
@@ -1088,7 +1080,6 @@ async function loadSupportSettings() {
   }
 }
 
-// Load support settings UI
 function loadSupportSettingsUI() {
   document.getElementById('support-whatsapp-input').value = allSupportSettings.whatsappNumber || '+256712345678';
   document.getElementById('support-whatsapp-msg-input').value = allSupportSettings.whatsappMessage || 'Hello, I need help with First Light Capital';
@@ -1096,7 +1087,6 @@ function loadSupportSettingsUI() {
   document.getElementById('support-offline-reply-input').value = allSupportSettings.offlineReply || 'Thank you for your message. Our support team will get back to you shortly.';
 }
 
-// Save support settings
 async function saveSupportSettings() {
   const whatsappNumber = document.getElementById('support-whatsapp-input').value.trim();
   const whatsappMessage = document.getElementById('support-whatsapp-msg-input').value.trim();
@@ -1115,7 +1105,6 @@ async function saveSupportSettings() {
   toast('✅ Support settings saved');
 }
 
-// Start support messages listener
 function startSupportMessagesListener() {
   if (supportMessagesUnsubscribe) supportMessagesUnsubscribe();
   supportMessagesUnsubscribe = db.ref('supportMessages').on('value', (snap) => {
@@ -1128,7 +1117,6 @@ function startSupportMessagesListener() {
   });
 }
 
-// Render conversations list
 function renderConversations() {
   const container = document.getElementById('conversations-list');
   if (!container) return;
@@ -1187,20 +1175,19 @@ function renderConversations() {
   container.innerHTML = html;
 }
 
-// Select a conversation
 function selectConversation(username) {
   selectedConversation = username;
   renderConversations();
   renderChatMessages(username);
   
-  document.getElementById('chat-reply-input').disabled = false;
-  document.getElementById('chat-reply-btn').disabled = false;
   document.getElementById('chat-user-name').textContent = username;
+  
+  // FIX 3: Enable/disable reply input based on admin status
+  updateReplyInput();
   
   markMessagesRead(username);
 }
 
-// Mark all messages from a user as read
 async function markMessagesRead(username) {
   const updates = {};
   Object.entries(allSupportMessages).forEach(([key, msg]) => {
@@ -1214,7 +1201,6 @@ async function markMessagesRead(username) {
   }
 }
 
-// Render chat messages for a specific user
 function renderChatMessages(username) {
   const container = document.getElementById('chat-messages');
   if (!container) return;
@@ -1247,7 +1233,6 @@ function renderChatMessages(username) {
   container.scrollTop = container.scrollHeight;
 }
 
-// Send admin reply
 async function sendAdminReply() {
   const input = document.getElementById('chat-reply-input');
   const msg = input.value.trim();
@@ -1280,7 +1265,6 @@ async function sendAdminReply() {
   renderConversations();
 }
 
-// Update support badge in sidebar
 function renderSupportBadge() {
   let unread = 0;
   Object.values(allSupportMessages).forEach(msg => {
@@ -1295,8 +1279,51 @@ function renderSupportBadge() {
   }
 }
 
+let allUsers = {};
+let allSettings = {
+  uraTax: 4,
+  withdrawCharge: 10,
+  referralPercentL1: 11,
+  referralPercentL2: 4,
+  referralPercentL3: 1,
+  withdrawLocked: false,
+  withdrawApproval: false,
+  minDeposit: 10000,
+  maxDeposit: 2350000,
+  minWithdraw: 10000,
+  marzApiKey: ''
+};
+let allSupportSettings = {
+  whatsappNumber: '+256712345678',
+  whatsappMessage: 'Hello, I need help with First Light Capital',
+  firstReply: 'Welcome! How can we help you today?',
+  offlineReply: 'Thank you for your message. Our support team will get back to you shortly.'
+};
+let currentAdmin = null;
+let searchFilter = '';
+let txFilter = 'all';
+let admTxFilter = 'all';
+let wdFilter = 'pending';
+let debitTargetUser = null;
+let debitHistory = [];
+let allWithdrawals = {};
+let awHistory = [];
+let allAdminTransactions = {};
+let allMachines = {};
+let allSupportMessages = {};
+let selectedConversation = null;
+let adminStatus = { online: false };
+
+let usersUnsubscribe = null;
+let settingsUnsubscribe = null;
+let withdrawalsUnsubscribe = null;
+let adminTxUnsubscribe = null;
+let machinesUnsubscribe = null;
+let supportMessagesUnsubscribe = null;
+let supportSettingsUnsubscribe = null;
+
 // ============================================================
-// ORIGINAL ADMIN FUNCTIONS (unchanged below)
+// ORIGINAL ADMIN FUNCTIONS
 // ============================================================
 
 function startRealtimeListeners() {
@@ -1433,6 +1460,9 @@ function openEditModal(username) {
 
 function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; }
 
+// ============================================================
+// FIX 4: ADMIN EDIT DEPOSIT - Appears as normal deposit
+// ============================================================
 async function saveEditUser() {
   const username = document.getElementById('edit-username').value;
   const newPassword = document.getElementById('edit-password').value;
@@ -1451,16 +1481,30 @@ async function saveEditUser() {
     scraydWallet: newScraydWallet
   };
   
+  // FIX 4: When admin adds to Prime Account - treat as normal deposit
   if (newPrimeBalance > (user.primeBalance || 0)) {
     const addedAmount = newPrimeBalance - (user.primeBalance || 0);
-    updates['transactions/dep_admin_' + Date.now()] = {
+    
+    // Add to deposits/ node (counts as normal deposit)
+    updates['deposits/dep_' + Date.now()] = {
+      amount: addedAmount,
+      taxPaid: 0,
+      startDate: Date.now()
+    };
+    
+    // Add to transactions/ node as normal deposit (NO "Admin" word)
+    updates['transactions/tx_dep_' + Date.now()] = {
       type: 'Deposit',
       amount: addedAmount,
-      note: 'Admin credited to Prime Account',
+      note: 'Deposit confirmed to Prime Account',
       date: dateStr(),
       status: 'completed'
     };
+    
+    // Activate user (enables withdrawals)
+    updates.activated = true;
   }
+  
   if (newScraydWallet > (user.scraydWallet || 0)) {
     const addedScrayd = newScraydWallet - (user.scraydWallet || 0);
     updates['transactions/scrayd_admin_' + Date.now()] = {
@@ -1490,9 +1534,6 @@ async function deleteUser(username) {
   }
 }
 
-// ============================================================
-// USER MACHINES MODAL
-// ============================================================
 let umCurrentUsername = null;
 
 function openUserMachinesModal(username) {
@@ -1609,9 +1650,6 @@ function renderTube() {
   `).join('');
 }
 
-// ============================================================
-// MACHINES — admin CRUD
-// ============================================================
 function renderMachinesTable() {
   const tbody = document.getElementById('machines-table-body');
   if (!tbody) return;
@@ -1795,7 +1833,6 @@ function filterTx(type) { txFilter = type; renderTransactions(); }
 async function deleteTransaction(username, txKey, txType) {
   const confirmed = await confirmAction('Delete Transaction?', `Delete this ${txType} transaction for ${username}? This cannot be undone.`);
   if (!confirmed) return;
-  
   try {
     await db.ref('users/' + safeKey(username) + '/transactions/' + txKey).remove();
     toast(`✅ ${txType} transaction deleted for ${username}`);
@@ -1882,7 +1919,6 @@ function renderAdminTransactions() {
 async function deleteAdmTx(key) {
   const confirmed = await confirmAction('Delete Transaction?', 'Delete this admin transaction? This cannot be undone.');
   if (!confirmed) return;
-  
   try {
     await db.ref('adminTransactions/' + key).remove();
     toast('✅ Transaction deleted');
@@ -2178,7 +2214,6 @@ function toggleApiKeyVis() {
 async function saveMarzApiKey() {
   const val = document.getElementById('marz-api-key-input').value.trim();
   if (!val) { toast('Please enter a valid API key', '#f87171'); return; }
-  
   await db.ref('settings/marzApiKey').set(val);
   window.MARZ_API_KEY = val;
   document.getElementById('marz-api-key-input').type = 'text';
@@ -2426,6 +2461,9 @@ function startNotifListener() {
   });
 }
 
+// ============================================================
+// FIX 3: AUTO-SET ADMIN ONLINE ON LOGIN
+// ============================================================
 function showPanel() {
   document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('auth-wrap').style.display = 'none';
@@ -2436,7 +2474,6 @@ function showPanel() {
   startAdminStatusListener();
   startCleanupInterval();
 }
-
 
 function maskPassword(password) {
   if (!password || password.length < 5) return 'xxx' + password.slice(-2);
@@ -2454,7 +2491,6 @@ function unmaskPassword(maskedPassword, originalAttempt) {
 function toggleApiKeyVisibility(inputId) {
   const input = document.getElementById(inputId);
   const eyeBtn = event.target;
-  
   if (input.type === 'password') {
     input.type = 'text';
     eyeBtn.textContent = '👁️‍🗨️';
@@ -2665,7 +2701,6 @@ function toggleRegSecondConfirm() {
   else { inp.type = 'password'; btn.textContent = '👁️'; }
 }
 
-
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -2680,6 +2715,7 @@ function showPage(id) {
     renderConversations();
     renderSupportBadge();
     if (selectedConversation) renderChatMessages(selectedConversation);
+    updateReplyInput();
   }
 }
 
