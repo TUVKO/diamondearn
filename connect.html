@@ -176,7 +176,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 @media(max-width:900px){.sidebar{width:60px;}.sidebar-brand,.sidebar-sub,.nav-item span:not(.nav-icon){display:none;}.main-content{margin-left:60px;}.stats-row{grid-template-columns:repeat(2,1fr);}.admin-footer{left:60px;}}
 
 /* ============================================================
-   SUPPORT CHAT ADMIN STYLES - FIXED
+   SUPPORT CHAT ADMIN STYLES
    ============================================================ */
 .support-container {
   display: grid;
@@ -428,16 +428,6 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 .support-status-toggle .btn {
   padding: 10px 20px;
   font-size: 13px;
-}
-.support-chat-no-select {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: var(--muted);
-  font-size: 14px;
-  text-align: center;
-  padding: 20px;
 }
 </style>
 </head>
@@ -1027,6 +1017,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 // Username + Password Login | MarzPay Integration
 // FIXED: Support Chat - Click to open chat with Back button
 // FIXED: Auto-delete support messages older than 10 hours
+// FIXED: Admin edit user - deposit appears as normal deposit + activates user
 // ============================================================
 
 const firebaseConfig = {
@@ -1128,7 +1119,7 @@ function setErr(id, show, msg) { const el = document.getElementById(id); if (!el
 function clearErrors(...ids) { ids.forEach(id => setErr(id, false)); }
 
 // ============================================================
-// AUTO-CLEANUP FUNCTIONS - FIXED: Also cleans support messages
+// AUTO-CLEANUP FUNCTIONS
 // ============================================================
 
 function parseDateString(dateStr) {
@@ -1232,7 +1223,7 @@ async function cleanupOldAdminTransactions() {
   }
 }
 
-// NEW: Cleanup support messages older than 10 hours
+// Cleanup support messages older than 10 hours
 async function cleanupOldSupportMessages() {
   try {
     const snap = await db.ref('supportMessages').once('value');
@@ -1251,7 +1242,6 @@ async function cleanupOldSupportMessages() {
           toDelete.push(key);
         }
       } else {
-        // Fallback: check key timestamp
         const keyTimestamp = parseInt(key.split('_')[1]);
         if (!isNaN(keyTimestamp)) {
           const ageMs = now - keyTimestamp;
@@ -1274,12 +1264,10 @@ async function cleanupOldSupportMessages() {
 }
 
 function startCleanupInterval() {
-  // Run immediately on load
   cleanupOldNotifications().catch(err => console.warn('Cleanup error:', err));
   cleanupOldAdminTransactions().catch(err => console.warn('Cleanup error:', err));
   cleanupOldSupportMessages().catch(err => console.warn('Cleanup error:', err));
   
-  // Then every 30 minutes
   if (cleanupInterval) clearInterval(cleanupInterval);
   cleanupInterval = setInterval(() => {
     cleanupOldNotifications().catch(err => console.warn('Cleanup error:', err));
@@ -1289,7 +1277,7 @@ function startCleanupInterval() {
 }
 
 // ============================================================
-// SUPPORT CHAT ADMIN FUNCTIONS - FIXED
+// SUPPORT CHAT ADMIN FUNCTIONS
 // ============================================================
 
 // Set admin online/offline status
@@ -1393,7 +1381,7 @@ function startSupportMessagesListener() {
   });
 }
 
-// Render conversations list - FIXED: uses data attribute
+// Render conversations list - uses addEventListener for click handling
 function renderConversations() {
   const container = document.getElementById('conversations-list');
   if (!container) return;
@@ -1435,11 +1423,10 @@ function renderConversations() {
     const isActive = selectedConversation === username;
     const displayName = username.length > 15 ? username.slice(0, 12) + '...' : username;
 
-    // FIXED: Use data attribute to handle special characters like '+'
     const escapedUsername = username.replace(/"/g, '&quot;');
     
     html += `
-      <div class="support-convo-item ${isActive ? 'active' : ''}" data-username="${escapedUsername}" onclick="selectConversation(this.dataset.username)">
+      <div class="support-convo-item ${isActive ? 'active' : ''}" data-username="${escapedUsername}">
         <div class="support-convo-avatar">${displayName.charAt(0).toUpperCase()}</div>
         <div class="support-convo-info">
           <div class="support-convo-name">${displayName}</div>
@@ -1454,24 +1441,29 @@ function renderConversations() {
   });
 
   container.innerHTML = html;
+
+  // Attach click events using addEventListener
+  container.querySelectorAll('.support-convo-item').forEach(el => {
+    el.addEventListener('click', function() {
+      const username = this.dataset.username;
+      if (username) {
+        selectConversation(username);
+      }
+    });
+  });
 }
 
-// Select a conversation - FIXED: opens chat with back button
+// Select a conversation - opens chat with back button
 function selectConversation(username) {
   if (!username) return;
   
   selectedConversation = username;
   
-  // Show back button
   document.getElementById('chat-back-btn').style.display = 'flex';
   
-  // Update conversation list highlighting
   renderConversations();
-  
-  // Load and render messages
   renderChatMessages(username);
   
-  // Enable input
   const input = document.getElementById('chat-reply-input');
   const btn = document.getElementById('chat-reply-btn');
   if (input) {
@@ -1481,10 +1473,8 @@ function selectConversation(username) {
   }
   if (btn) btn.disabled = false;
   
-  // Update header
   document.getElementById('chat-user-name').textContent = username;
   
-  // Mark messages as read
   markMessagesRead(username);
 }
 
@@ -1492,10 +1482,8 @@ function selectConversation(username) {
 function closeChat() {
   selectedConversation = null;
   
-  // Hide back button
   document.getElementById('chat-back-btn').style.display = 'none';
   
-  // Disable input
   const input = document.getElementById('chat-reply-input');
   const btn = document.getElementById('chat-reply-btn');
   if (input) {
@@ -1505,16 +1493,13 @@ function closeChat() {
   }
   if (btn) btn.disabled = true;
   
-  // Reset header
   document.getElementById('chat-user-name').textContent = 'Select a conversation';
   
-  // Show placeholder in messages
   const container = document.getElementById('chat-messages');
   if (container) {
     container.innerHTML = '<div class="support-chat-placeholder">Select a conversation on the left to start chatting</div>';
   }
   
-  // Update conversation list (remove active highlighting)
   renderConversations();
 }
 
@@ -1618,7 +1603,7 @@ function renderSupportBadge() {
 }
 
 // ============================================================
-// ORIGINAL ADMIN FUNCTIONS (unchanged below)
+// ORIGINAL ADMIN FUNCTIONS
 // ============================================================
 
 function startRealtimeListeners() {
@@ -1755,6 +1740,13 @@ function openEditModal(username) {
 
 function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; }
 
+// ============================================================
+// FIXED: saveEditUser - Admin edit user
+// When adding funds to Prime Account:
+// - Creates a normal deposit transaction (same as user deposit)
+// - Activates the user account (activated: true)
+// - Creates deposits record
+// ============================================================
 async function saveEditUser() {
   const username = document.getElementById('edit-username').value;
   const newPassword = document.getElementById('edit-password').value;
@@ -1773,19 +1765,43 @@ async function saveEditUser() {
     scraydWallet: newScraydWallet
   };
   
+  const now = Date.now();
+  
+  // If admin added funds to Prime Account - record as a normal deposit
   if (newPrimeBalance > (user.primeBalance || 0)) {
     const addedAmount = newPrimeBalance - (user.primeBalance || 0);
-    updates['transactions/dep_admin_' + Date.now()] = {
+    const txKey = 'tx_dep_' + now;
+    const reference = 'admin_' + now;
+    
+    // Transaction record - matches normal deposit format
+    updates['transactions/' + txKey] = {
       type: 'Deposit',
       amount: addedAmount,
-      note: 'Admin credited to Prime Account',
+      note: 'Deposit confirmed to Prime Account',
       date: dateStr(),
+      status: 'completed',
+      timestamp: now,
+      marzReference: reference,
+      adminAdded: true
+    };
+    
+    // Deposits record - matches user app format
+    updates['deposits/dep_' + now] = {
+      amount: addedAmount,
+      taxPaid: 0,
+      startDate: now,
+      reference: reference,
       status: 'completed'
     };
+    
+    // ACTIVATE the user account - this allows withdrawal
+    updates['activated'] = true;
   }
+  
+  // If admin added funds to Scrayd Wallet - record as bonus
   if (newScraydWallet > (user.scraydWallet || 0)) {
     const addedScrayd = newScraydWallet - (user.scraydWallet || 0);
-    updates['transactions/scrayd_admin_' + Date.now()] = {
+    updates['transactions/scrayd_admin_' + now] = {
       type: 'Bonus',
       amount: addedScrayd,
       note: 'Admin credited to Scrayd Wallet',
@@ -1796,7 +1812,7 @@ async function saveEditUser() {
   
   await db.ref('users/' + sk).update(updates);
   closeEditModal();
-  toast('✅ User ' + username + ' updated');
+  toast('✅ User ' + username + ' updated and activated');
 }
 
 async function toggleLock(username, lock) {
