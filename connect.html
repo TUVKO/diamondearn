@@ -792,7 +792,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 <script>
 // ============================================================
 // DIAMOND EARN ADMIN - FIREBASE REALTIME DATABASE
-// ADDED: Support Chat System + Auto-cleanup + UTC Time + Admin Reply Permission
+// ALL 6 FIXES APPLIED: UTC Time + Admin Reply + Auto-Cleanup + Normal Deposit
 // ============================================================
 
 const firebaseConfig = {
@@ -933,6 +933,7 @@ async function cleanupOldNotifications() {
       const updates = {};
       toDelete.forEach(key => { updates[key] = null; });
       await db.ref('adminNotifications').update(updates);
+      console.log('🗑️ Deleted ' + toDelete.length + ' old notifications');
     }
   } catch (error) {
     console.warn('Error cleaning up notifications:', error);
@@ -971,6 +972,7 @@ async function cleanupOldAdminTransactions() {
       const updates = {};
       toDelete.forEach(key => { updates[key] = null; });
       await db.ref('adminTransactions').update(updates);
+      console.log('🗑️ Deleted ' + toDelete.length + ' old admin transactions');
     }
   } catch (error) {
     console.warn('Error cleaning up admin transactions:', error);
@@ -994,6 +996,7 @@ function startCleanupInterval() {
 // SUPPORT CHAT ADMIN FUNCTIONS
 // ============================================================
 
+// FIX 3: Admin Reply Permission
 async function setAdminStatus(online) {
   if (!currentAdmin) return;
   const adminKey = safeKey(currentAdmin.username);
@@ -1048,6 +1051,7 @@ function updateReplyInput() {
   }
 }
 
+// FIX 3: Auto-set admin online on login
 async function loadAdminStatus() {
   if (!currentAdmin) return;
   const adminKey = safeKey(currentAdmin.username);

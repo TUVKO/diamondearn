@@ -1183,7 +1183,6 @@ input[type="password"]{padding-right:46px;}
 <script>
 // ============================================================
 // DIAMOND EARN - FIREBASE REALTIME DATABASE WITH MARZPAY
-// FIXED: Daily profit pays on new day login + Silent mode + No user popups
 // ============================================================
 
 const firebaseConfig = {
@@ -1406,6 +1405,7 @@ async function sendSupportMessage() {
   renderSupportMessages();
 }
 
+// FIX 3: Remove "Admin" from user site - changed "Admin" to "Support"
 function renderSupportMessages() {
   const container = document.getElementById('support-messages');
   if (!container) return;
@@ -1434,6 +1434,7 @@ function renderSupportMessages() {
     messages.forEach(msg => {
       const isUser = msg.sender === 'user';
       const cls = isUser ? 'support-msg-user' : 'support-msg-support';
+      // FIX 3: Changed "Admin" to "Support"
       const senderName = isUser ? 'You' : 'Support';
       const msgText = msg.message || '';
       const time = msg.timestamp || '';
@@ -1472,6 +1473,7 @@ function startSupportMessagesListener() {
   });
 }
 
+// FIX 3: Remove "Admin" from user site - changed "Admin" to "Support"
 function startAdminStatusListener() {
   db.ref('adminStatus').on('value', (snap) => {
     const data = snap.val() || {};
@@ -2487,7 +2489,8 @@ function updateMeStats() {
   setText('me-prime', fmt(prime));
   setText('me-scrayd', fmt(scrayd));
   setText('me-locked', fmt(locked));
-  setText('me-purchased-machines', purchasedActive); // FIX 5: Number only (no fmt)
+  // FIX 5: Number only - no fmt()
+  setText('me-purchased-machines', purchasedActive);
   setText('me-total-machines', totalMachinesAll);
   setText('me-team-members', referralList.length);
   setText('me-team-earned', fmt(teamEarned));
@@ -2930,7 +2933,8 @@ async function doRegister() {
     username: fullPhone, password, country: 'UG', phone: fullPhone, primeBalance: 3000, scraydWallet: 0, withdrawn: 0,
     activated: false, locked: false, joinedDate: joinedYear, registeredDate, referredBy: referredBy,
     referralCode: myReferralCode,
-    hasEverPurchased: false, // FIX 1: New field for referral link unlock
+    // FIX 1: New field for referral link unlock
+    hasEverPurchased: false,
     transactions: { t0: { type: 'Bonus', amount: 3000, note: 'Registration Bonus', date: now, status: 'completed' } },
     deposits: {}, ownedMachines: {}
   };
