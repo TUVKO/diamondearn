@@ -176,7 +176,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 @media(max-width:900px){.sidebar{width:60px;}.sidebar-brand,.sidebar-sub,.nav-item span:not(.nav-icon){display:none;}.main-content{margin-left:60px;}.stats-row{grid-template-columns:repeat(2,1fr);}.admin-footer{left:60px;}}
 
 /* ============================================================
-   SUPPORT CHAT ADMIN STYLES - FIXED
+   SUPPORT CHAT ADMIN STYLES
    ============================================================ */
 .support-convo-item{cursor:pointer;padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:background .2s;}
 .support-convo-item:hover{background:var(--surface2);}
@@ -192,7 +192,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 .support-chat-area-header{padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
 .support-chat-area-user{font-weight:700;font-size:14px;}
 .support-chat-area-status{font-size:11px;color:var(--muted);}
-.support-chat-messages{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;max-height:300px;}
+.support-chat-messages{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;max-height:300px;min-height:200px;}
 .support-chat-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word;}
 .support-chat-msg-user{background:var(--btn);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
 .support-chat-msg-support{background:var(--surface2);border:1px solid var(--border);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px;}
@@ -601,7 +601,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
       </div>
     </div>
 
-    <!-- SETTINGS - UPDATED with Support Settings -->
+    <!-- SETTINGS -->
     <div class="page" id="pg-settings">
       <div class="page-title">Settings</div>
       <div class="page-sub">Configure platform settings</div>
@@ -647,7 +647,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         <div class="settings-row"><span class="settings-label">Referral Commission — Level 3</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" class="pct-input" id="referral-pct-l3-input" min="0" max="50" step="0.5" placeholder="1"><span class="pct-label">%</span></div></div>
       </div>
 
-      <!-- Support Settings - NEW -->
+      <!-- Support Settings -->
       <div class="settings-section">
         <div class="settings-title">📱 Support Settings</div>
         <div class="settings-sub">Configure WhatsApp integration and auto-reply messages for customer support.</div>
@@ -791,8 +791,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 // ============================================================
 // DIAMOND EARN ADMIN - FIREBASE REALTIME DATABASE
 // Username + Password Login | MarzPay Integration
-// ADDED: Support Chat System + Auto-cleanup
-// FIXED: Admin reply functionality fully working
+// FIXED: Support Chat - clicking user opens chat properly
 // ============================================================
 
 const firebaseConfig = {
@@ -1109,7 +1108,7 @@ async function saveSupportSettings() {
   toast('✅ Support settings saved');
 }
 
-// Start support messages listener - FIXED to properly update UI
+// Start support messages listener
 function startSupportMessagesListener() {
   if (supportMessagesUnsubscribe) supportMessagesUnsubscribe();
   supportMessagesUnsubscribe = db.ref('supportMessages').on('value', (snap) => {
@@ -1122,7 +1121,7 @@ function startSupportMessagesListener() {
   });
 }
 
-// Render conversations list - FIXED to show latest message preview correctly
+// Render conversations list - FIXED: uses data attribute for onclick
 function renderConversations() {
   const container = document.getElementById('conversations-list');
   if (!container) return;
@@ -1157,7 +1156,6 @@ function renderConversations() {
   let html = '';
   sorted.forEach(([username, messages]) => {
     const lastMsg = messages[messages.length - 1];
-    // Clean preview - remove emoji prefixes for cleaner display
     let preview = lastMsg.message || '';
     preview = preview.replace(/^[🧑‍💼🤖]\s*/, '');
     const time = lastMsg.timestamp || '';
@@ -1165,8 +1163,11 @@ function renderConversations() {
     const isActive = selectedConversation === username;
     const displayName = username.length > 15 ? username.slice(0, 12) + '...' : username;
 
+    // FIXED: Use data attribute to avoid special character issues in onclick
+    const escapedUsername = username.replace(/"/g, '&quot;');
+    
     html += `
-      <div class="support-convo-item ${isActive ? 'active' : ''}" onclick="selectConversation('${username}')">
+      <div class="support-convo-item ${isActive ? 'active' : ''}" data-username="${escapedUsername}" onclick="selectConversation(this.dataset.username)">
         <div class="support-convo-avatar">${displayName.charAt(0).toUpperCase()}</div>
         <div class="support-convo-info">
           <div class="support-convo-name">${displayName}</div>
@@ -1183,20 +1184,31 @@ function renderConversations() {
   container.innerHTML = html;
 }
 
-// Select a conversation - FIXED to properly enable input
+// Select a conversation - FIXED: properly opens chat and enables input
 function selectConversation(username) {
+  if (!username) return;
+  
   selectedConversation = username;
+  
+  // Update UI
   renderConversations();
   renderChatMessages(username);
   
+  // Enable input
   const input = document.getElementById('chat-reply-input');
   const btn = document.getElementById('chat-reply-btn');
-  input.disabled = false;
-  btn.disabled = false;
-  input.focus();
+  if (input) {
+    input.disabled = false;
+    input.placeholder = 'Type your reply to ' + username + '...';
+    input.focus();
+  }
+  if (btn) btn.disabled = false;
   
+  // Update header
   document.getElementById('chat-user-name').textContent = username;
+  document.getElementById('chat-user-status').textContent = 'Chatting now';
   
+  // Mark messages as read
   markMessagesRead(username);
 }
 
@@ -1214,7 +1226,7 @@ async function markMessagesRead(username) {
   }
 }
 
-// Render chat messages for a specific user - FIXED to show messages clearly
+// Render chat messages for a specific user
 function renderChatMessages(username) {
   const container = document.getElementById('chat-messages');
   if (!container) return;
@@ -1233,7 +1245,6 @@ function renderChatMessages(username) {
   messages.forEach(msg => {
     const isUser = msg.sender === 'user';
     const cls = isUser ? 'support-chat-msg-user' : 'support-chat-msg-support';
-    // Clean message - remove emoji prefixes for cleaner display
     let msgText = msg.message || '';
     msgText = msgText.replace(/^[🧑‍💼🤖]\s*/, '');
     const time = msg.timestamp || '';
@@ -1248,22 +1259,19 @@ function renderChatMessages(username) {
   });
 
   container.innerHTML = html;
-  // Auto-scroll to bottom
   container.scrollTop = container.scrollHeight;
 }
 
-// Send admin reply - FIXED: clean message without emoji prefix
+// Send admin reply
 async function sendAdminReply() {
   const input = document.getElementById('chat-reply-input');
   const msg = input.value.trim();
-  if (!msg || !selectedConversation) {
-    return;
-  }
+  if (!msg || !selectedConversation) return;
 
   const msgId = 'msg_' + Date.now() + '_admin';
   const replyData = {
     username: selectedConversation,
-    message: msg,  // Clean message without emoji prefix
+    message: msg,
     timestamp: dateStr(),
     sender: 'support',
     read: true,
@@ -1275,7 +1283,6 @@ async function sendAdminReply() {
   input.value = '';
   input.focus();
   
-  // Send notification to admin
   await db.ref('adminNotifications/notif_' + Date.now()).set({
     type: 'support_reply',
     username: selectedConversation,
@@ -1285,7 +1292,6 @@ async function sendAdminReply() {
     read: false
   });
 
-  // Update UI immediately - messages will re-render from listener
   renderChatMessages(selectedConversation);
   renderConversations();
 }
@@ -1306,7 +1312,7 @@ function renderSupportBadge() {
 }
 
 // ============================================================
-// ORIGINAL ADMIN FUNCTIONS (unchanged below)
+// ORIGINAL ADMIN FUNCTIONS (unchanged)
 // ============================================================
 
 function startRealtimeListeners() {
