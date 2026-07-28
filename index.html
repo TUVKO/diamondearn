@@ -400,7 +400,7 @@ input[type="password"]{padding-right:46px;}
 .loading-text{font-size:14px;color:var(--muted);}
 
 /* ============================================================
-   SUPPORT CHAT STYLES
+   SUPPORT CHAT STYLES - NEW
    ============================================================ */
 .support-chat-container{display:flex;flex-direction:column;height:calc(100vh - 160px);min-height:400px;background:var(--surface);border-radius:16px;border:1px solid var(--border);overflow:hidden;margin-top:4px;}
 .support-chat-header{padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
@@ -861,7 +861,7 @@ input[type="password"]{padding-right:46px;}
     </div>
   </div>
 
-  <!-- Errands - Support Chat (No phone number shown) -->
+  <!-- Errands - UPDATED with Support Chat (No phone number shown) -->
   <div class="dash-section" id="sec-errands">
     <div class="inner-header"><div><div class="inner-title">Customer Support</div><div class="inner-sub">Chat with our team or reach us on WhatsApp</div></div></div>
     <div class="section">
@@ -941,7 +941,7 @@ input[type="password"]{padding-right:46px;}
     <div class="inner-header"><div><div class="inner-title">Invite</div><div class="inner-sub">Share your link and earn on machine purchases</div></div></div>
     <div class="section" id="invite-locked-state" style="display:none;">
       <div style="text-align:center;padding:60px 20px;">
-        <div style="font-size:12px;color:#ef4444;font-weight:700;">Purchase your first machine to unlock referring.</div>
+        <div style="font-size:12px;color:#ef4444;font-weight:700;">Purchase a machine first to unlock referring.</div>
       </div>
     </div>
     <div class="section" id="invite-unlocked-state">
@@ -1183,6 +1183,7 @@ input[type="password"]{padding-right:46px;}
 <script>
 // ============================================================
 // DIAMOND EARN - FIREBASE REALTIME DATABASE WITH MARZPAY
+// FIXED: Daily profit pays on new day login + Silent mode + No user popups
 // ============================================================
 
 const firebaseConfig = {
@@ -1201,34 +1202,29 @@ const db = firebase.database();
 const MARZ_API = 'https://polished-truth-f9c5.vallazvallax.workers.dev';
 
 function fmt(n) { return 'UGX ' + Number(n || 0).toLocaleString(); }
-
-// ============================================================
-// FIX 2: UTC TIME - Use UTC for all date calculations
-// ============================================================
 function dateStr() { 
-  const d = new Date();
-  const day = String(d.getUTCDate()).padStart(2, '0');
-  const month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()];
-  const year = d.getUTCFullYear();
-  const hours = String(d.getUTCHours()).padStart(2, '0');
-  const minutes = String(d.getUTCMinutes()).padStart(2, '0');
-  const seconds = String(d.getUTCSeconds()).padStart(2, '0');
-  return `${day} ${month} ${year} ${hours}:${minutes}:${seconds} UTC`;
+  const d = new Date(); 
+  return d.toLocaleDateString('en-UG', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit' }); 
 }
-
+// ============================================================
+// FIXED: Use LOCAL timezone for date key (not UTC)
+// Format: YYYY-MM-DD based on user's local time
+// ============================================================
 function getDateKey(d) {
   if (!d) d = new Date();
-  const year = d.getUTCFullYear();
-  const month = String(d.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(d.getUTCDate()).padStart(2, '0');
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
+// Helper: Parse date string (YYYY-MM-DD) to local Date object at 00:00:00
 function parseDateKey(dateStr) {
   const [year, month, day] = dateStr.split('-').map(Number);
-  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+  return new Date(year, month - 1, day, 0, 0, 0, 0);
 }
 
+// Helper: Calculate days between two date strings
 function daysBetweenDateKeys(startDateStr, endDateStr) {
   const startDate = parseDateKey(startDateStr);
   const endDate = parseDateKey(endDateStr);
@@ -1241,7 +1237,7 @@ function safeKey(u) { return (u || '').replace(/[.#$\[\]]/g, '_'); }
 function genUUID() { return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)); }
 
 function randomReferralCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no O/0/I/1 to avoid confusion
   let code = '';
   for (let i = 0; i < 7; i++) code += chars[Math.floor(Math.random() * chars.length)];
   return code;
@@ -1263,7 +1259,7 @@ let settingsData = {
   uraTax: 4, withdrawCharge: 10, referralPercentL1: 11, referralPercentL2: 4, referralPercentL3: 1,
   withdrawLocked: false, withdrawApproval: false,
   minDeposit: 10000, maxDeposit: 2350000, minWithdraw: 10000, marzApiKey: '',
-  supportWhatsapp: '',
+  supportWhatsapp: '',  // <-- Now empty, loaded from Firebase
   supportWhatsappMsg: 'Hello, I need help with First Light Capital',
   supportFirstReply: 'Welcome! How can we help you today?',
   supportOfflineReply: 'Thank you for your message. Our support team will get back to you shortly.'
@@ -1274,9 +1270,10 @@ let supportMessagesUnsubscribe = null;
 let supportSettingsUnsubscribe = null;
 
 // ============================================================
-// SUPPORT CHAT FUNCTIONS
+// SUPPORT CHAT FUNCTIONS - NEW
 // ============================================================
 
+// Check if user has saved support number
 async function checkSupportWarning() {
   if (!currentUsername) return;
   const snap = await db.ref('userWarnings/' + safeKey(currentUsername)).once('value');
@@ -1288,6 +1285,7 @@ async function checkSupportWarning() {
   }
 }
 
+// Save support number - copies to clipboard only (number not shown)
 function saveSupportNumber() {
   const number = settingsData.supportWhatsapp || '';
   if (!number) {
@@ -1297,10 +1295,12 @@ function saveSupportNumber() {
   navigator.clipboard.writeText(number).then(() => {
     showToast('📱 Support number copied to clipboard!');
   }).catch(() => {
+    // Fallback: show a toast with the number (only if copy fails)
     showToast('📱 Please save our support number: ' + number);
   });
 }
 
+// Dismiss warning (user says they've saved it)
 async function dismissSupportWarning() {
   if (!currentUsername) return;
   await db.ref('userWarnings/' + safeKey(currentUsername)).set({
@@ -1311,6 +1311,7 @@ async function dismissSupportWarning() {
   showToast('✓ Great! You can now chat with our support team.');
 }
 
+// Open WhatsApp with admin-set number (user never sees the number)
 function openWhatsApp() {
   const number = settingsData.supportWhatsapp || '';
   if (!number) {
@@ -1318,6 +1319,7 @@ function openWhatsApp() {
     return;
   }
   const msg = settingsData.supportWhatsappMsg || 'Hello, I need help with First Light Capital';
+  // Check if user has saved number - if not, show warning but allow continue
   const warningBanner = document.getElementById('support-warning-banner');
   if (warningBanner.style.display !== 'none') {
     showToast('⚠️ Please save our support number first.');
@@ -1326,6 +1328,7 @@ function openWhatsApp() {
   window.open(url, '_blank');
 }
 
+// Send support message
 async function sendSupportMessage() {
   const input = document.getElementById('support-input');
   const msg = input.value.trim();
@@ -1335,6 +1338,7 @@ async function sendSupportMessage() {
     return;
   }
 
+  // Check warning - if user hasn't saved, show warning but still allow message
   const snap = await db.ref('userWarnings/' + safeKey(currentUsername)).once('value');
   const warned = snap.val();
   if (!warned || !warned.warned) {
@@ -1355,10 +1359,12 @@ async function sendSupportMessage() {
   await db.ref('supportMessages/' + msgId).set(messageData);
   input.value = '';
   
+  // Auto-reply logic
   const userMessagesSnap = await db.ref('supportMessages').orderByChild('username').equalTo(currentUsername).once('value');
   const userMessages = userMessagesSnap.val() || {};
   const msgCount = Object.keys(userMessages).length;
   
+  // Check if admin is online
   const adminStatusSnap = await db.ref('adminStatus').once('value');
   const adminStatus = adminStatusSnap.val() || {};
   let adminOnline = false;
@@ -1371,6 +1377,7 @@ async function sendSupportMessage() {
 
   let autoReply = '';
   if (msgCount <= 1) {
+    // First message from this user
     autoReply = settingsData.supportFirstReply || 'Welcome! How can we help you today?';
   } else if (!adminOnline) {
     autoReply = settingsData.supportOfflineReply || 'Thank you for your message. Our support team will get back to you shortly.';
@@ -1393,6 +1400,7 @@ async function sendSupportMessage() {
     }, 800);
   }
 
+  // Send admin notification
   await db.ref('adminNotifications/notif_' + Date.now()).set({
     type: 'support_message',
     username: currentUsername,
@@ -1405,7 +1413,7 @@ async function sendSupportMessage() {
   renderSupportMessages();
 }
 
-// FIX 3: Remove "Admin" from user site - changed "Admin" to "Support"
+// Render support messages in chat
 function renderSupportMessages() {
   const container = document.getElementById('support-messages');
   if (!container) return;
@@ -1434,7 +1442,6 @@ function renderSupportMessages() {
     messages.forEach(msg => {
       const isUser = msg.sender === 'user';
       const cls = isUser ? 'support-msg-user' : 'support-msg-support';
-      // FIX 3: Changed "Admin" to "Support"
       const senderName = isUser ? 'You' : 'Support';
       const msgText = msg.message || '';
       const time = msg.timestamp || '';
@@ -1447,10 +1454,12 @@ function renderSupportMessages() {
     });
 
     container.innerHTML = html;
+    // Scroll to bottom
     container.scrollTop = container.scrollHeight;
   });
 }
 
+// Start support settings listener
 function startSupportSettingsListener() {
   if (supportSettingsUnsubscribe) supportSettingsUnsubscribe();
   supportSettingsUnsubscribe = db.ref('supportSettings').on('value', (snap) => {
@@ -1464,6 +1473,7 @@ function startSupportSettingsListener() {
   });
 }
 
+// Start support messages listener (real-time)
 function startSupportMessagesListener() {
   if (supportMessagesUnsubscribe) supportMessagesUnsubscribe();
   if (!currentUsername) return;
@@ -1473,7 +1483,7 @@ function startSupportMessagesListener() {
   });
 }
 
-// FIX 3: Remove "Admin" from user site - changed "Admin" to "Support"
+// Start admin status listener
 function startAdminStatusListener() {
   db.ref('adminStatus').on('value', (snap) => {
     const data = snap.val() || {};
@@ -1488,14 +1498,15 @@ function startAdminStatusListener() {
     const text = document.getElementById('support-status-text');
     if (online) {
       dot.className = 'support-online-dot';
-      text.textContent = 'Support is online';
+      text.textContent = 'Online';
     } else {
       dot.className = 'support-offline-dot';
-      text.textContent = 'Support is offline — we\'ll reply soon';
+      text.textContent = 'Offline — we\'ll reply soon';
     }
   });
 }
 
+// Helper toast for support actions
 function showToast(msg) {
   const popup = document.getElementById('popup-banner');
   if (popup) {
@@ -1506,7 +1517,9 @@ function showToast(msg) {
 }
 
 // ============================================================
-// MACHINE MATURITY PAYOUT ENGINE
+// Machine maturity payout engine — replaces the old daily-profit engine.
+// Checks each owned machine; if its lock period has completed, credits
+// the full payout (price + return) to SCRAYD WALLET and marks it completed.
 // ============================================================
 async function checkMachineMaturity() {
   if (!currentUsername) return;
@@ -1541,13 +1554,14 @@ async function checkMachineMaturity() {
       updateBalanceUI();
       if (typeof renderMyMachines === 'function') renderMyMachines();
     }
+    // Silent — no toast notification
   } catch (error) {
     console.error('Machine maturity check error:', error);
   }
 }
 
 // ============================================================
-// LOADING SCREEN
+// Loading screen hides immediately after login check
 // ============================================================
 async function initApp() {
   initTheme();
@@ -1564,14 +1578,20 @@ async function initApp() {
         currentUser = userSnap.val();
         currentUsername = savedUser;
         
+        // MACHINE MATURITY CHECK FIRST - before UI updates
+        // This ensures balance is updated with any completed machine payouts before UI renders
         await checkMachineMaturity().catch(err => console.warn('Machine maturity error:', err));
+        
+        // CHECK PENDING DEPOSITS SILENTLY - in background
         checkPendingDeposits(savedUser).catch(err => console.warn('Pending deposits check error:', err));
         
+        // Re-fetch user data after maturity check to get updated balance
         const updatedSnap = await db.ref('users/' + safeKey(savedUser)).get();
         if (updatedSnap.exists()) {
           currentUser = updatedSnap.val();
         }
         
+        // Now show UI with updated balance
         startUserListener(savedUser);
         startSupportMessagesListener();
         updateBalanceUI();
@@ -1595,9 +1615,11 @@ async function initApp() {
     showAuth(pendingRefCode ? 'register-page' : 'login-page');
   }
   
+  // HIDE LOADING SCREEN IMMEDIATELY
   document.getElementById('loading-screen').style.display = 'none';
 }
 
+// Background machine maturity loop (every 30 min) - SILENT
 function startMachineMaturityLoop() {
   if (machineInterval) clearInterval(machineInterval);
   machineInterval = setInterval(() => {
@@ -1608,17 +1630,21 @@ function startMachineMaturityLoop() {
 }
 
 // ============================================================
-// SILENT FUNCTIONS
+// SILENT FUNCTIONS - No user-facing toasts or modals
 // ============================================================
 function showToast(msg, color) {
   // COMPLETELY DISABLED - users see no toasts
+  // Function kept empty to prevent errors
 }
 
 function showModal(icon, title, msg) {
   // COMPLETELY DISABLED - users see no modals
+  // Function kept empty to prevent errors
 }
 
-function closeModal() { }
+function closeModal() { 
+  // Disabled
+}
 
 function setErr(id, show, msg) {
   const el = document.getElementById(id);
@@ -1726,6 +1752,7 @@ const navOrder = ['home', 'errands', 'team', 'plan', 'profile'];
 
 function switchTab(tab) {
   if (tab === 'withdraw' && settingsData.withdrawLocked) {
+    // Silent - no modal
     return;
   }
   Object.values(tabMap).forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('active'); });
@@ -1755,6 +1782,7 @@ function switchTab(tab) {
   }
 }
 
+
 function startSettingsListener() {
   db.ref('settings').on('value', (snap) => {
     if (snap.exists()) settingsData = { ...settingsData, ...snap.val() };
@@ -1764,7 +1792,8 @@ function startSettingsListener() {
 }
 
 // ============================================================
-// MACHINES
+// MACHINES — catalog listener, shop rendering, purchase, and
+// owned-machine tracking (replaces the old daily-profit system)
 // ============================================================
 let machinesCatalog = {};
 let currentMachineCategory = 'Ordinary';
@@ -1847,7 +1876,9 @@ function renderMachineShop() {
 }
 
 // ============================================================
-// HOME CAROUSELS
+// HOME CAROUSELS — 4 independent auto-cycling machine previews,
+// one per category (Ordinary/VIP/VVIP/Platinum), 5s each, sliding
+// right to left.
 // ============================================================
 const homeCarouselCategories = ['Ordinary', 'VIP', 'VVIP', 'Platinum', 'Diamond', 'Royal', 'Infinite', 'Sovereign'];
 let homeCarouselState = {};
@@ -1922,9 +1953,6 @@ function showCompanyMachinePopup() {
   }
 }
 
-// ============================================================
-// FIX 1: REFERRAL LINK - hasEverPurchased
-// ============================================================
 async function buyMachine(machineId) {
   if (!currentUser || !currentUsername) return 'error';
   const m = machinesCatalog[machineId];
@@ -1947,15 +1975,15 @@ async function buyMachine(machineId) {
   if (primeBalance < price) {
     return 'insufficient';
   }
-  
   const purchaseId = 'mch_' + Date.now();
   const now = Date.now();
   const days = m.days || 0;
+  // Maturity lands on the UTC midnight that is `days` calendar-days after
+  // the purchase date, not exactly days*24h from the purchase moment.
   const nowD = new Date(now);
   const purchaseUtcMidnight = Date.UTC(nowD.getUTCFullYear(), nowD.getUTCMonth(), nowD.getUTCDate());
   const maturityDate = purchaseUtcMidnight + days * 86400000;
   const newPrimeBalance = primeBalance - price;
-  
   const updates = {
     primeBalance: newPrimeBalance,
     [`ownedMachines/${purchaseId}`]: {
@@ -1964,19 +1992,13 @@ async function buyMachine(machineId) {
     },
     [`transactions/tx_buy_${Date.now()}`]: { type: 'Machine Purchase', amount: -price, note: 'Purchased ' + (m.name || 'Machine') + ' (Prime Account)', date: dateStr(), status: 'completed' }
   };
-  
-  // FIX 1: Check if this is the user's first machine purchase
-  const hasAnyMachine = Object.keys(owned).length > 0;
-  if (!hasAnyMachine) {
-    updates.hasEverPurchased = true;
-  }
-  
   await db.ref('users/' + safeKey(currentUsername)).update(updates);
   currentUser = await db.ref('users/' + safeKey(currentUsername)).get().then(s => s.val());
   updateBalanceUI();
   renderMyMachines();
   renderHistory();
 
+  // Credit referral bonuses (3-level upline) instantly on every machine purchase
   creditReferralBonusChain(currentUsername, price).catch(err => console.warn('Referral bonus error:', err));
 
   return 'ok';
@@ -2031,7 +2053,8 @@ async function creditReferralBonusChain(buyerUsername, purchasePrice) {
 }
 
 // ============================================================
-// MACHINE DETAIL PAGE
+// MACHINE DETAIL PAGE — "View" a machine, see balance, recharge,
+// or purchase. Handles the insufficient-balance → deposit flow.
 // ============================================================
 let currentViewedMachineId = null;
 
@@ -2195,7 +2218,7 @@ function updateBalanceUI() {
 }
 
 // ============================================================
-// TRANSFER
+// TRANSFER — move funds between Prime Account and Scrayd Wallet
 // ============================================================
 function renderTransferPage() {
   if (!currentUser) return;
@@ -2239,7 +2262,8 @@ async function doTransfer() {
 }
 
 // ============================================================
-// INVITE / TEAM (Referrals)
+// INVITE / TEAM (Referrals) — link generation, QR, copy/share,
+// and the referred-users list with bonus earnings.
 // ============================================================
 function getReferralLink() {
   const base = window.location.origin + window.location.pathname;
@@ -2247,16 +2271,15 @@ function getReferralLink() {
   return base + '?ref=' + encodeURIComponent(code);
 }
 
-// FIX 1: renderInvitePage - Check hasEverPurchased instead of hasActiveMachine
 async function renderInvitePage() {
   if (!currentUsername || !currentUser) return;
 
-  // FIX 1: Check if user has ever purchased a machine (not just active)
-  const hasEverPurchased = currentUser.hasEverPurchased === true;
+  const owned = currentUser.ownedMachines || {};
+  const hasActiveMachine = Object.values(owned).some(m => m.status === 'active');
   const lockedState = document.getElementById('invite-locked-state');
   const unlockedState = document.getElementById('invite-unlocked-state');
 
-  if (!hasEverPurchased) {
+  if (!hasActiveMachine) {
     if (lockedState) lockedState.style.display = 'block';
     if (unlockedState) unlockedState.style.display = 'none';
     return;
@@ -2264,6 +2287,7 @@ async function renderInvitePage() {
   if (lockedState) lockedState.style.display = 'none';
   if (unlockedState) unlockedState.style.display = 'block';
 
+  // Legacy accounts registered before referral codes existed — generate one now
   if (!currentUser.referralCode) {
     const code = await generateUniqueReferralCode();
     await db.ref('users/' + safeKey(currentUsername)).update({ referralCode: code });
@@ -2347,7 +2371,7 @@ function renderMyTeamPage() {
 }
 
 // ============================================================
-// ACCOUNT
+// ACCOUNT — profile info, password change, bank withdrawal setup
 // ============================================================
 function renderAccountPage() {
   if (!currentUser) return;
@@ -2357,6 +2381,7 @@ function renderAccountPage() {
   const countryNames = { UG: 'Uganda', KE: 'Kenya' };
   setText('account-country', countryNames[currentUser.country] || currentUser.country || '—');
 
+  // Reset password flow to initial state
   document.getElementById('acct-old-password').value = '';
   document.getElementById('acct-new-password').value = '';
   document.getElementById('acct-confirm-password').value = '';
@@ -2364,8 +2389,10 @@ function renderAccountPage() {
   document.getElementById('acct-pw-next-btn').style.display = 'block';
   clearErrors('acct-old-password-err', 'acct-new-password-err');
 
+  // Reset bank account/card type selector
   setBankAccountType('account');
 
+  // Bank details lock state
   const bankForm = document.getElementById('acct-bank-form');
   const bankSaved = document.getElementById('acct-bank-saved');
   if (currentUser.bankDetails) {
@@ -2457,7 +2484,6 @@ function updateProfileUI() {
   updateMeStats();
 }
 
-// FIX 5: PURCHASED MACHINES - Show as number only (no UGX)
 function updateMeStats() {
   if (!currentUser) return;
   const prime = currentUser.primeBalance || 0;
@@ -2489,7 +2515,6 @@ function updateMeStats() {
   setText('me-prime', fmt(prime));
   setText('me-scrayd', fmt(scrayd));
   setText('me-locked', fmt(locked));
-  // FIX 5: Number only - no fmt()
   setText('me-purchased-machines', purchasedActive);
   setText('me-total-machines', totalMachinesAll);
   setText('me-team-members', referralList.length);
@@ -2524,11 +2549,14 @@ function renderHistory() {
   if (!currentUser) { if (wrap) wrap.innerHTML = ''; return; }
   const allTxs = currentUser.transactions ? Object.values(currentUser.transactions).reverse() : [];
   
+  // Get search query
   const searchBox = document.getElementById('tx-search-box');
   const searchQuery = (searchBox?.value || '').toLowerCase().trim();
   
+  // Filter by type (Deposit or Withdrawal only)
   let txs = allTxs.filter(tx => tx.type === currentHistoryFilter);
   
+  // Filter by search
   if (searchQuery) {
     txs = txs.filter(tx => 
       (tx.type || '').toLowerCase().includes(searchQuery) ||
@@ -2617,6 +2645,9 @@ async function pollPaymentStatus(uuid, maxAttempts = 120, intervalMs = 5000) {
   return 'timeout';
 }
 
+// ============================================================
+// SILENT PENDING DEPOSITS CHECKER - auto-syncs deposits when user returns
+// ============================================================
 async function checkPendingDeposits(username) {
   try {
     const userRef = db.ref('users/' + safeKey(username));
@@ -2625,25 +2656,38 @@ async function checkPendingDeposits(username) {
     
     const transactions = snap.val();
     for (const [key, txn] of Object.entries(transactions)) {
+      // Only check pending deposits
       if (txn.type !== 'Deposit' || txn.status !== 'pending') continue;
       if (!txn.marzUUID) continue;
       
       try {
+        // Silently check Marz status (max 20 attempts = ~100 seconds)
         const pollResult = await pollPaymentStatus(txn.marzUUID, 20, 5000);
         
         if (pollResult === 'success') {
+          // CREDIT THE DEPOSIT SILENTLY - no notification
           const amount = txn.amount || 0;
+          
+          // Update transaction status
           await userRef.child('transactions/' + key).update({ status: 'completed', completedDate: dateStr() });
+          
+          // Update user Prime Account balance
           const userSnap = await userRef.get();
           const user = userSnap.val();
           const newPrimeBalance = (user.primeBalance || 0) + amount;
-          await userRef.update({ primeBalance: newPrimeBalance });
+          
+          await userRef.update({ 
+            primeBalance: newPrimeBalance
+          });
+          
+          // Update UI silently if user is currently viewing
           if (currentUsername === username) {
             await new Promise(r => setTimeout(r, 500));
             updateBalanceUI();
             renderHistory();
           }
         } else if (pollResult === 'failed') {
+          // Mark as failed silently
           await userRef.child('transactions/' + key).update({ status: 'failed', failedDate: dateStr() });
         }
       } catch (e) {
@@ -2662,7 +2706,7 @@ async function sendAdminNotification(type, username, amount, message) {
 }
 
 // ============================================================
-// DEPOSIT
+// DEPOSIT - PIN popup only, auto-closes 1 sec, redirect to home
 // ============================================================
 async function doDeposit() {
   clearErrors('dep-phone-err', 'dep-amount-err');
@@ -2691,6 +2735,7 @@ async function doDeposit() {
   popup.classList.add('show');
   setTimeout(() => popup.classList.remove('show'), 1000);
   
+  // Create admin transaction record with PENDING status
   const adminTxKey = 'adm_dep_' + Date.now();
   const adminTxRecord = {
     type: 'Deposit',
@@ -2703,10 +2748,12 @@ async function doDeposit() {
   };
   
   try {
+    // First, create the admin transaction with pending status
     await db.ref('adminTransactions/' + adminTxKey).set(adminTxRecord);
     
     const result = await marzCollect(fullPhone, totalAmount, reference, 'First Light Capital Deposit');
     if (result.status !== 'success') {
+      // Update admin transaction to FAILED
       await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
       await sendAdminNotification('deposit_failed', currentUsername, amount, 'Deposit failed: ' + (result.message || 'Unknown error'));
       btn.disabled = false; btn.textContent = 'CONFIRM DEPOSIT';
@@ -2722,17 +2769,22 @@ async function doDeposit() {
         [`transactions/tx_dep_${Date.now()}`]: { type: 'Deposit', amount: amount, note: 'Deposit confirmed to Prime Account (URA Tax: ' + fmt(totalAmount - amount) + ')', date: dateStr(), status: 'completed' }
       };
       await db.ref('users/' + safeKey(currentUsername)).update(updates);
+      
+      // Update admin transaction to SUCCESSFUL
       await db.ref('adminTransactions/' + adminTxKey).update({ status: 'successful' });
       
     } else if (pollResult === 'failed') {
+      // Update admin transaction to FAILED
       await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
       await sendAdminNotification('deposit_failed', currentUsername, amount, 'Deposit declined by user');
     } else {
+      // Update admin transaction to FAILED
       await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
       await sendAdminNotification('deposit_timeout', currentUsername, amount, 'Deposit pending - no confirmation');
     }
   } catch (error) {
     console.error('Deposit error:', error);
+    // Update admin transaction to FAILED
     await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
     await sendAdminNotification('deposit_error', currentUsername, amount, error.message);
   }
@@ -2741,7 +2793,7 @@ async function doDeposit() {
 }
 
 // ============================================================
-// WITHDRAWAL
+// WITHDRAWAL - confirmation popup only, auto-closes 1 sec, redirect to home
 // ============================================================
 let currentWithdrawMethod = 'mobile';
 function setWithdrawMethod(method) {
@@ -2799,6 +2851,7 @@ async function doWithdraw() {
   popup.classList.add('show');
   setTimeout(() => popup.classList.remove('show'), 1500);
   
+  // Create admin transaction record with PENDING status
   const adminTxKey = 'adm_wd_' + Date.now();
   const adminTxRecord = {
     type: 'Withdrawal',
@@ -2813,14 +2866,17 @@ async function doWithdraw() {
   };
   
   try {
+    // Create admin transaction
     await db.ref('adminTransactions/' + adminTxKey).set(adminTxRecord);
     
+    // Deduct from Scrayd Wallet immediately
     await db.ref('users/' + safeKey(currentUsername)).update({ 
       scraydWallet: newScraydWallet, 
       withdrawn: newWithdrawn, 
       [`transactions/${txKey}`]: { type: 'Withdrawal', amount: -amount, note: 'Withdrawal Pending (Scrayd Wallet)', date: dateStr(), status: 'pending' } 
     });
     
+    // Create withdrawal request record — ALL withdrawals are manual/admin-approved now
     await db.ref('pendingWithdrawals/' + reqKey).set({ 
       username: currentUsername, 
       userId: safeKey(currentUsername), 
@@ -2842,6 +2898,7 @@ async function doWithdraw() {
     document.getElementById('withdraw-preview').style.display = 'none';
   } catch (error) {
     console.error('Withdrawal error:', error);
+    // Critical error - REFUND user and revert
     const refundedScraydWallet = scraydWallet;
     await db.ref('users/' + safeKey(currentUsername)).update({ 
       scraydWallet: refundedScraydWallet, 
@@ -2873,13 +2930,17 @@ async function doLogin() {
     currentUsername = fullPhone;
     sessionStorage.setItem('pp_current_user', fullPhone);
     
+    // MACHINE MATURITY CHECK FIRST - before UI updates
+    // This ensures balance is updated with any completed machine payouts before UI renders
     await checkMachineMaturity().catch(err => console.warn('Login machine maturity error:', err));
     
+    // Re-fetch user data after maturity check to get updated balance
     const updatedSnap = await db.ref('users/' + safeKey(fullPhone)).get();
     if (updatedSnap.exists()) {
       currentUser = updatedSnap.val();
     }
     
+    // Now show UI with updated balance
     startUserListener(fullPhone);
     startSupportMessagesListener();
     updateBalanceUI();
@@ -2891,6 +2952,7 @@ async function doLogin() {
     startMachineMaturityLoop();
     startInactivityWatcher();
     checkSupportWarning();
+    // Silent login - no toast
   } catch (error) {
     console.error('Login error:', error);
     setErr('login-general-err', true, 'Login failed. Please try again.');
@@ -2899,7 +2961,6 @@ async function doLogin() {
 
 function loginPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 9); }
 
-// FIX 1: Add hasEverPurchased: false to new user
 async function doRegister() {
   clearErrors('reg-phone-err', 'reg-pw-err', 'reg-confirm-err', 'reg-referral-err', 'reg-general-err');
   const phoneDigits = document.getElementById('reg-phone').value.trim();
@@ -2915,6 +2976,7 @@ async function doRegister() {
 
   const fullPhone = '+256' + phoneDigits;
 
+  // Referral code is mandatory — must resolve to a real existing user
   const codeSnap = await db.ref('referralCodes/' + referralCodeInput).get();
   if (!codeSnap.exists()) { setErr('reg-referral-err', true, 'A valid referral code is required'); return; }
   const referredBy = codeSnap.val();
@@ -2927,20 +2989,20 @@ async function doRegister() {
   const nowDate = new Date();
   const registeredDate = String(nowDate.getDate()).padStart(2, '0') + '/' + String(nowDate.getMonth() + 1).padStart(2, '0') + '/' + nowDate.getFullYear();
 
+  // Generate this new user's own unique 7-character referral code
   const myReferralCode = await generateUniqueReferralCode();
 
   const newUser = {
     username: fullPhone, password, country: 'UG', phone: fullPhone, primeBalance: 3000, scraydWallet: 0, withdrawn: 0,
     activated: false, locked: false, joinedDate: joinedYear, registeredDate, referredBy: referredBy,
     referralCode: myReferralCode,
-    // FIX 1: New field for referral link unlock
-    hasEverPurchased: false,
     transactions: { t0: { type: 'Bonus', amount: 3000, note: 'Registration Bonus', date: now, status: 'completed' } },
     deposits: {}, ownedMachines: {}
   };
   await db.ref('users/' + safeKey(fullPhone)).set(newUser);
   await db.ref('referralCodes/' + myReferralCode).set(fullPhone);
 
+  // Build the 3-level upline network: L1 (direct referrer), L2, L3
   const l1Sk = safeKey(referredBy);
   await db.ref('users/' + l1Sk + '/network/' + safeKey(fullPhone)).set({
     username: fullPhone, phone: fullPhone, level: 1, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear
@@ -2978,6 +3040,7 @@ async function doRegister() {
   showDashboard();
   switchTab('home');
   startMachineMaturityLoop();
+  // Silent registration - no toast
   document.getElementById('reg-phone').value = '';
   document.getElementById('reg-password').value = '';
   document.getElementById('reg-confirm').value = '';
