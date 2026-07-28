@@ -1183,7 +1183,7 @@ input[type="password"]{padding-right:46px;}
 <script>
 // ============================================================
 // DIAMOND EARN - FIREBASE REALTIME DATABASE WITH MARZPAY
-// FIXED: Daily profit pays on new day login + Silent mode + No user popups
+// FIXED: Referral system unlocks permanently after first machine purchase
 // ============================================================
 
 const firebaseConfig = {
@@ -2271,15 +2271,23 @@ function getReferralLink() {
   return base + '?ref=' + encodeURIComponent(code);
 }
 
+// ============================================================
+// FIXED: renderInvitePage - Referral unlocks permanently after first machine purchase
+// Now checks if user has EVER purchased a machine (any status), not just active ones
+// ============================================================
 async function renderInvitePage() {
   if (!currentUsername || !currentUser) return;
 
   const owned = currentUser.ownedMachines || {};
-  const hasActiveMachine = Object.values(owned).some(m => m.status === 'active');
+  
+  // FIXED: Check if user has EVER purchased a machine (active OR completed)
+  // Once they buy their first machine, referral stays unlocked forever
+  const hasPurchasedMachine = Object.values(owned).length > 0;
+  
   const lockedState = document.getElementById('invite-locked-state');
   const unlockedState = document.getElementById('invite-unlocked-state');
 
-  if (!hasActiveMachine) {
+  if (!hasPurchasedMachine) {
     if (lockedState) lockedState.style.display = 'block';
     if (unlockedState) unlockedState.style.display = 'none';
     return;
