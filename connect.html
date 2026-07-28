@@ -176,39 +176,269 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 @media(max-width:900px){.sidebar{width:60px;}.sidebar-brand,.sidebar-sub,.nav-item span:not(.nav-icon){display:none;}.main-content{margin-left:60px;}.stats-row{grid-template-columns:repeat(2,1fr);}.admin-footer{left:60px;}}
 
 /* ============================================================
-   SUPPORT CHAT ADMIN STYLES
+   SUPPORT CHAT ADMIN STYLES - FIXED
    ============================================================ */
-.support-convo-item{cursor:pointer;padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:background .2s;}
-.support-convo-item:hover{background:var(--surface2);}
-.support-convo-item.active{background:var(--surface3);border-left:3px solid var(--accent);}
-.support-convo-avatar{width:40px;height:40px;border-radius:50%;background:var(--btn);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:16px;flex-shrink:0;}
-.support-convo-info{flex:1;min-width:0;}
-.support-convo-name{font-weight:700;font-size:13px;}
-.support-convo-preview{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.support-convo-meta{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-.support-convo-time{font-size:10px;color:var(--muted);}
-.support-convo-unread{background:var(--warn);color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;min-width:20px;text-align:center;}
-.support-chat-area{display:flex;flex-direction:column;height:400px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-.support-chat-area-header{padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
-.support-chat-area-user{font-weight:700;font-size:14px;}
-.support-chat-area-status{font-size:11px;color:var(--muted);}
-.support-chat-messages{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;max-height:300px;min-height:200px;}
-.support-chat-msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;word-break:break-word;}
-.support-chat-msg-user{background:var(--btn);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
-.support-chat-msg-support{background:var(--surface2);border:1px solid var(--border);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px;}
-.support-chat-msg-time{font-size:9px;color:var(--muted);margin-top:4px;display:block;}
-.support-chat-input-area{display:flex;gap:10px;padding:12px 16px;border-top:1px solid var(--border);background:var(--surface2);}
-.support-chat-input-area input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;}
-.support-chat-input-area input:focus{border-color:var(--accent);}
-.support-chat-input-area input:disabled{opacity:0.5;cursor:not-allowed;}
-.support-chat-input-area button{background:var(--btn);border:none;border-radius:12px;padding:12px 18px;font-size:18px;cursor:pointer;color:#fff;}
-.support-chat-input-area button:disabled{opacity:0.5;cursor:not-allowed;}
-.support-chat-input-area button:active{transform:scale(.95);}
-.support-chat-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;}
-.support-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-@media(max-width:768px){.support-settings-grid{grid-template-columns:1fr;}}
-.support-status-toggle{display:flex;gap:12px;align-items:center;margin-top:8px;}
-.support-status-toggle .btn{padding:10px 20px;font-size:13px;}
+.support-container {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  min-height: 500px;
+}
+.support-conversations-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 600px;
+}
+.support-conversations-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.support-conversations-header .table-title {
+  font-size: 14px;
+  font-weight: 800;
+}
+.support-convo-list {
+  overflow-y: auto;
+  flex: 1;
+}
+.support-convo-item {
+  cursor: pointer;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background .2s;
+}
+.support-convo-item:hover {
+  background: var(--surface2);
+}
+.support-convo-item.active {
+  background: var(--surface3);
+  border-left: 3px solid var(--accent);
+}
+.support-convo-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.support-convo-info {
+  flex: 1;
+  min-width: 0;
+}
+.support-convo-name {
+  font-weight: 700;
+  font-size: 13px;
+}
+.support-convo-preview {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.support-convo-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.support-convo-time {
+  font-size: 10px;
+  color: var(--muted);
+}
+.support-convo-unread {
+  background: var(--warn);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 20px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* Chat Area */
+.support-chat-area {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.support-chat-area-header {
+  padding: 12px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.support-chat-area-user {
+  font-weight: 700;
+  font-size: 14px;
+}
+.support-chat-back-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.support-chat-back-btn:hover {
+  background: var(--surface3);
+}
+.support-chat-back-btn:active {
+  transform: scale(.96);
+}
+.support-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 200px;
+  max-height: 350px;
+}
+.support-chat-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.support-chat-msg-user {
+  background: var(--btn);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.support-chat-msg-support {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+.support-chat-msg-time {
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 4px;
+  display: block;
+}
+.support-chat-msg-sender {
+  font-size: 10px;
+  opacity: 0.7;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+.support-chat-input-area {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface2);
+  flex-shrink: 0;
+}
+.support-chat-input-area input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+}
+.support-chat-input-area input:focus {
+  border-color: var(--accent);
+}
+.support-chat-input-area input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.support-chat-input-area button {
+  background: var(--btn);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 18px;
+  cursor: pointer;
+  color: #fff;
+}
+.support-chat-input-area button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.support-chat-input-area button:active:not(:disabled) {
+  transform: scale(.95);
+}
+.support-chat-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.support-chat-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+  padding: 20px;
+}
+.support-status-toggle {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 8px;
+}
+.support-status-toggle .btn {
+  padding: 10px 20px;
+  font-size: 13px;
+}
+.support-chat-no-select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+  padding: 20px;
+}
 </style>
 </head>
 <body>
@@ -572,26 +802,30 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:300px 1fr;gap:20px;min-height:500px;">
+      <div class="support-container">
         <!-- Conversations List -->
-        <div class="table-wrap" style="margin-bottom:0;overflow:hidden;display:flex;flex-direction:column;max-height:600px;">
-          <div class="table-header" style="flex-shrink:0;">
+        <div class="support-conversations-list">
+          <div class="support-conversations-header">
             <div class="table-title">📋 Conversations</div>
             <span id="convo-count" style="font-size:12px;color:var(--muted);">0</span>
           </div>
-          <div id="conversations-list" style="overflow-y:auto;flex:1;">
+          <div class="support-convo-list" id="conversations-list">
             <div class="support-chat-empty">No conversations yet</div>
           </div>
         </div>
 
         <!-- Chat Area -->
-        <div class="support-chat-area">
+        <div class="support-chat-area" id="support-chat-area">
           <div class="support-chat-area-header">
-            <span class="support-chat-area-user" id="chat-user-name">Select a conversation</span>
-            <span class="support-chat-area-status" id="chat-user-status">—</span>
+            <div>
+              <span class="support-chat-area-user" id="chat-user-name">Select a conversation</span>
+            </div>
+            <button class="support-chat-back-btn" id="chat-back-btn" onclick="closeChat()" style="display:none;">
+              ← Back
+            </button>
           </div>
           <div class="support-chat-messages" id="chat-messages">
-            <div class="support-chat-empty">Select a conversation on the left to start chatting</div>
+            <div class="support-chat-placeholder">Select a conversation on the left to start chatting</div>
           </div>
           <div class="support-chat-input-area">
             <input type="text" id="chat-reply-input" placeholder="Type your reply..." maxlength="500" onkeydown="if(event.key==='Enter') sendAdminReply()" disabled>
@@ -791,7 +1025,8 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
 // ============================================================
 // DIAMOND EARN ADMIN - FIREBASE REALTIME DATABASE
 // Username + Password Login | MarzPay Integration
-// FIXED: Support Chat - clicking user opens chat properly
+// FIXED: Support Chat - Click to open chat with Back button
+// FIXED: Auto-delete support messages older than 10 hours
 // ============================================================
 
 const firebaseConfig = {
@@ -893,7 +1128,7 @@ function setErr(id, show, msg) { const el = document.getElementById(id); if (!el
 function clearErrors(...ids) { ids.forEach(id => setErr(id, false)); }
 
 // ============================================================
-// AUTO-CLEANUP FUNCTIONS
+// AUTO-CLEANUP FUNCTIONS - FIXED: Also cleans support messages
 // ============================================================
 
 function parseDateString(dateStr) {
@@ -927,7 +1162,6 @@ async function cleanupOldNotifications() {
     const notifications = snap.val();
     const now = Date.now();
     const sevenHoursMs = 7 * 60 * 60 * 1000;
-    let deletedCount = 0;
     const toDelete = [];
 
     for (const [key, notif] of Object.entries(notifications)) {
@@ -950,12 +1184,9 @@ async function cleanupOldNotifications() {
 
     if (toDelete.length > 0) {
       const updates = {};
-      toDelete.forEach(key => {
-        updates[key] = null;
-      });
+      toDelete.forEach(key => { updates[key] = null; });
       await db.ref('adminNotifications').update(updates);
-      deletedCount = toDelete.length;
-      console.log('🗑️ Auto-deleted ' + deletedCount + ' old notifications (older than 7 hours)');
+      console.log('🗑️ Auto-deleted ' + toDelete.length + ' old notifications (older than 7 hours)');
     }
   } catch (error) {
     console.warn('Error cleaning up notifications:', error);
@@ -970,7 +1201,6 @@ async function cleanupOldAdminTransactions() {
     const transactions = snap.val();
     const now = Date.now();
     const tenHoursMs = 10 * 60 * 60 * 1000;
-    let deletedCount = 0;
     const toDelete = [];
 
     for (const [key, tx] of Object.entries(transactions)) {
@@ -993,26 +1223,68 @@ async function cleanupOldAdminTransactions() {
 
     if (toDelete.length > 0) {
       const updates = {};
-      toDelete.forEach(key => {
-        updates[key] = null;
-      });
+      toDelete.forEach(key => { updates[key] = null; });
       await db.ref('adminTransactions').update(updates);
-      deletedCount = toDelete.length;
-      console.log('🗑️ Auto-deleted ' + deletedCount + ' old admin transactions (older than 10 hours)');
+      console.log('🗑️ Auto-deleted ' + toDelete.length + ' old admin transactions (older than 10 hours)');
     }
   } catch (error) {
     console.warn('Error cleaning up admin transactions:', error);
   }
 }
 
+// NEW: Cleanup support messages older than 10 hours
+async function cleanupOldSupportMessages() {
+  try {
+    const snap = await db.ref('supportMessages').once('value');
+    if (!snap.exists()) return;
+    
+    const messages = snap.val();
+    const now = Date.now();
+    const tenHoursMs = 10 * 60 * 60 * 1000;
+    const toDelete = [];
+
+    for (const [key, msg] of Object.entries(messages)) {
+      const msgDate = parseDateString(msg.timestamp);
+      if (msgDate) {
+        const ageMs = now - msgDate.getTime();
+        if (ageMs > tenHoursMs) {
+          toDelete.push(key);
+        }
+      } else {
+        // Fallback: check key timestamp
+        const keyTimestamp = parseInt(key.split('_')[1]);
+        if (!isNaN(keyTimestamp)) {
+          const ageMs = now - keyTimestamp;
+          if (ageMs > tenHoursMs) {
+            toDelete.push(key);
+          }
+        }
+      }
+    }
+
+    if (toDelete.length > 0) {
+      const updates = {};
+      toDelete.forEach(key => { updates[key] = null; });
+      await db.ref('supportMessages').update(updates);
+      console.log('🗑️ Auto-deleted ' + toDelete.length + ' old support messages (older than 10 hours)');
+    }
+  } catch (error) {
+    console.warn('Error cleaning up support messages:', error);
+  }
+}
+
 function startCleanupInterval() {
+  // Run immediately on load
   cleanupOldNotifications().catch(err => console.warn('Cleanup error:', err));
   cleanupOldAdminTransactions().catch(err => console.warn('Cleanup error:', err));
+  cleanupOldSupportMessages().catch(err => console.warn('Cleanup error:', err));
   
+  // Then every 30 minutes
   if (cleanupInterval) clearInterval(cleanupInterval);
   cleanupInterval = setInterval(() => {
     cleanupOldNotifications().catch(err => console.warn('Cleanup error:', err));
     cleanupOldAdminTransactions().catch(err => console.warn('Cleanup error:', err));
+    cleanupOldSupportMessages().catch(err => console.warn('Cleanup error:', err));
   }, 30 * 60 * 1000);
 }
 
@@ -1121,7 +1393,7 @@ function startSupportMessagesListener() {
   });
 }
 
-// Render conversations list - FIXED: uses data attribute for onclick
+// Render conversations list - FIXED: uses data attribute
 function renderConversations() {
   const container = document.getElementById('conversations-list');
   if (!container) return;
@@ -1163,7 +1435,7 @@ function renderConversations() {
     const isActive = selectedConversation === username;
     const displayName = username.length > 15 ? username.slice(0, 12) + '...' : username;
 
-    // FIXED: Use data attribute to avoid special character issues in onclick
+    // FIXED: Use data attribute to handle special characters like '+'
     const escapedUsername = username.replace(/"/g, '&quot;');
     
     html += `
@@ -1184,14 +1456,19 @@ function renderConversations() {
   container.innerHTML = html;
 }
 
-// Select a conversation - FIXED: properly opens chat and enables input
+// Select a conversation - FIXED: opens chat with back button
 function selectConversation(username) {
   if (!username) return;
   
   selectedConversation = username;
   
-  // Update UI
+  // Show back button
+  document.getElementById('chat-back-btn').style.display = 'flex';
+  
+  // Update conversation list highlighting
   renderConversations();
+  
+  // Load and render messages
   renderChatMessages(username);
   
   // Enable input
@@ -1206,10 +1483,39 @@ function selectConversation(username) {
   
   // Update header
   document.getElementById('chat-user-name').textContent = username;
-  document.getElementById('chat-user-status').textContent = 'Chatting now';
   
   // Mark messages as read
   markMessagesRead(username);
+}
+
+// Close chat - go back to conversation list
+function closeChat() {
+  selectedConversation = null;
+  
+  // Hide back button
+  document.getElementById('chat-back-btn').style.display = 'none';
+  
+  // Disable input
+  const input = document.getElementById('chat-reply-input');
+  const btn = document.getElementById('chat-reply-btn');
+  if (input) {
+    input.disabled = true;
+    input.placeholder = 'Select a conversation to chat';
+    input.value = '';
+  }
+  if (btn) btn.disabled = true;
+  
+  // Reset header
+  document.getElementById('chat-user-name').textContent = 'Select a conversation';
+  
+  // Show placeholder in messages
+  const container = document.getElementById('chat-messages');
+  if (container) {
+    container.innerHTML = '<div class="support-chat-placeholder">Select a conversation on the left to start chatting</div>';
+  }
+  
+  // Update conversation list (remove active highlighting)
+  renderConversations();
 }
 
 // Mark all messages from a user as read
@@ -1237,7 +1543,7 @@ function renderChatMessages(username) {
     .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
 
   if (!messages.length) {
-    container.innerHTML = '<div class="support-chat-empty">No messages yet</div>';
+    container.innerHTML = '<div class="support-chat-placeholder">No messages yet</div>';
     return;
   }
 
@@ -1248,10 +1554,10 @@ function renderChatMessages(username) {
     let msgText = msg.message || '';
     msgText = msgText.replace(/^[🧑‍💼🤖]\s*/, '');
     const time = msg.timestamp || '';
-    const senderLabel = isUser ? 'User' : 'Admin';
+    const senderLabel = isUser ? '👤 User' : '🛡️ Admin';
     html += `
       <div class="support-chat-msg ${cls}">
-        <strong style="font-size:10px;opacity:0.7;">${senderLabel}</strong><br>
+        <span class="support-chat-msg-sender">${senderLabel}</span>
         ${msgText}
         <span class="support-chat-msg-time">${time}</span>
       </div>
@@ -1312,7 +1618,7 @@ function renderSupportBadge() {
 }
 
 // ============================================================
-// ORIGINAL ADMIN FUNCTIONS (unchanged)
+// ORIGINAL ADMIN FUNCTIONS (unchanged below)
 // ============================================================
 
 function startRealtimeListeners() {
