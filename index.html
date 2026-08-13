@@ -442,6 +442,7 @@ input[type="password"]{padding-right:46px;}
 <div class="auth-page auth-page-navy" id="login-page">
   <svg class="auth-wave" viewBox="0 0 400 120" preserveAspectRatio="none"><path d="M0,60 C80,100 160,20 240,50 C320,80 360,40 400,60 L400,120 L0,120 Z" fill="#60a5fa"></path></svg>
   <div class="auth-hero">
+    <div class="auth-logo"></div>
     <div class="auth-brand">First Light Capital</div>
     <div class="auth-tagline">Mine Your Wealth, One Day at a Time</div>
   </div>
@@ -450,6 +451,7 @@ input[type="password"]{padding-right:46px;}
     <div class="auth-subtitle">Sign in to your investment account</div>
     <div class="field-group">
       <label class="field-label">Phone Number</label>
+      <div class="field-hint-top">Enter Phone 712345678</div>
       <div class="phone-prefix-wrap" id="login-phone-wrap">
         <div class="phone-prefix-badge">+256</div>
         <input type="tel" id="login-phone" maxlength="9" oninput="loginPhoneInput(this)">
@@ -458,6 +460,7 @@ input[type="password"]{padding-right:46px;}
     </div>
     <div class="field-group">
       <label class="field-label">Password</label>
+      <div class="field-hint-top">Enter password (min 6 characters)</div>
       <div class="field-wrap"><input type="password" id="login-password"><button class="eye-btn" onclick="toggleEye('login-password',this)">Show</button></div>
       <div class="field-error" id="login-pw-err">Please enter your password</div>
     </div>
@@ -471,6 +474,7 @@ input[type="password"]{padding-right:46px;}
 <div class="auth-page auth-page-navy" id="register-page">
   <svg class="auth-wave" viewBox="0 0 400 120" preserveAspectRatio="none"><path d="M0,60 C80,100 160,20 240,50 C320,80 360,40 400,60 L400,120 L0,120 Z" fill="#1e3a8a"></path></svg>
   <div class="auth-hero">
+    <div class="auth-logo"></div>
     <div class="auth-brand">First Light Capital</div>
     <div class="auth-tagline">Mine Your Wealth, One Day at a Time</div>
   </div>
@@ -479,6 +483,7 @@ input[type="password"]{padding-right:46px;}
     <div class="auth-subtitle">Get UGX 3,000 registration bonus</div>
     <div class="field-group">
       <label class="field-label">Phone Number</label>
+      <div class="field-hint-top">Enter Phone 712345678</div>
       <div class="phone-prefix-wrap" id="reg-phone-wrap">
         <div class="phone-prefix-badge" id="reg-prefix">+256</div>
         <input type="tel" id="reg-phone" maxlength="9" oninput="regPhoneInput(this)">
@@ -487,6 +492,7 @@ input[type="password"]{padding-right:46px;}
     </div>
     <div class="field-group">
       <label class="field-label">Password</label>
+      <div class="field-hint-top">Enter password (min 6 characters)</div>
       <div class="field-wrap"><input type="password" id="reg-password" oninput="checkStrength(this.value)"><button class="eye-btn" onclick="toggleEye('reg-password',this)">Show</button></div>
       <div class="pw-strength"><div class="pw-bar" id="pw-b1"></div><div class="pw-bar" id="pw-b2"></div><div class="pw-bar" id="pw-b3"></div></div>
       <div class="field-error" id="reg-pw-err">Password must be at least 6 characters</div>
@@ -513,7 +519,7 @@ input[type="password"]{padding-right:46px;}
 <div class="dashboard-page" id="dashboard-page">
   <div class="topbar">
     <div class="topbar-left" id="topbar-brand">
-      <div class="brand"><div class="brand-name">FLC</div></div>
+      <div class="brand"><div class="brand-icon"></div><div class="brand-name">FLC</div></div>
     </div>
     <div class="topbar-right">
     </div>
