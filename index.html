@@ -832,6 +832,15 @@ input[type="password"]{padding-right:46px;}
 
       <!-- STEP 3: Payment Instructions + Paste Confirmation -->
       <div class="action-card" id="dep-step-3" style="display:none;">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;">
+          <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;">HOW TO PAY</div>
+          <ol id="dep-guidance-steps" style="margin:0;padding-left:18px;font-size:12px;color:var(--text);line-height:1.9;">
+            <li>Open your phone's dialer app</li>
+            <li>Dial <strong id="dep-ussd-code" style="color:var(--gold);">—</strong></li>
+            <li>Send <strong id="dep-guidance-amount">UGX 0</strong> to <strong id="dep-guidance-number">—</strong></li>
+            <li>Paste the confirmation message you receive from <strong id="dep-guidance-network">—</strong> in the field below</li>
+          </ol>
+        </div>
         <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">
           <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Send <strong id="dep-confirm-amount">UGX 0</strong> to</div>
           <div style="font-size:20px;font-weight:800;color:var(--gold);" id="dep-company-number">—</div>
@@ -1293,6 +1302,7 @@ let settingsData = {
   withdrawLocked: false, withdrawApproval: false,
   minDeposit: 10000, maxDeposit: 2350000, minWithdraw: 10000, marzApiKey: '',
   mtnNumber: '', mtnName: '', airtelNumber: '', airtelName: '',
+  mtnUssdCode: '*165*1#', airtelUssdCode: '*185*1#',
   supportWhatsapp: '',  // <-- Now empty, loaded from Firebase
   supportWhatsappMsg: 'Hello, I need help with First Light Capital',
   supportFirstReply: 'Welcome! How can we help you today?',
@@ -2753,11 +2763,11 @@ async function sendAdminNotification(type, username, amount, message) {
 // No MarzPay. User pastes confirmation SMS; admin approves/rejects.
 // ============================================================
 let depNetwork = null;
-let depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false };
+let depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false, amountMatch: false };
 
 function depResetFlow() {
   depNetwork = null;
-  depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false };
+  depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false, amountMatch: false };
   clearErrors('dep-amount-err', 'dep-phone-err');
   setErr('dep-net-err', false);
   setErr('dep-confirm-err', false);
@@ -2811,11 +2821,18 @@ function depGoStep3() {
   document.getElementById('dep-confirm-amount').textContent = fmt(amount);
   document.getElementById('dep-company-number').textContent = companyNumber;
   document.getElementById('dep-company-name').textContent = companyName || '';
+
+  const ussdCode = depNetwork === 'mtn' ? (settingsData.mtnUssdCode || '*165*1#') : (settingsData.airtelUssdCode || '*185*1#');
+  document.getElementById('dep-ussd-code').textContent = ussdCode;
+  document.getElementById('dep-guidance-amount').textContent = fmt(amount);
+  document.getElementById('dep-guidance-number').textContent = companyNumber;
+  document.getElementById('dep-guidance-network').textContent = depNetwork === 'mtn' ? 'MTN' : 'Airtel';
+
   document.getElementById('dep-message-paste').value = '';
   document.getElementById('dep-detect-status').style.display = 'none';
   document.getElementById('dep-confirm-btn').disabled = true;
   setErr('dep-confirm-err', false);
-  depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false };
+  depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false, amountMatch: false };
   depGoStep(3);
 }
 
@@ -2827,6 +2844,7 @@ function depParseMessage() {
   const confirmBtn = document.getElementById('dep-confirm-btn');
   const companyNumber = depNetwork === 'mtn' ? (settingsData.mtnNumber || '') : (settingsData.airtelNumber || '');
   const companyName = depNetwork === 'mtn' ? (settingsData.mtnName || '') : (settingsData.airtelName || '');
+  const enteredAmount = parseInt(document.getElementById('dep-amount').value) || 0;
 
   let tid = null;
   if (depNetwork === 'airtel') {
@@ -2843,7 +2861,13 @@ function depParseMessage() {
   const numberMatch = !!(last9 && msgDigits.includes(last9));
   const nameMatch = !!(companyName && msg.toLowerCase().includes(companyName.toLowerCase().trim()));
 
-  depDetected = { tid, companyNumberMatch: numberMatch, companyNameMatch: nameMatch };
+  // Amount must match exactly what the user entered on page 1
+  const amountCandidates = (msg.match(/[\d]{1,3}(?:,\d{3})*(?:\.\d+)?/g) || [])
+    .map(n => parseInt(n.replace(/,/g, ''), 10))
+    .filter(n => !isNaN(n));
+  const amountMatch = !!(enteredAmount && amountCandidates.includes(enteredAmount));
+
+  depDetected = { tid, companyNumberMatch: numberMatch, companyNameMatch: nameMatch, amountMatch };
 
   if (!msg.trim()) {
     statusBox.style.display = 'none';
@@ -2855,11 +2879,12 @@ function depParseMessage() {
   const lines = [];
   lines.push(tid ? ('✅ Transaction ID detected: ' + tid) : '❌ Transaction ID not found');
   lines.push(numberMatch ? '✅ Company number matched' : '❌ Company number not found in message');
+  lines.push(amountMatch ? ('✅ Amount matched: ' + fmt(enteredAmount)) : ('❌ Amount ' + fmt(enteredAmount) + ' not found in message'));
   if (companyName) lines.push(nameMatch ? '✅ Company name matched' : 'ℹ️ Company name not detected (not required)');
   statusBox.innerHTML = lines.join('<br>');
-  statusBox.style.color = (tid && numberMatch) ? 'var(--success)' : 'var(--warn)';
+  statusBox.style.color = (tid && numberMatch && amountMatch) ? 'var(--success)' : 'var(--warn)';
 
-  confirmBtn.disabled = !(tid && numberMatch);
+  confirmBtn.disabled = !(tid && numberMatch && amountMatch);
 }
 
 async function submitManualDeposit() {
@@ -2867,8 +2892,8 @@ async function submitManualDeposit() {
   const amount = parseInt(document.getElementById('dep-amount').value) || 0;
   const phoneDigits = document.getElementById('dep-phone').value.trim();
   const fullPhone = '+256' + phoneDigits.slice(1);
-  const { tid, companyNumberMatch, companyNameMatch } = depDetected;
-  if (!tid || !companyNumberMatch) { setErr('dep-confirm-err', true, 'Please paste a valid confirmation message first'); return; }
+  const { tid, companyNumberMatch, companyNameMatch, amountMatch } = depDetected;
+  if (!tid || !companyNumberMatch || !amountMatch) { setErr('dep-confirm-err', true, 'Please paste a valid confirmation message matching your amount first'); return; }
 
   const companyNumber = depNetwork === 'mtn' ? (settingsData.mtnNumber || '') : (settingsData.airtelNumber || '');
   const companyName = depNetwork === 'mtn' ? (settingsData.mtnName || '') : (settingsData.airtelName || '');

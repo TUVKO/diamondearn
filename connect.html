@@ -904,6 +904,12 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
           <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
             <input type="text" class="settings-input" id="mtn-name-input" placeholder="Name as registered on MTN MoMo">
           </div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">MTN Send Money USSD Code</span>
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
+            <input type="text" class="settings-input" id="mtn-ussd-input" placeholder="*165*1#">
+          </div>
           <button class="btn btn-save" onclick="saveMobileMoneyNumbers()">Save</button>
         </div>
         <div class="settings-row">
@@ -916,6 +922,12 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
           <span class="settings-label">Airtel Registered Name</span>
           <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
             <input type="text" class="settings-input" id="airtel-name-input" placeholder="Name as registered on Airtel Money">
+          </div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Airtel Send Money USSD Code</span>
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
+            <input type="text" class="settings-input" id="airtel-ussd-input" placeholder="*185*1#">
           </div>
           <button class="btn btn-save" onclick="saveMobileMoneyNumbers()">Save</button>
         </div>
@@ -1142,7 +1154,9 @@ let allSettings = {
   mtnNumber: '',
   mtnName: '',
   airtelNumber: '',
-  airtelName: ''
+  airtelName: '',
+  mtnUssdCode: '*165*1#',
+  airtelUssdCode: '*185*1#'
 };
 let allSupportSettings = {
   whatsappNumber: '+256712345678',
@@ -2668,8 +2682,10 @@ function loadSettingsUI() {
   document.getElementById('min-withdraw-input').value = s.minWithdraw || 10000;
   document.getElementById('mtn-number-input').value = s.mtnNumber || '';
   document.getElementById('mtn-name-input').value = s.mtnName || '';
+  document.getElementById('mtn-ussd-input').value = s.mtnUssdCode || '*165*1#';
   document.getElementById('airtel-number-input').value = s.airtelNumber || '';
   document.getElementById('airtel-name-input').value = s.airtelName || '';
+  document.getElementById('airtel-ussd-input').value = s.airtelUssdCode || '*185*1#';
   
   const apiInp = document.getElementById('marz-api-key-input');
   if (s.marzApiKey && !apiInp.value) apiInp.value = s.marzApiKey;
@@ -2700,10 +2716,12 @@ function toggleApiKeyVis() {
 async function saveMobileMoneyNumbers() {
   const mtnNumber = document.getElementById('mtn-number-input').value.trim();
   const mtnName = document.getElementById('mtn-name-input').value.trim();
+  const mtnUssdCode = document.getElementById('mtn-ussd-input').value.trim() || '*165*1#';
   const airtelNumber = document.getElementById('airtel-number-input').value.trim();
   const airtelName = document.getElementById('airtel-name-input').value.trim();
+  const airtelUssdCode = document.getElementById('airtel-ussd-input').value.trim() || '*185*1#';
   try {
-    await db.ref('settings').update({ mtnNumber, mtnName, airtelNumber, airtelName });
+    await db.ref('settings').update({ mtnNumber, mtnName, mtnUssdCode, airtelNumber, airtelName, airtelUssdCode });
     toast('✅ Deposit numbers saved');
   } catch (error) {
     console.error('Error saving deposit numbers:', error);
