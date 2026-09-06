@@ -933,6 +933,19 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         </div>
       </div>
 
+      <!-- WhatsApp Channel/Group -->
+      <div class="settings-section">
+        <div class="settings-title">💬 WhatsApp Channel / Group</div>
+        <div class="settings-sub">Link users tap "Wap-Channel" on Home to join. Separate from the support chat WhatsApp number.</div>
+        <div class="settings-row">
+          <span class="settings-label">Group/Channel Invite Link</span>
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
+            <input type="text" class="settings-input" id="whatsapp-channel-input" placeholder="https://chat.whatsapp.com/xxxxxxxxxxxx">
+          </div>
+          <button class="btn btn-save" onclick="saveWhatsappChannel()">Save</button>
+        </div>
+      </div>
+
       <!-- Deposit & Withdrawal Settings -->
       <div class="settings-section">
         <div class="settings-title">💰 Deposit & Withdrawal Settings</div>
@@ -1156,7 +1169,8 @@ let allSettings = {
   airtelNumber: '',
   airtelName: '',
   mtnUssdCode: '*165*1#',
-  airtelUssdCode: '*185*1#'
+  airtelUssdCode: '*185*1#',
+  whatsappChannelLink: ''
 };
 let allSupportSettings = {
   whatsappNumber: '+256712345678',
@@ -2688,6 +2702,7 @@ function loadSettingsUI() {
   document.getElementById('airtel-number-input').value = s.airtelNumber || '';
   document.getElementById('airtel-name-input').value = s.airtelName || '';
   document.getElementById('airtel-ussd-input').value = s.airtelUssdCode || '*185*1#';
+  document.getElementById('whatsapp-channel-input').value = s.whatsappChannelLink || '';
   
   const apiInp = document.getElementById('marz-api-key-input');
   if (s.marzApiKey && !apiInp.value) apiInp.value = s.marzApiKey;
@@ -2713,6 +2728,17 @@ function toggleApiKeyVis() {
   const btn = document.querySelector('#pg-settings .btn-edit');
   if (inp.type === 'password') { inp.type = 'text'; if (btn) btn.textContent = '🙈'; }
   else { inp.type = 'password'; if (btn) btn.textContent = '👁️'; }
+}
+
+async function saveWhatsappChannel() {
+  const whatsappChannelLink = document.getElementById('whatsapp-channel-input').value.trim();
+  try {
+    await db.ref('settings').update({ whatsappChannelLink });
+    toast('✅ WhatsApp channel link saved');
+  } catch (error) {
+    console.error('Error saving WhatsApp channel link:', error);
+    toast('Error saving WhatsApp channel link', '#f87171');
+  }
 }
 
 async function saveMobileMoneyNumbers() {

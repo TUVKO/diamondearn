@@ -556,6 +556,8 @@ input[type="password"]{padding-right:46px;}
         <button class="home-tab-btn" onclick="goToWithdrawalRecords()">Withdrawals</button>
         <button class="home-tab-btn" onclick="switchTab('company')">Company</button>
         <button class="home-tab-btn" onclick="switchTab('invite')">Invite</button>
+        <button class="home-tab-btn" onclick="switchTab('errands')">Help</button>
+        <button class="home-tab-btn" onclick="openWapChannel()">Wap-Channel</button>
       </div>
     </div>
 
@@ -1397,6 +1399,7 @@ let settingsData = {
   minDeposit: 10000, maxDeposit: 2350000, minWithdraw: 10000, marzApiKey: '',
   mtnNumber: '', mtnName: '', airtelNumber: '', airtelName: '',
   mtnUssdCode: '*165*1#', airtelUssdCode: '*185*1#',
+  whatsappChannelLink: '',
   supportWhatsapp: '',  // <-- Now empty, loaded from Firebase
   supportWhatsappMsg: 'Hello, I need help with First Light Capital',
   supportFirstReply: 'Welcome! How can we help you today?',
@@ -1464,6 +1467,16 @@ function openWhatsApp() {
   }
   const url = 'https://wa.me/' + number.replace(/\+/g, '') + '?text=' + encodeURIComponent(msg);
   window.open(url, '_blank');
+}
+
+// Open the WhatsApp channel/group invite link set by admin
+function openWapChannel() {
+  const link = settingsData.whatsappChannelLink || '';
+  if (!link) {
+    showToast('⚠️ WhatsApp channel not set yet. Please try again later.');
+    return;
+  }
+  window.open(link, '_blank');
 }
 
 // Send support message
