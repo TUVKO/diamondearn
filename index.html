@@ -11,6 +11,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://tuvko.github.io/diamondearn/logo.png">
 <title>First Light Capital — Mine Your Wealth, One Day at a Time</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0f9d58">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -577,6 +580,7 @@ input[type="password"]{padding-right:46px;}
         <button class="home-tab-btn" onclick="switchTab('invite')">Invite</button>
         <button class="home-tab-btn" onclick="switchTab('errands')">Help</button>
         <button class="home-tab-btn" onclick="openWapChannel()">Wap-Channel</button>
+        <button class="home-tab-btn" id="app-download-btn" onclick="triggerAppInstall()">App Download</button>
       </div>
     </div>
 
@@ -1704,6 +1708,53 @@ function startAdminStatusListener() {
 }
 
 // Helper toast for support actions
+// ============================================================
+// PWA INSTALL - "App Download" button (Add to Home Screen)
+// ============================================================
+let deferredInstallPrompt = null;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service worker registration failed:', err));
+  });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  showToast('App installed! Find it on your home screen.');
+});
+
+async function triggerAppInstall() {
+  // Already running as an installed app
+  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+    showToast('You already have the app installed.');
+    return;
+  }
+
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    if (outcome !== 'accepted') {
+      showToast('Installation cancelled.');
+    }
+    return;
+  }
+
+  // Browser doesn't support automatic install prompt (e.g. iOS Safari) — guide manually
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (isIOS) {
+    showToast('Tap the Share icon, then "Add to Home Screen".');
+  } else {
+    showToast('Use your browser menu and select "Add to Home Screen" or "Install App".');
+  }
+}
+
 function showToast(msg) {
   const popup = document.getElementById('popup-banner');
   if (popup) {
