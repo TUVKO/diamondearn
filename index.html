@@ -1920,11 +1920,11 @@ window.addEventListener('popstate', function () {
 
 function renderScreen(screenKey) {
   if (screenKey.indexOf('deposit-wtras-') === 0) {
-    applyTabInternal('deposit');
+    applyTabInternal('deposit', true);
     depShowFlow('wtras');
     depGoStep(parseInt(screenKey.split('-')[2], 10) || 1);
   } else if (screenKey.indexOf('deposit-gitrax-') === 0) {
-    applyTabInternal('deposit');
+    applyTabInternal('deposit', true);
     depShowFlow('gitrax');
     gxGoStep(parseInt(screenKey.split('-')[2], 10) || 1);
   } else {
@@ -1936,7 +1936,7 @@ function switchTab(tab) {
   navGo(tab);
 }
 
-function applyTabInternal(tab) {
+function applyTabInternal(tab, skipDepositReset) {
   if (tab === 'withdraw' && settingsData.withdrawLocked) {
     // Silent - no modal
     return;
@@ -1953,7 +1953,7 @@ function applyTabInternal(tab) {
   if (tab === 'invite') { renderInvitePage(); }
   if (tab === 'myteam') { renderMyTeamPage(); }
   if (tab === 'account') { renderAccountPage(); }
-  if (tab === 'deposit') { depResetFlow(); }
+  if (tab === 'deposit' && !skipDepositReset) { depResetFlow(); }
   if (tab === 'errands') { 
     checkSupportWarning(); 
     renderSupportMessages();
