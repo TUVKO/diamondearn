@@ -1155,9 +1155,9 @@ let allUsers = {};
 let allSettings = {
   uraTax: 4,
   withdrawCharge: 10,
-  referralPercentL1: 11,
+  referralPercentL1: 12,
   referralPercentL2: 4,
-  referralPercentL3: 1,
+  referralPercentL3: 2,
   withdrawLocked: false,
   withdrawApproval: false,
   minDeposit: 10000,
@@ -1900,7 +1900,7 @@ async function saveEditUser() {
     updates['transactions/scrayd_admin_' + now] = {
       type: 'Bonus',
       amount: addedScrayd,
-      note: 'Admin credited to Scrayd Wallet',
+      note: 'Credited to Scrayd Wallet',
       date: dateStr(),
       status: 'completed'
     };
@@ -1996,7 +1996,7 @@ async function cancelUserMachine(machineKey) {
   updates['transactions/tx_cancel_' + Date.now()] = {
     type: 'Machine Cancelled',
     amount: m.price || 0,
-    note: (m.name || 'Machine') + ' cancelled by admin — refunded to Prime Account',
+    note: (m.name || 'Machine') + ' cancelled — refunded to Prime Account',
     date: dateStr(),
     status: 'completed'
   };
@@ -2536,7 +2536,7 @@ async function rejectDeposit(adminTxKey, userId, username, amount, txKey) {
   try {
     await db.ref('users/' + userId).update({
       ['transactions/' + txKey + '/status']: 'failed',
-      ['transactions/' + txKey + '/note']: 'Manual deposit rejected by admin — payment could not be verified'
+      ['transactions/' + txKey + '/note']: 'Manual deposit rejected — payment could not be verified'
     });
 
     await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
@@ -2611,7 +2611,7 @@ async function processDebit() {
         ['transactions/' + txKey]: {
           type: 'Withdrawal',
           amount: -amt,
-          note: 'Admin Debit from ' + accountLabel,
+          note: 'Balance Adjustment — ' + accountLabel,
           date: dateStr(),
           status: 'completed'
         }
@@ -2690,9 +2690,9 @@ function loadSettingsUI() {
   const s = allSettings;
   document.getElementById('ura-tax-input').value = s.uraTax || 4;
   document.getElementById('with-charge-input').value = s.withdrawCharge || 10;
-  document.getElementById('referral-pct-l1-input').value = s.referralPercentL1 !== undefined ? s.referralPercentL1 : 11;
+  document.getElementById('referral-pct-l1-input').value = s.referralPercentL1 !== undefined ? s.referralPercentL1 : 12;
   document.getElementById('referral-pct-l2-input').value = s.referralPercentL2 !== undefined ? s.referralPercentL2 : 4;
-  document.getElementById('referral-pct-l3-input').value = s.referralPercentL3 !== undefined ? s.referralPercentL3 : 1;
+  document.getElementById('referral-pct-l3-input').value = s.referralPercentL3 !== undefined ? s.referralPercentL3 : 2;
   document.getElementById('min-deposit-input').value = s.minDeposit || 10000;
   document.getElementById('max-deposit-input').value = s.maxDeposit || 2350000;
   document.getElementById('min-withdraw-input').value = s.minWithdraw || 10000;

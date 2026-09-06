@@ -712,6 +712,10 @@ input[type="password"]{padding-right:46px;}
             <div class="me-mini-label">TOTAL EARNINGS</div>
             <div class="me-mini-value" id="me-total-earnings" style="color:#b45309;">UGX 0</div>
           </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">PENDING BONUSES</div>
+            <div class="me-mini-value" id="me-pending-bonus" style="color:#d97706;">UGX 0</div>
+          </div>
         </div>
       </div>
     </div>
@@ -801,13 +805,13 @@ input[type="password"]{padding-right:46px;}
 
       <!-- METHOD PICKER -->
       <div id="dep-method-picker">
-        <div class="action-card" style="cursor:pointer;" onclick="depSelectMethod('wtras')">
-          <div style="font-size:16px;font-weight:800;color:var(--gold);">WTRAS</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:4px;">Paste the confirmation SMS you receive after paying</div>
+        <div class="action-card" style="cursor:pointer;background:var(--btn);border:none;" onclick="depSelectMethod('wtras')">
+          <div style="font-size:16px;font-weight:800;color:#fff;">WTRAS</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;">Paste the confirmation SMS you receive after paying</div>
         </div>
-        <div class="action-card" style="cursor:pointer;" onclick="depSelectMethod('gitrax')">
-          <div style="font-size:16px;font-weight:800;color:var(--gold);">GITRAX</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:4px;">Upload a screenshot of the confirmation SMS instead</div>
+        <div class="action-card" style="cursor:pointer;background:var(--btn);border:none;" onclick="depSelectMethod('gitrax')">
+          <div style="font-size:16px;font-weight:800;color:#fff;">GITRAX</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;">Upload a screenshot of the confirmation SMS instead</div>
         </div>
       </div>
 
@@ -863,7 +867,7 @@ input[type="password"]{padding-right:46px;}
             <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Send <strong id="dep-confirm-amount">UGX 0</strong> to</div>
             <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
               <div style="font-size:20px;font-weight:800;color:var(--gold);" id="dep-company-number">—</div>
-              <button type="button" onclick="depCopyNumber()" title="Copy number" style="background:none;border:1px solid var(--border);border-radius:6px;padding:3px 7px;color:var(--text);font-size:13px;cursor:pointer;line-height:1;">📋</button>
+              <button type="button" onclick="depCopyNumber()" title="Copy number" style="background:var(--btn);border:none;border-radius:6px;padding:4px 12px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;line-height:1.6;">Copy</button>
             </div>
             <div style="font-size:12px;color:var(--text);margin-top:2px;" id="dep-company-name">—</div>
           </div>
@@ -934,7 +938,7 @@ input[type="password"]{padding-right:46px;}
             <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Send <strong id="gx-confirm-amount">UGX 0</strong> to</div>
             <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
               <div style="font-size:20px;font-weight:800;color:var(--gold);" id="gx-company-number">—</div>
-              <button type="button" onclick="gxCopyNumber()" title="Copy number" style="background:none;border:1px solid var(--border);border-radius:6px;padding:3px 7px;color:var(--text);font-size:13px;cursor:pointer;line-height:1;">📋</button>
+              <button type="button" onclick="gxCopyNumber()" title="Copy number" style="background:var(--gold);border:none;border-radius:6px;padding:4px 12px;color:#111;font-size:11px;font-weight:700;cursor:pointer;line-height:1.6;">Copy</button>
             </div>
             <div style="font-size:12px;color:var(--text);margin-top:2px;" id="gx-company-name">—</div>
           </div>
@@ -1092,7 +1096,7 @@ input[type="password"]{padding-right:46px;}
         </div>
         <div style="display:flex;gap:10px;margin-top:14px;">
           <button class="machine-buy-btn" style="flex:1;" onclick="copyInviteLink()">Copy Link</button>
-          <button class="machine-buy-btn" style="flex:1;background:var(--surface2);color:var(--text);" onclick="shareInviteLink()">Share</button>
+          <button class="machine-buy-btn" style="flex:1;background:transparent;border:2px solid #fff;color:#fff;" onclick="shareInviteLink()">Share</button>
         </div>
         <div class="deposit-note" style="margin-top:16px;text-align:left;">Earn a percentage on every machine your referrals purchase — credited directly to your Prime Account.</div>
       </div>
@@ -1394,7 +1398,7 @@ let currentUser = null;
 let currentUsername = null;
 const pendingRefCode = new URLSearchParams(window.location.search).get('ref');
 let settingsData = {
-  uraTax: 4, withdrawCharge: 10, referralPercentL1: 11, referralPercentL2: 4, referralPercentL3: 1,
+  uraTax: 4, withdrawCharge: 10, referralPercentL1: 12, referralPercentL2: 4, referralPercentL3: 2,
   withdrawLocked: false, withdrawApproval: false,
   minDeposit: 10000, maxDeposit: 2350000, minWithdraw: 10000, marzApiKey: '',
   mtnNumber: '', mtnName: '', airtelNumber: '', airtelName: '',
@@ -2198,10 +2202,40 @@ async function buyMachine(machineId) {
   renderMyMachines();
   renderHistory();
 
+  // If this is the buyer's first-ever machine, release any pending referral bonuses now
+  const isFirstMachine = Object.values(owned).length === 0;
+  if (isFirstMachine) {
+    releasePendingReferralBonus(currentUsername).catch(err => console.warn('Pending bonus release error:', err));
+  }
+
   // Credit referral bonuses (3-level upline) instantly on every machine purchase
   creditReferralBonusChain(currentUsername, price).catch(err => console.warn('Referral bonus error:', err));
 
   return 'ok';
+}
+
+// Release any pending referral bonuses into Prime Account —
+// called the moment a user completes their first-ever machine purchase.
+async function releasePendingReferralBonus(username) {
+  const sk = safeKey(username);
+  const snap = await db.ref('users/' + sk).get();
+  if (!snap.exists()) return;
+  const user = snap.val();
+  const pending = user.pendingReferralBonus || 0;
+  if (pending <= 0) return;
+
+  const newPrimeBalance = (user.primeBalance || 0) + pending;
+  await db.ref('users/' + sk).update({
+    primeBalance: newPrimeBalance,
+    pendingReferralBonus: 0,
+    [`transactions/tx_refbonus_release_${Date.now()}`]: { type: 'Bonus', amount: pending, note: 'Pending referral bonuses released to Prime Account', date: dateStr(), status: 'completed' }
+  });
+
+  if (username === currentUsername) {
+    currentUser = await db.ref('users/' + sk).get().then(s => s.val());
+    updateBalanceUI();
+    updateMeStats();
+  }
 }
 
 async function creditReferralBonusChain(buyerUsername, purchasePrice) {
@@ -2212,9 +2246,9 @@ async function creditReferralBonusChain(buyerUsername, purchasePrice) {
   if (!l1Username) return;
 
   const levelPercents = [
-    settingsData.referralPercentL1 !== undefined ? settingsData.referralPercentL1 : 11,
+    settingsData.referralPercentL1 !== undefined ? settingsData.referralPercentL1 : 12,
     settingsData.referralPercentL2 !== undefined ? settingsData.referralPercentL2 : 4,
-    settingsData.referralPercentL3 !== undefined ? settingsData.referralPercentL3 : 1
+    settingsData.referralPercentL3 !== undefined ? settingsData.referralPercentL3 : 2
   ];
 
   let uplineUsername = l1Username;
@@ -2228,17 +2262,30 @@ async function creditReferralBonusChain(buyerUsername, purchasePrice) {
     const pct = (levelPercents[level - 1] || 0) / 100;
     const bonus = Math.round(purchasePrice * pct);
     if (bonus > 0) {
-      const newPrimeBalance = (uplineData.primeBalance || 0) + bonus;
+      const uplineHasPurchased = Object.values(uplineData.ownedMachines || {}).length > 0;
       const netEntry = (uplineData.network && uplineData.network[safeKey(buyerUsername)]) || {};
-      const newTotalEarned = (netEntry.totalEarned || 0) + bonus;
       const newPurchasedCount = (netEntry.purchasedMachines || 0) + 1;
 
-      const updates = {
-        primeBalance: newPrimeBalance,
-        [`network/${safeKey(buyerUsername)}/totalEarned`]: newTotalEarned,
-        [`network/${safeKey(buyerUsername)}/purchasedMachines`]: newPurchasedCount,
-        [`transactions/tx_refbonus_${Date.now()}_L${level}`]: { type: 'Bonus', amount: bonus, note: 'Level ' + level + ' referral bonus from ' + buyerUsername + ' machine purchase', date: dateStr(), status: 'completed' }
-      };
+      let updates;
+      if (uplineHasPurchased) {
+        // Upline has unlocked the referral system — credit instantly
+        const newPrimeBalance = (uplineData.primeBalance || 0) + bonus;
+        const newTotalEarned = (netEntry.totalEarned || 0) + bonus;
+        updates = {
+          primeBalance: newPrimeBalance,
+          [`network/${safeKey(buyerUsername)}/totalEarned`]: newTotalEarned,
+          [`network/${safeKey(buyerUsername)}/purchasedMachines`]: newPurchasedCount,
+          [`transactions/tx_refbonus_${Date.now()}_L${level}`]: { type: 'Bonus', amount: bonus, note: 'Level ' + level + ' referral bonus from ' + buyerUsername + ' machine purchase', date: dateStr(), status: 'completed' }
+        };
+      } else {
+        // Upline hasn't purchased a machine yet — hold bonus as pending until they do
+        const newPending = (uplineData.pendingReferralBonus || 0) + bonus;
+        updates = {
+          pendingReferralBonus: newPending,
+          [`network/${safeKey(buyerUsername)}/purchasedMachines`]: newPurchasedCount,
+          [`transactions/tx_refbonus_${Date.now()}_L${level}`]: { type: 'Bonus (Pending)', amount: bonus, note: 'Level ' + level + ' referral bonus from ' + buyerUsername + ' — pending until you purchase a machine', date: dateStr(), status: 'pending' }
+        };
+      }
       await db.ref('users/' + uplineSk).update(updates);
 
       if (uplineUsername === currentUsername) {
@@ -2478,20 +2525,10 @@ function getReferralLink() {
 async function renderInvitePage() {
   if (!currentUsername || !currentUser) return;
 
-  const owned = currentUser.ownedMachines || {};
-  
-  // FIXED: Check if user has EVER purchased a machine (active OR completed)
-  // Once they buy their first machine, referral stays unlocked forever
-  const hasPurchasedMachine = Object.values(owned).length > 0;
-  
   const lockedState = document.getElementById('invite-locked-state');
   const unlockedState = document.getElementById('invite-unlocked-state');
 
-  if (!hasPurchasedMachine) {
-    if (lockedState) lockedState.style.display = 'block';
-    if (unlockedState) unlockedState.style.display = 'none';
-    return;
-  }
+  // Referral link is available to every user, regardless of purchase history
   if (lockedState) lockedState.style.display = 'none';
   if (unlockedState) unlockedState.style.display = 'block';
 
@@ -2730,6 +2767,7 @@ function updateMeStats() {
   setText('me-withdrawn', fmt(currentUser.withdrawn || 0));
   setText('me-deposited', fmt(totalDeposited));
   setText('me-total-earnings', fmt(totalEarnings));
+  setText('me-pending-bonus', fmt(currentUser.pendingReferralBonus || 0));
 }
 
 let currentHistoryFilter = 'Deposit';
@@ -2996,7 +3034,7 @@ async function depSubmitCommon(method, network, phoneDigits, amount, detected) {
   await db.ref('users/' + safeKey(currentUsername) + '/transactions/' + txKey).set({
     type: 'Deposit',
     amount: amount,
-    note: 'Manual deposit submitted via ' + method + ' (' + network.toUpperCase() + ', TID: ' + tid + ') — awaiting admin approval',
+    note: 'Manual deposit submitted via ' + method + ' (' + network.toUpperCase() + ', TID: ' + tid + ') — awaiting confirmation',
     date: dateStr(),
     status: 'pending'
   });
@@ -3179,7 +3217,7 @@ async function submitManualDeposit() {
     }
 
     const popup = document.getElementById('popup-banner');
-    popup.textContent = 'Deposit submitted — awaiting admin confirmation';
+    popup.textContent = 'Deposit submitted — awaiting confirmation';
     popup.classList.add('show');
     setTimeout(() => popup.classList.remove('show'), 1500);
 
@@ -3326,7 +3364,7 @@ async function submitManualDepositGx() {
     }
 
     const popup = document.getElementById('popup-banner');
-    popup.textContent = 'Deposit submitted — awaiting admin confirmation';
+    popup.textContent = 'Deposit submitted — awaiting confirmation';
     popup.classList.add('show');
     setTimeout(() => popup.classList.remove('show'), 1500);
 
