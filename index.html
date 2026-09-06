@@ -129,6 +129,25 @@ input[type="password"]{padding-right:46px;}
 .welcome-banner-title{position:relative;font-family:'Playfair Display',serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:6px;}
 .welcome-banner-text{position:relative;font-size:13px;color:rgba(255,255,255,.92);font-weight:600;max-width:80%;}
 
+/* ===== Full-screen Welcome Card (login / register / reload) ===== */
+.welcome-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}
+.welcome-overlay.show{display:flex;}
+.welcome-card{position:relative;width:100%;max-width:420px;max-height:88vh;overflow-y:auto;background:linear-gradient(160deg,#052e1c 0%,#0c8046 55%,#052e1c 100%);border:1px solid rgba(212,175,55,.5);border-radius:22px;padding:28px 20px 24px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.welcome-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:220px;height:220px;border-radius:50%;background:radial-gradient(circle, rgba(212,175,55,.35) 0%, rgba(212,175,55,0) 70%);animation:welcomeGlowPulseA 4s ease-in-out infinite;pointer-events:none;}
+.welcome-card::after{content:'';position:absolute;bottom:-60px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle, rgba(20,160,90,.45) 0%, rgba(20,160,90,0) 70%);animation:welcomeGlowPulseB 5s ease-in-out infinite;pointer-events:none;}
+@keyframes welcomeGlowPulseA{0%,100%{opacity:.5;transform:translateX(-50%) scale(1);}50%{opacity:1;transform:translateX(-50%) scale(1.15);}}
+@keyframes welcomeGlowPulseB{0%,100%{opacity:.4;transform:scale(1);}50%{opacity:.9;transform:scale(1.2);}}
+.welcome-close-btn{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;}
+.welcome-logo-title{text-align:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:2px;position:relative;z-index:1;}
+.welcome-logo-sub{text-align:center;font-size:12px;color:#d4af37;font-style:italic;margin-bottom:16px;position:relative;z-index:1;}
+.welcome-badge{display:flex;align-items:center;justify-content:center;margin:16px 0 8px;position:relative;z-index:1;}
+.welcome-badge span{border:1px solid #d4af37;color:#d4af37;font-size:10.5px;font-weight:800;letter-spacing:1px;padding:5px 16px;border-radius:20px;background:rgba(212,175,55,.08);}
+.welcome-section-text{font-size:12.5px;color:rgba(255,255,255,.9);line-height:1.7;text-align:center;position:relative;z-index:1;}
+.welcome-section-text strong{color:#d4af37;}
+.welcome-ribbon{margin-top:20px;text-align:center;position:relative;z-index:1;}
+.welcome-ribbon-inner{display:inline-block;background:linear-gradient(135deg,#b8912f,#d4af37,#b8912f);color:#052e1c;font-size:10px;font-weight:800;letter-spacing:.5px;padding:7px 16px;border-radius:4px;box-shadow:0 3px 10px rgba(0,0,0,.3);}
+.welcome-continue-hint{text-align:center;font-size:10px;color:rgba(255,255,255,.5);margin-top:12px;position:relative;z-index:1;}
+
 .machine-carousel-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;overflow:hidden;}
 .carousel-box-ordinary{background:#5c4a38;border-color:#7a6249;}
 .carousel-box-vip{background:#3a5266;border-color:#4d6b83;}
@@ -1317,6 +1336,29 @@ input[type="password"]{padding-right:46px;}
 <div class="toast" id="toast">Done!</div>
 <div class="popup-banner" id="popup-banner"></div>
 
+<div class="welcome-overlay" id="welcome-card-overlay" onclick="if(event.target===this) closeWelcomeCard()">
+  <div class="welcome-card">
+    <button class="welcome-close-btn" onclick="closeWelcomeCard()">×</button>
+    <div class="welcome-logo-title">First Light Capital</div>
+    <div class="welcome-logo-sub">Mine your wealth, one day at a time</div>
+
+    <div class="welcome-badge"><span>HOW IT WORKS</span></div>
+    <div class="welcome-section-text">Buy a machine to start an investment cycle. It runs for a set number of days, then matures — your return is credited straight to your <strong>Prime Account</strong>.</div>
+
+    <div class="welcome-badge"><span>ADDING FUNDS</span></div>
+    <div class="welcome-section-text">Two ways to deposit: <strong>WTRAS</strong> (paste the confirmation SMS) or <strong>GITRAX</strong> (upload a screenshot instead). Always send money only to the number shown inside the app.</div>
+
+    <div class="welcome-badge"><span>EARN WITH REFERRALS</span></div>
+    <div class="welcome-section-text">Share your invite link and earn <strong>12% / 4% / 2%</strong> across three levels whenever your team buys machines — no purchase required to start referring.</div>
+
+    <div class="welcome-badge"><span>STAY SAFE</span></div>
+    <div class="welcome-section-text">Never share your password, PIN, or OTP with anyone — including someone claiming to be from our team. We will never ask for it.</div>
+
+    <div class="welcome-ribbon"><div class="welcome-ribbon-inner">FIRST LIGHT CAPITAL</div></div>
+    <div class="welcome-continue-hint">Tap anywhere outside or the × to continue</div>
+  </div>
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -1672,6 +1714,19 @@ function showToast(msg) {
 }
 
 // ============================================================
+// WELCOME CARD - full-screen overlay shown on login, register,
+// and page reload / pull-to-refresh (while already logged in)
+// ============================================================
+function showWelcomeCard() {
+  const overlay = document.getElementById('welcome-card-overlay');
+  if (overlay) overlay.classList.add('show');
+}
+function closeWelcomeCard() {
+  const overlay = document.getElementById('welcome-card-overlay');
+  if (overlay) overlay.classList.remove('show');
+}
+
+// ============================================================
 // Machine maturity payout engine — replaces the old daily-profit engine.
 // Checks each owned machine; if its lock period has completed, credits
 // the full payout (price + return) to SCRAYD WALLET and marks it completed.
@@ -1754,6 +1809,7 @@ async function initApp() {
         updateProfileUI();
         showDashboard();
         switchTab('home');
+        showWelcomeCard();
         startMachineMaturityLoop();
         startInactivityWatcher();
         checkSupportWarning();
@@ -3537,6 +3593,7 @@ async function doLogin() {
     renderMyMachines();
     showDashboard();
     switchTab('home');
+    showWelcomeCard();
     startMachineMaturityLoop();
     startInactivityWatcher();
     checkSupportWarning();
@@ -3627,6 +3684,7 @@ async function doRegister() {
   renderMyMachines();
   showDashboard();
   switchTab('home');
+  showWelcomeCard();
   startMachineMaturityLoop();
   // Silent registration - no toast
   document.getElementById('reg-phone').value = '';
