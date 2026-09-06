@@ -442,7 +442,6 @@ input[type="password"]{padding-right:46px;}
 <div class="auth-page auth-page-navy" id="login-page">
   <svg class="auth-wave" viewBox="0 0 400 120" preserveAspectRatio="none"><path d="M0,60 C80,100 160,20 240,50 C320,80 360,40 400,60 L400,120 L0,120 Z" fill="#60a5fa"></path></svg>
   <div class="auth-hero">
-    <div class="auth-logo"></div>
     <div class="auth-brand">First Light Capital</div>
     <div class="auth-tagline">Mine Your Wealth, One Day at a Time</div>
   </div>
@@ -451,7 +450,6 @@ input[type="password"]{padding-right:46px;}
     <div class="auth-subtitle">Sign in to your investment account</div>
     <div class="field-group">
       <label class="field-label">Phone Number</label>
-      <div class="field-hint-top">Enter Phone 712345678</div>
       <div class="phone-prefix-wrap" id="login-phone-wrap">
         <div class="phone-prefix-badge">+256</div>
         <input type="tel" id="login-phone" maxlength="9" oninput="loginPhoneInput(this)">
@@ -460,7 +458,6 @@ input[type="password"]{padding-right:46px;}
     </div>
     <div class="field-group">
       <label class="field-label">Password</label>
-      <div class="field-hint-top">Enter password (min 6 characters)</div>
       <div class="field-wrap"><input type="password" id="login-password"><button class="eye-btn" onclick="toggleEye('login-password',this)">Show</button></div>
       <div class="field-error" id="login-pw-err">Please enter your password</div>
     </div>
@@ -474,7 +471,6 @@ input[type="password"]{padding-right:46px;}
 <div class="auth-page auth-page-navy" id="register-page">
   <svg class="auth-wave" viewBox="0 0 400 120" preserveAspectRatio="none"><path d="M0,60 C80,100 160,20 240,50 C320,80 360,40 400,60 L400,120 L0,120 Z" fill="#1e3a8a"></path></svg>
   <div class="auth-hero">
-    <div class="auth-logo"></div>
     <div class="auth-brand">First Light Capital</div>
     <div class="auth-tagline">Mine Your Wealth, One Day at a Time</div>
   </div>
@@ -483,7 +479,6 @@ input[type="password"]{padding-right:46px;}
     <div class="auth-subtitle">Get UGX 3,000 registration bonus</div>
     <div class="field-group">
       <label class="field-label">Phone Number</label>
-      <div class="field-hint-top">Enter Phone 712345678</div>
       <div class="phone-prefix-wrap" id="reg-phone-wrap">
         <div class="phone-prefix-badge" id="reg-prefix">+256</div>
         <input type="tel" id="reg-phone" maxlength="9" oninput="regPhoneInput(this)">
@@ -492,7 +487,6 @@ input[type="password"]{padding-right:46px;}
     </div>
     <div class="field-group">
       <label class="field-label">Password</label>
-      <div class="field-hint-top">Enter password (min 6 characters)</div>
       <div class="field-wrap"><input type="password" id="reg-password" oninput="checkStrength(this.value)"><button class="eye-btn" onclick="toggleEye('reg-password',this)">Show</button></div>
       <div class="pw-strength"><div class="pw-bar" id="pw-b1"></div><div class="pw-bar" id="pw-b2"></div><div class="pw-bar" id="pw-b3"></div></div>
       <div class="field-error" id="reg-pw-err">Password must be at least 6 characters</div>
@@ -519,7 +513,7 @@ input[type="password"]{padding-right:46px;}
 <div class="dashboard-page" id="dashboard-page">
   <div class="topbar">
     <div class="topbar-left" id="topbar-brand">
-      <div class="brand"><div class="brand-icon"></div><div class="brand-name">FLC</div></div>
+      <div class="brand"><div class="brand-name">FLC</div></div>
     </div>
     <div class="topbar-right">
     </div>
@@ -802,21 +796,60 @@ input[type="password"]{padding-right:46px;}
   <div class="dash-section" id="sec-deposit">
     <div class="inner-header"><div><div class="inner-title">Add Cash</div><div class="inner-sub">Add funds to your Prime Account</div></div></div>
     <div class="section">
-      <div class="action-card">
-        <div class="field-group">
-          <label class="field-label">Mobile Money Phone Number</label>
-          <div class="field-wrap"><input type="tel" id="dep-phone" placeholder="0712345678" maxlength="10" oninput="depPhoneInput(this)"></div>
-          <div class="field-hint">10 digits starting with 0 (any MTN or Airtel number)</div>
-          <div class="field-error" id="dep-phone-err">Enter 10 digits starting with 0</div>
-        </div>
+
+      <!-- STEP 1: Amount -->
+      <div class="action-card" id="dep-step-1">
         <div class="field-group">
           <label class="field-label">Amount to Deposit (UGX)</label>
           <div style="font-size:9px;color:var(--success);font-weight:700;margin-bottom:4px;">Minimum deposit: UGX 10,000</div>
           <div class="field-wrap"><input type="number" id="dep-amount" min="10000" max="2350000"></div>
           <div class="field-error" id="dep-amount-err">Please check the amount limits</div>
         </div>
-        <button class="green-btn" id="dep-submit-btn" onclick="doDeposit()">CONFIRM DEPOSIT</button>
+        <button class="green-btn" onclick="depGoStep2()">CONTINUE</button>
       </div>
+
+      <!-- STEP 2: Network + Phone -->
+      <div class="action-card" id="dep-step-2" style="display:none;">
+        <div class="field-group">
+          <label class="field-label">Select Network</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button type="button" class="cat-tab" id="dep-net-mtn-btn" style="width:100%;" onclick="depSetNetwork('mtn')">MTN</button>
+            <button type="button" class="cat-tab" id="dep-net-airtel-btn" style="width:100%;" onclick="depSetNetwork('airtel')">Airtel</button>
+          </div>
+          <div class="field-error" id="dep-net-err">Please select a network</div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Phone Number You'll Pay From</label>
+          <div class="field-wrap"><input type="tel" id="dep-phone" placeholder="0712345678" maxlength="10" oninput="depPhoneInput(this)"></div>
+          <div class="field-hint">10 digits starting with 0</div>
+          <div class="field-error" id="dep-phone-err">Enter 10 digits starting with 0</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="green-btn" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="depGoStep(1)">BACK</button>
+          <button class="green-btn" style="flex:1;" onclick="depGoStep3()">CONTINUE</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Payment Instructions + Paste Confirmation -->
+      <div class="action-card" id="dep-step-3" style="display:none;">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Send <strong id="dep-confirm-amount">UGX 0</strong> to</div>
+          <div style="font-size:20px;font-weight:800;color:var(--gold);" id="dep-company-number">—</div>
+          <div style="font-size:12px;color:var(--text);margin-top:2px;" id="dep-company-name">—</div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Paste Confirmation Message</label>
+          <div class="field-hint" style="margin-bottom:6px;">After sending, paste the SMS you received from MTN/Airtel below</div>
+          <textarea id="dep-message-paste" rows="4" style="width:100%;padding:12px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;box-sizing:border-box;" oninput="depParseMessage()"></textarea>
+        </div>
+        <div id="dep-detect-status" style="font-size:12px;padding:10px;border-radius:10px;background:var(--surface2);margin-bottom:12px;display:none;line-height:1.6;"></div>
+        <div class="field-error" id="dep-confirm-err"></div>
+        <div style="display:flex;gap:8px;">
+          <button class="green-btn" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="depGoStep(2)">BACK</button>
+          <button class="green-btn" id="dep-confirm-btn" style="flex:1;" disabled onclick="submitManualDeposit()">CONFIRM NOW</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -1259,6 +1292,7 @@ let settingsData = {
   uraTax: 4, withdrawCharge: 10, referralPercentL1: 11, referralPercentL2: 4, referralPercentL3: 1,
   withdrawLocked: false, withdrawApproval: false,
   minDeposit: 10000, maxDeposit: 2350000, minWithdraw: 10000, marzApiKey: '',
+  mtnNumber: '', mtnName: '', airtelNumber: '', airtelName: '',
   supportWhatsapp: '',  // <-- Now empty, loaded from Firebase
   supportWhatsappMsg: 'Hello, I need help with First Light Capital',
   supportFirstReply: 'Welcome! How can we help you today?',
@@ -1767,6 +1801,7 @@ function switchTab(tab) {
   if (tab === 'invite') { renderInvitePage(); }
   if (tab === 'myteam') { renderMyTeamPage(); }
   if (tab === 'account') { renderAccountPage(); }
+  if (tab === 'deposit') { depResetFlow(); }
   if (tab === 'errands') { 
     checkSupportWarning(); 
     renderSupportMessages();
@@ -2714,90 +2749,192 @@ async function sendAdminNotification(type, username, amount, message) {
 }
 
 // ============================================================
-// DEPOSIT - PIN popup only, auto-closes 1 sec, redirect to home
+// MANUAL DEPOSIT - Step-based flow (MTN/Airtel, admin-verified)
+// No MarzPay. User pastes confirmation SMS; admin approves/rejects.
 // ============================================================
-async function doDeposit() {
-  clearErrors('dep-phone-err', 'dep-amount-err');
-  const phoneDigits = document.getElementById('dep-phone').value.trim();
-  if (!phoneDigits || phoneDigits.length !== 10 || !phoneDigits.startsWith('0')) { setErr('dep-phone-err', true, 'Enter 10 digits starting with 0'); return; }
+let depNetwork = null;
+let depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false };
+
+function depResetFlow() {
+  depNetwork = null;
+  depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false };
+  clearErrors('dep-amount-err', 'dep-phone-err');
+  setErr('dep-net-err', false);
+  setErr('dep-confirm-err', false);
+  const netMtn = document.getElementById('dep-net-mtn-btn');
+  const netAirtel = document.getElementById('dep-net-airtel-btn');
+  if (netMtn) netMtn.classList.remove('active');
+  if (netAirtel) netAirtel.classList.remove('active');
+  const msgBox = document.getElementById('dep-message-paste');
+  if (msgBox) msgBox.value = '';
+  const statusBox = document.getElementById('dep-detect-status');
+  if (statusBox) statusBox.style.display = 'none';
+  const confirmBtn = document.getElementById('dep-confirm-btn');
+  if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'CONFIRM NOW'; }
+  depGoStep(1);
+}
+
+function depGoStep(n) {
+  document.getElementById('dep-step-1').style.display = n === 1 ? 'block' : 'none';
+  document.getElementById('dep-step-2').style.display = n === 2 ? 'block' : 'none';
+  document.getElementById('dep-step-3').style.display = n === 3 ? 'block' : 'none';
+}
+
+function depGoStep2() {
+  clearErrors('dep-amount-err');
   const minDep = settingsData.minDeposit || 10000;
   const maxDep = settingsData.maxDeposit || 2350000;
   const amount = parseInt(document.getElementById('dep-amount').value) || 0;
   if (amount < minDep) { setErr('dep-amount-err', true, 'Minimum deposit is ' + fmt(minDep)); return; }
   if (amount > maxDep) { setErr('dep-amount-err', true, 'Maximum deposit is ' + fmt(maxDep)); return; }
-  if (!settingsData.marzApiKey) { 
-    sendAdminNotification('deposit_error', currentUsername, amount, 'Payment API not configured');
-    return; 
+  depGoStep(2);
+}
+
+function depSetNetwork(net) {
+  depNetwork = net;
+  document.getElementById('dep-net-mtn-btn').classList.toggle('active', net === 'mtn');
+  document.getElementById('dep-net-airtel-btn').classList.toggle('active', net === 'airtel');
+  setErr('dep-net-err', false);
+}
+
+function depGoStep3() {
+  clearErrors('dep-phone-err');
+  const phoneDigits = document.getElementById('dep-phone').value.trim();
+  if (!depNetwork) { setErr('dep-net-err', true, 'Please select a network'); return; }
+  if (!phoneDigits || phoneDigits.length !== 10 || !phoneDigits.startsWith('0')) { setErr('dep-phone-err', true, 'Enter 10 digits starting with 0'); return; }
+
+  const companyNumber = depNetwork === 'mtn' ? (settingsData.mtnNumber || '') : (settingsData.airtelNumber || '');
+  const companyName = depNetwork === 'mtn' ? (settingsData.mtnName || '') : (settingsData.airtelName || '');
+  if (!companyNumber) { setErr('dep-phone-err', true, 'Deposits temporarily unavailable for this network. Contact support.'); return; }
+
+  const amount = parseInt(document.getElementById('dep-amount').value) || 0;
+  document.getElementById('dep-confirm-amount').textContent = fmt(amount);
+  document.getElementById('dep-company-number').textContent = companyNumber;
+  document.getElementById('dep-company-name').textContent = companyName || '';
+  document.getElementById('dep-message-paste').value = '';
+  document.getElementById('dep-detect-status').style.display = 'none';
+  document.getElementById('dep-confirm-btn').disabled = true;
+  setErr('dep-confirm-err', false);
+  depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false };
+  depGoStep(3);
+}
+
+function depExtractDigits(s) { return (s || '').replace(/\D/g, ''); }
+
+function depParseMessage() {
+  const msg = document.getElementById('dep-message-paste').value || '';
+  const statusBox = document.getElementById('dep-detect-status');
+  const confirmBtn = document.getElementById('dep-confirm-btn');
+  const companyNumber = depNetwork === 'mtn' ? (settingsData.mtnNumber || '') : (settingsData.airtelNumber || '');
+  const companyName = depNetwork === 'mtn' ? (settingsData.mtnName || '') : (settingsData.airtelName || '');
+
+  let tid = null;
+  if (depNetwork === 'airtel') {
+    const m = msg.match(/TID[:\s]*([0-9]{6,})/i);
+    if (m) tid = m[1];
+  } else if (depNetwork === 'mtn') {
+    const m = msg.match(/ID:?\s*([0-9]{6,})/i);
+    if (m) tid = m[1];
   }
-  const btn = document.getElementById('dep-submit-btn');
-  btn.disabled = true; btn.textContent = 'Processing...';
+
+  const msgDigits = depExtractDigits(msg);
+  const compDigits = depExtractDigits(companyNumber);
+  const last9 = compDigits.slice(-9);
+  const numberMatch = !!(last9 && msgDigits.includes(last9));
+  const nameMatch = !!(companyName && msg.toLowerCase().includes(companyName.toLowerCase().trim()));
+
+  depDetected = { tid, companyNumberMatch: numberMatch, companyNameMatch: nameMatch };
+
+  if (!msg.trim()) {
+    statusBox.style.display = 'none';
+    confirmBtn.disabled = true;
+    return;
+  }
+
+  statusBox.style.display = 'block';
+  const lines = [];
+  lines.push(tid ? ('✅ Transaction ID detected: ' + tid) : '❌ Transaction ID not found');
+  lines.push(numberMatch ? '✅ Company number matched' : '❌ Company number not found in message');
+  if (companyName) lines.push(nameMatch ? '✅ Company name matched' : 'ℹ️ Company name not detected (not required)');
+  statusBox.innerHTML = lines.join('<br>');
+  statusBox.style.color = (tid && numberMatch) ? 'var(--success)' : 'var(--warn)';
+
+  confirmBtn.disabled = !(tid && numberMatch);
+}
+
+async function submitManualDeposit() {
+  setErr('dep-confirm-err', false);
+  const amount = parseInt(document.getElementById('dep-amount').value) || 0;
+  const phoneDigits = document.getElementById('dep-phone').value.trim();
   const fullPhone = '+256' + phoneDigits.slice(1);
-  const reference = genUUID();
-  const uraTax = (settingsData.uraTax || 4) / 100;
-  const totalAmount = Math.ceil(amount * (1 + uraTax));
-  document.getElementById('dep-phone').value = '';
-  document.getElementById('dep-amount').value = '';
-  
-  const popup = document.getElementById('popup-banner');
-  popup.textContent = 'Confirm with mobile money PIN';
-  popup.classList.add('show');
-  setTimeout(() => popup.classList.remove('show'), 1000);
-  
-  // Create admin transaction record with PENDING status
-  const adminTxKey = 'adm_dep_' + Date.now();
-  const adminTxRecord = {
-    type: 'Deposit',
-    username: currentUsername,
-    phone: fullPhone,
-    amount: amount,
-    reference: reference,
-    date: dateStr(),
-    status: 'pending'
-  };
-  
+  const { tid, companyNumberMatch, companyNameMatch } = depDetected;
+  if (!tid || !companyNumberMatch) { setErr('dep-confirm-err', true, 'Please paste a valid confirmation message first'); return; }
+
+  const companyNumber = depNetwork === 'mtn' ? (settingsData.mtnNumber || '') : (settingsData.airtelNumber || '');
+  const companyName = depNetwork === 'mtn' ? (settingsData.mtnName || '') : (settingsData.airtelName || '');
+
+  const btn = document.getElementById('dep-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+
   try {
-    // First, create the admin transaction with pending status
-    await db.ref('adminTransactions/' + adminTxKey).set(adminTxRecord);
-    
-    const result = await marzCollect(fullPhone, totalAmount, reference, 'First Light Capital Deposit');
-    if (result.status !== 'success') {
-      // Update admin transaction to FAILED
-      await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
-      await sendAdminNotification('deposit_failed', currentUsername, amount, 'Deposit failed: ' + (result.message || 'Unknown error'));
-      btn.disabled = false; btn.textContent = 'CONFIRM DEPOSIT';
+    // Hard duplicate-TID check — atomic claim so the same TID can't be reused
+    const tidRef = db.ref('usedDepositTIDs/' + tid);
+    const txResult = await tidRef.transaction((current) => {
+      if (current !== null) return; // abort - already claimed
+      return { username: currentUsername, date: dateStr() };
+    });
+
+    if (!txResult.committed) {
+      setErr('dep-confirm-err', true, 'This transaction ID has already been used. Contact support if this is a mistake.');
+      btn.disabled = false; btn.textContent = 'CONFIRM NOW';
       return;
     }
-    const txUuid = result?.data?.transaction?.uuid;
-    const pollResult = await pollPaymentStatus(txUuid);
-    if (pollResult === 'success') {
-      const newPrimeBalance = (currentUser.primeBalance || 0) + amount;
-      const updates = {
-        primeBalance: newPrimeBalance, activated: true,
-        [`deposits/dep_${Date.now()}`]: { amount: amount, taxPaid: totalAmount - amount, startDate: Date.now() },
-        [`transactions/tx_dep_${Date.now()}`]: { type: 'Deposit', amount: amount, note: 'Deposit confirmed to Prime Account (URA Tax: ' + fmt(totalAmount - amount) + ')', date: dateStr(), status: 'completed' }
-      };
-      await db.ref('users/' + safeKey(currentUsername)).update(updates);
-      
-      // Update admin transaction to SUCCESSFUL
-      await db.ref('adminTransactions/' + adminTxKey).update({ status: 'successful' });
-      
-    } else if (pollResult === 'failed') {
-      // Update admin transaction to FAILED
-      await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
-      await sendAdminNotification('deposit_failed', currentUsername, amount, 'Deposit declined by user');
-    } else {
-      // Update admin transaction to FAILED
-      await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
-      await sendAdminNotification('deposit_timeout', currentUsername, amount, 'Deposit pending - no confirmation');
-    }
+
+    const adminTxKey = 'adm_dep_' + Date.now();
+    const txKey = 'tx_dep_' + Date.now();
+
+    await db.ref('adminTransactions/' + adminTxKey).set({
+      type: 'Deposit',
+      username: currentUsername,
+      userId: safeKey(currentUsername),
+      phone: fullPhone,
+      network: depNetwork,
+      amount: amount,
+      transactionId: tid,
+      companyNumber: companyNumber,
+      companyNameMatched: companyNameMatch ? companyName : null,
+      txKey: txKey,
+      date: dateStr(),
+      status: 'pending'
+    });
+
+    await db.ref('users/' + safeKey(currentUsername) + '/transactions/' + txKey).set({
+      type: 'Deposit',
+      amount: amount,
+      note: 'Manual deposit submitted (' + depNetwork.toUpperCase() + ', TID: ' + tid + ') — awaiting admin approval',
+      date: dateStr(),
+      status: 'pending'
+    });
+
+    await sendAdminNotification('deposit_pending', currentUsername, amount, 'Manual deposit awaiting approval (' + depNetwork.toUpperCase() + ', TID: ' + tid + ')');
+
+    const popup = document.getElementById('popup-banner');
+    popup.textContent = 'Deposit submitted — awaiting admin confirmation';
+    popup.classList.add('show');
+    setTimeout(() => popup.classList.remove('show'), 1500);
+
+    document.getElementById('dep-amount').value = '';
+    document.getElementById('dep-phone').value = '';
+    depResetFlow();
+    switchTab('home');
+    renderHistory();
   } catch (error) {
-    console.error('Deposit error:', error);
-    // Update admin transaction to FAILED
-    await db.ref('adminTransactions/' + adminTxKey).update({ status: 'failed' });
-    await sendAdminNotification('deposit_error', currentUsername, amount, error.message);
+    console.error('Manual deposit error:', error);
+    setErr('dep-confirm-err', true, 'Something went wrong. Please try again.');
+    btn.disabled = false; btn.textContent = 'CONFIRM NOW';
+    return;
   }
-  btn.disabled = false; btn.textContent = 'CONFIRM DEPOSIT';
-  switchTab('home');
+  btn.disabled = false; btn.textContent = 'CONFIRM NOW';
 }
 
 // ============================================================
