@@ -797,66 +797,159 @@ input[type="password"]{padding-right:46px;}
     <div class="inner-header"><div><div class="inner-title">Add Cash</div><div class="inner-sub">Add funds to your Prime Account</div></div></div>
     <div class="section">
 
-      <!-- STEP 1: Amount -->
-      <div class="action-card" id="dep-step-1">
-        <div class="field-group">
-          <label class="field-label">Amount to Deposit (UGX)</label>
-          <div style="font-size:9px;color:var(--success);font-weight:700;margin-bottom:4px;">Minimum deposit: UGX 10,000</div>
-          <div class="field-wrap"><input type="number" id="dep-amount" min="10000" max="2350000"></div>
-          <div class="field-error" id="dep-amount-err">Please check the amount limits</div>
+      <!-- METHOD PICKER -->
+      <div id="dep-method-picker">
+        <div class="action-card" style="cursor:pointer;" onclick="depSelectMethod('wtras')">
+          <div style="font-size:16px;font-weight:800;color:var(--gold);">WTRAS</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">Paste the confirmation SMS you receive after paying</div>
         </div>
-        <button class="green-btn" onclick="depGoStep2()">CONTINUE</button>
+        <div class="action-card" style="cursor:pointer;" onclick="depSelectMethod('gitrax')">
+          <div style="font-size:16px;font-weight:800;color:var(--gold);">GITRAX</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">Upload a screenshot of the confirmation SMS instead</div>
+        </div>
       </div>
 
-      <!-- STEP 2: Network + Phone -->
-      <div class="action-card" id="dep-step-2" style="display:none;">
-        <div class="field-group">
-          <label class="field-label">Select Network</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <button type="button" class="cat-tab" id="dep-net-mtn-btn" style="width:100%;" onclick="depSetNetwork('mtn')">MTN</button>
-            <button type="button" class="cat-tab" id="dep-net-airtel-btn" style="width:100%;" onclick="depSetNetwork('airtel')">Airtel</button>
+      <!-- ============== WTRAS FLOW ============== -->
+      <div id="wtras-flow" style="display:none;">
+
+        <!-- STEP 1: Amount -->
+        <div class="action-card" id="dep-step-1">
+          <div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:10px;cursor:pointer;" onclick="history.back()">← Change method</div>
+          <div class="field-group">
+            <label class="field-label">Amount to Deposit (UGX)</label>
+            <div style="font-size:9px;color:var(--success);font-weight:700;margin-bottom:4px;">Minimum deposit: UGX 10,000</div>
+            <div class="field-wrap"><input type="number" id="dep-amount" min="10000" max="2350000"></div>
+            <div class="field-error" id="dep-amount-err">Please check the amount limits</div>
           </div>
-          <div class="field-error" id="dep-net-err">Please select a network</div>
+          <button class="green-btn" onclick="depGoStep2()">CONTINUE</button>
         </div>
-        <div class="field-group">
-          <label class="field-label">Phone Number You'll Pay From</label>
-          <div class="field-wrap"><input type="tel" id="dep-phone" placeholder="0712345678" maxlength="10" oninput="depPhoneInput(this)"></div>
-          <div class="field-hint">10 digits starting with 0</div>
-          <div class="field-error" id="dep-phone-err">Enter 10 digits starting with 0</div>
+
+        <!-- STEP 2: Network + Phone -->
+        <div class="action-card" id="dep-step-2" style="display:none;">
+          <div class="field-group">
+            <label class="field-label">Select Network</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <button type="button" class="cat-tab" id="dep-net-mtn-btn" style="width:100%;" onclick="depSetNetwork('mtn')">MTN</button>
+              <button type="button" class="cat-tab" id="dep-net-airtel-btn" style="width:100%;" onclick="depSetNetwork('airtel')">Airtel</button>
+            </div>
+            <div class="field-error" id="dep-net-err">Please select a network</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Phone Number You'll Pay From</label>
+            <div class="field-wrap"><input type="tel" id="dep-phone" placeholder="0712345678" maxlength="10" oninput="depPhoneInput(this)"></div>
+            <div class="field-hint">10 digits starting with 0</div>
+            <div class="field-error" id="dep-phone-err">Enter 10 digits starting with 0</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="green-btn" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="history.back()">BACK</button>
+            <button class="green-btn" style="flex:1;" onclick="depGoStep3()">CONTINUE</button>
+          </div>
         </div>
-        <div style="display:flex;gap:8px;">
-          <button class="green-btn" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="depGoStep(1)">BACK</button>
-          <button class="green-btn" style="flex:1;" onclick="depGoStep3()">CONTINUE</button>
+
+        <!-- STEP 3: Payment Instructions + Paste Confirmation -->
+        <div class="action-card" id="dep-step-3" style="display:none;">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;">
+            <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;">HOW TO PAY</div>
+            <ol id="dep-guidance-steps" style="margin:0;padding-left:18px;font-size:12px;color:var(--text);line-height:1.9;">
+              <li>Open your phone's dialer app</li>
+              <li>Dial <strong id="dep-ussd-code" style="color:var(--gold);">—</strong></li>
+              <li>Send <strong id="dep-guidance-amount">UGX 0</strong> to <strong id="dep-guidance-number">—</strong></li>
+              <li>Paste the confirmation message you receive from <strong id="dep-guidance-network">—</strong> in the field below</li>
+            </ol>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Send <strong id="dep-confirm-amount">UGX 0</strong> to</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+              <div style="font-size:20px;font-weight:800;color:var(--gold);" id="dep-company-number">—</div>
+              <button type="button" onclick="depCopyNumber()" title="Copy number" style="background:none;border:1px solid var(--border);border-radius:6px;padding:3px 7px;color:var(--text);font-size:13px;cursor:pointer;line-height:1;">📋</button>
+            </div>
+            <div style="font-size:12px;color:var(--text);margin-top:2px;" id="dep-company-name">—</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Paste Confirmation Message</label>
+            <div class="field-hint" style="margin-bottom:6px;">After sending, paste the SMS you received from MTN/Airtel below</div>
+            <textarea id="dep-message-paste" rows="4" style="width:100%;padding:12px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;box-sizing:border-box;" oninput="depParseMessage()"></textarea>
+          </div>
+          <div id="dep-detect-status" style="font-size:12px;padding:10px;border-radius:10px;background:var(--surface2);margin-bottom:12px;display:none;line-height:1.6;"></div>
+          <div class="field-error" id="dep-confirm-err"></div>
+          <div style="display:flex;gap:8px;">
+            <button class="green-btn" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="history.back()">BACK</button>
+            <button class="green-btn" id="dep-confirm-btn" style="flex:1;" disabled onclick="submitManualDeposit()">CONFIRM NOW</button>
+          </div>
         </div>
+
       </div>
 
-      <!-- STEP 3: Payment Instructions + Paste Confirmation -->
-      <div class="action-card" id="dep-step-3" style="display:none;">
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;">
-          <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;">HOW TO PAY</div>
-          <ol id="dep-guidance-steps" style="margin:0;padding-left:18px;font-size:12px;color:var(--text);line-height:1.9;">
-            <li>Open your phone's dialer app</li>
-            <li>Dial <strong id="dep-ussd-code" style="color:var(--gold);">—</strong></li>
-            <li>Send <strong id="dep-guidance-amount">UGX 0</strong> to <strong id="dep-guidance-number">—</strong></li>
-            <li>Paste the confirmation message you receive from <strong id="dep-guidance-network">—</strong> in the field below</li>
-          </ol>
+      <!-- ============== GITRAX FLOW (charcoal/gold theme) ============== -->
+      <div id="gitrax-flow" style="display:none;--bg:#111111;--surface:#1a1a1a;--surface2:#232323;--surface3:#1a1a1a;--border:#3a3a3a;--gold:#d4af37;--text:#f0e6c8;--muted:#a89968;--success:#22c55e;background:#111111;border-radius:16px;padding:12px;margin:-4px -4px 0;">
+
+        <!-- STEP 1: Amount -->
+        <div class="action-card" id="gx-step-1">
+          <div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:10px;cursor:pointer;" onclick="history.back()">← Change method</div>
+          <div class="field-group">
+            <label class="field-label">Amount to Deposit (UGX)</label>
+            <div style="font-size:9px;color:var(--success);font-weight:700;margin-bottom:4px;">Minimum deposit: UGX 10,000</div>
+            <div class="field-wrap"><input type="number" id="gx-amount" min="10000" max="2350000"></div>
+            <div class="field-error" id="gx-amount-err">Please check the amount limits</div>
+          </div>
+          <button class="green-btn" style="background:var(--gold);color:#111;" onclick="gxGoStep2()">CONTINUE</button>
         </div>
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Send <strong id="dep-confirm-amount">UGX 0</strong> to</div>
-          <div style="font-size:20px;font-weight:800;color:var(--gold);" id="dep-company-number">—</div>
-          <div style="font-size:12px;color:var(--text);margin-top:2px;" id="dep-company-name">—</div>
+
+        <!-- STEP 2: Network + Phone -->
+        <div class="action-card" id="gx-step-2" style="display:none;">
+          <div class="field-group">
+            <label class="field-label">Select Network</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <button type="button" class="cat-tab" id="gx-net-mtn-btn" style="width:100%;" onclick="gxSetNetwork('mtn')">MTN</button>
+              <button type="button" class="cat-tab" id="gx-net-airtel-btn" style="width:100%;" onclick="gxSetNetwork('airtel')">Airtel</button>
+            </div>
+            <div class="field-error" id="gx-net-err">Please select a network</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Phone Number You'll Pay From</label>
+            <div class="field-wrap"><input type="tel" id="gx-phone" placeholder="0712345678" maxlength="10" oninput="depPhoneInput(this)"></div>
+            <div class="field-hint">10 digits starting with 0</div>
+            <div class="field-error" id="gx-phone-err">Enter 10 digits starting with 0</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="green-btn" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="history.back()">BACK</button>
+            <button class="green-btn" style="flex:1;background:var(--gold);color:#111;" onclick="gxGoStep3()">CONTINUE</button>
+          </div>
         </div>
-        <div class="field-group">
-          <label class="field-label">Paste Confirmation Message</label>
-          <div class="field-hint" style="margin-bottom:6px;">After sending, paste the SMS you received from MTN/Airtel below</div>
-          <textarea id="dep-message-paste" rows="4" style="width:100%;padding:12px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;box-sizing:border-box;" oninput="depParseMessage()"></textarea>
+
+        <!-- STEP 3: Payment Instructions + Upload Screenshot -->
+        <div class="action-card" id="gx-step-3" style="display:none;">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;">
+            <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;">HOW TO PAY</div>
+            <ol id="gx-guidance-steps" style="margin:0;padding-left:18px;font-size:12px;color:var(--text);line-height:1.9;">
+              <li>Open your phone's dialer app</li>
+              <li>Dial <strong id="gx-ussd-code" style="color:var(--gold);">—</strong></li>
+              <li>Send <strong id="gx-guidance-amount">UGX 0</strong> to <strong id="gx-guidance-number">—</strong></li>
+              <li>Take a screenshot of the confirmation message from <strong id="gx-guidance-network">—</strong> and upload it below</li>
+            </ol>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Send <strong id="gx-confirm-amount">UGX 0</strong> to</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+              <div style="font-size:20px;font-weight:800;color:var(--gold);" id="gx-company-number">—</div>
+              <button type="button" onclick="gxCopyNumber()" title="Copy number" style="background:none;border:1px solid var(--border);border-radius:6px;padding:3px 7px;color:var(--text);font-size:13px;cursor:pointer;line-height:1;">📋</button>
+            </div>
+            <div style="font-size:12px;color:var(--text);margin-top:2px;" id="gx-company-name">—</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Upload Confirmation Screenshot</label>
+            <div class="field-hint" style="margin-bottom:6px;">The screenshot is read on your device only — it is never uploaded or sent anywhere</div>
+            <input type="file" accept="image/*" id="gx-screenshot-input" onchange="gxHandleScreenshot(this)" style="width:100%;padding:10px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:12px;box-sizing:border-box;">
+            <img id="gx-screenshot-preview" style="display:none;max-width:100%;border-radius:10px;margin-top:10px;border:1px solid var(--border);">
+          </div>
+          <div id="gx-detect-status" style="font-size:12px;padding:10px;border-radius:10px;background:var(--surface2);margin-bottom:12px;display:none;line-height:1.6;"></div>
+          <div class="field-error" id="gx-confirm-err"></div>
+          <div style="display:flex;gap:8px;">
+            <button class="green-btn" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="history.back()">BACK</button>
+            <button class="green-btn" id="gx-confirm-btn" style="flex:1;background:var(--gold);color:#111;" disabled onclick="submitManualDepositGx()">CONFIRM NOW</button>
+          </div>
         </div>
-        <div id="dep-detect-status" style="font-size:12px;padding:10px;border-radius:10px;background:var(--surface2);margin-bottom:12px;display:none;line-height:1.6;"></div>
-        <div class="field-error" id="dep-confirm-err"></div>
-        <div style="display:flex;gap:8px;">
-          <button class="green-btn" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="depGoStep(2)">BACK</button>
-          <button class="green-btn" id="dep-confirm-btn" style="flex:1;" disabled onclick="submitManualDeposit()">CONFIRM NOW</button>
-        </div>
+
       </div>
 
     </div>
@@ -1221,6 +1314,7 @@ input[type="password"]{padding-right:46px;}
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <script>
 // ============================================================
@@ -1794,7 +1888,55 @@ function closePrivacyModal(event) {
 const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company', transfer: 'sec-transfer', invite: 'sec-invite', myteam: 'sec-myteam', account: 'sec-account' };
 const navOrder = ['home', 'errands', 'team', 'plan', 'profile'];
 
+// ============================================================
+// BACK-BUTTON NAVIGATION — phone back button moves between
+// in-app screens instead of closing/exiting the site.
+// ============================================================
+let navStack = [];
+let suppressHistoryPush = false;
+
+function navGo(screenKey) {
+  if (suppressHistoryPush) { renderScreen(screenKey); return; }
+  if (navStack.length === 0) {
+    navStack = [screenKey];
+    try { history.replaceState({ navLen: 1 }, '', '#' + screenKey); } catch (e) {}
+  } else if (navStack[navStack.length - 1] !== screenKey) {
+    navStack.push(screenKey);
+    try { history.pushState({ navLen: navStack.length }, '', '#' + screenKey); } catch (e) {}
+  }
+  renderScreen(screenKey);
+}
+
+window.addEventListener('popstate', function () {
+  if (navStack.length > 1) {
+    navStack.pop();
+    const prevKey = navStack[navStack.length - 1];
+    suppressHistoryPush = true;
+    renderScreen(prevKey);
+    suppressHistoryPush = false;
+  }
+  // else: no more in-app history — let the browser's own back behavior proceed
+});
+
+function renderScreen(screenKey) {
+  if (screenKey.indexOf('deposit-wtras-') === 0) {
+    applyTabInternal('deposit');
+    depShowFlow('wtras');
+    depGoStep(parseInt(screenKey.split('-')[2], 10) || 1);
+  } else if (screenKey.indexOf('deposit-gitrax-') === 0) {
+    applyTabInternal('deposit');
+    depShowFlow('gitrax');
+    gxGoStep(parseInt(screenKey.split('-')[2], 10) || 1);
+  } else {
+    applyTabInternal(screenKey);
+  }
+}
+
 function switchTab(tab) {
+  navGo(tab);
+}
+
+function applyTabInternal(tab) {
   if (tab === 'withdraw' && settingsData.withdrawLocked) {
     // Silent - no modal
     return;
@@ -2759,13 +2901,127 @@ async function sendAdminNotification(type, username, amount, message) {
 }
 
 // ============================================================
-// MANUAL DEPOSIT - Step-based flow (MTN/Airtel, admin-verified)
-// No MarzPay. User pastes confirmation SMS; admin approves/rejects.
+// MANUAL DEPOSIT - Method picker (WTRAS / GITRAX), MTN/Airtel,
+// admin-verified. No MarzPay.
 // ============================================================
 let depNetwork = null;
 let depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false, amountMatch: false };
+let gxNetwork = null;
+let gxDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false, amountMatch: false };
+
+// ---- Shared detection logic (used by both WTRAS paste and GITRAX OCR) ----
+function depExtractDigits(s) { return (s || '').replace(/\D/g, ''); }
+
+function depDetectFields(text, network, enteredAmount) {
+  const companyNumber = network === 'mtn' ? (settingsData.mtnNumber || '') : (settingsData.airtelNumber || '');
+  const companyName = network === 'mtn' ? (settingsData.mtnName || '') : (settingsData.airtelName || '');
+
+  let tid = null;
+  if (network === 'airtel') {
+    const m = text.match(/TID[:\s]*([0-9]{6,})/i);
+    if (m) tid = m[1];
+  } else if (network === 'mtn') {
+    const m = text.match(/ID:?\s*([0-9]{6,})/i);
+    if (m) tid = m[1];
+  }
+
+  const msgDigits = depExtractDigits(text);
+  const compDigits = depExtractDigits(companyNumber);
+  const last9 = compDigits.slice(-9);
+  const numberMatch = !!(last9 && msgDigits.includes(last9));
+  const nameMatch = !!(companyName && text.toLowerCase().includes(companyName.toLowerCase().trim()));
+
+  const amountCandidates = (text.match(/[\d]{1,3}(?:,\d{3})*(?:\.\d+)?/g) || [])
+    .map(n => parseInt(n.replace(/,/g, ''), 10))
+    .filter(n => !isNaN(n));
+  const amountMatch = !!(enteredAmount && amountCandidates.includes(enteredAmount));
+
+  return { tid, companyNumberMatch: numberMatch, companyNameMatch: nameMatch, amountMatch };
+}
+
+// ---- Shared submit logic ----
+async function depSubmitCommon(method, network, phoneDigits, amount, detected) {
+  const { tid, companyNumberMatch, amountMatch, companyNameMatch } = detected;
+  if (!tid || !companyNumberMatch || !amountMatch) {
+    return { ok: false, msg: 'Please provide a valid confirmation matching your amount first' };
+  }
+
+  const fullPhone = '+256' + phoneDigits.slice(1);
+  const companyNumber = network === 'mtn' ? (settingsData.mtnNumber || '') : (settingsData.airtelNumber || '');
+  const companyName = network === 'mtn' ? (settingsData.mtnName || '') : (settingsData.airtelName || '');
+
+  // Hard duplicate-TID check — atomic claim so the same TID can't be reused
+  const tidRef = db.ref('usedDepositTIDs/' + tid);
+  const txResult = await tidRef.transaction((current) => {
+    if (current !== null) return; // abort - already claimed
+    return { username: currentUsername, date: dateStr() };
+  });
+
+  if (!txResult.committed) {
+    return { ok: false, msg: 'This transaction ID has already been used. Contact support if this is a mistake.' };
+  }
+
+  const adminTxKey = 'adm_dep_' + Date.now();
+  const txKey = 'tx_dep_' + Date.now();
+
+  await db.ref('adminTransactions/' + adminTxKey).set({
+    type: 'Deposit',
+    method: method,
+    username: currentUsername,
+    userId: safeKey(currentUsername),
+    phone: fullPhone,
+    network: network,
+    amount: amount,
+    transactionId: tid,
+    companyNumber: companyNumber,
+    companyNameMatched: companyNameMatch ? companyName : null,
+    txKey: txKey,
+    date: dateStr(),
+    status: 'pending'
+  });
+
+  await db.ref('users/' + safeKey(currentUsername) + '/transactions/' + txKey).set({
+    type: 'Deposit',
+    amount: amount,
+    note: 'Manual deposit submitted via ' + method + ' (' + network.toUpperCase() + ', TID: ' + tid + ') — awaiting admin approval',
+    date: dateStr(),
+    status: 'pending'
+  });
+
+  await sendAdminNotification('deposit_pending', currentUsername, amount, method + ' deposit awaiting approval (' + network.toUpperCase() + ', TID: ' + tid + ')');
+
+  return { ok: true };
+}
+
+function depCopySuccess() {
+  const popup = document.getElementById('popup-banner');
+  popup.textContent = 'Number copied!';
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 1200);
+}
+
+// ============================================================
+// METHOD PICKER + NAVIGATION
+// ============================================================
+function depShowMethodPicker() {
+  document.getElementById('dep-method-picker').style.display = 'block';
+  document.getElementById('wtras-flow').style.display = 'none';
+  document.getElementById('gitrax-flow').style.display = 'none';
+}
+
+function depShowFlow(method) {
+  document.getElementById('dep-method-picker').style.display = 'none';
+  document.getElementById('wtras-flow').style.display = method === 'wtras' ? 'block' : 'none';
+  document.getElementById('gitrax-flow').style.display = method === 'gitrax' ? 'block' : 'none';
+}
+
+function depSelectMethod(method) {
+  if (method === 'wtras') { navGo('deposit-wtras-1'); }
+  else { navGo('deposit-gitrax-1'); }
+}
 
 function depResetFlow() {
+  // Reset WTRAS
   depNetwork = null;
   depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false, amountMatch: false };
   clearErrors('dep-amount-err', 'dep-phone-err');
@@ -2781,9 +3037,34 @@ function depResetFlow() {
   if (statusBox) statusBox.style.display = 'none';
   const confirmBtn = document.getElementById('dep-confirm-btn');
   if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'CONFIRM NOW'; }
+  const depAmountEl = document.getElementById('dep-amount'); if (depAmountEl) depAmountEl.value = '';
+  const depPhoneEl = document.getElementById('dep-phone'); if (depPhoneEl) depPhoneEl.value = '';
   depGoStep(1);
+
+  // Reset GITRAX
+  gxNetwork = null;
+  gxDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false, amountMatch: false };
+  clearErrors('gx-amount-err', 'gx-phone-err');
+  setErr('gx-net-err', false);
+  setErr('gx-confirm-err', false);
+  const gxNetMtn = document.getElementById('gx-net-mtn-btn');
+  const gxNetAirtel = document.getElementById('gx-net-airtel-btn');
+  if (gxNetMtn) gxNetMtn.classList.remove('active');
+  if (gxNetAirtel) gxNetAirtel.classList.remove('active');
+  const gxInput = document.getElementById('gx-screenshot-input'); if (gxInput) gxInput.value = '';
+  const gxPreview = document.getElementById('gx-screenshot-preview'); if (gxPreview) gxPreview.style.display = 'none';
+  const gxStatus = document.getElementById('gx-detect-status'); if (gxStatus) gxStatus.style.display = 'none';
+  const gxBtn = document.getElementById('gx-confirm-btn'); if (gxBtn) { gxBtn.disabled = true; gxBtn.textContent = 'CONFIRM NOW'; }
+  const gxAmountEl = document.getElementById('gx-amount'); if (gxAmountEl) gxAmountEl.value = '';
+  const gxPhoneEl = document.getElementById('gx-phone'); if (gxPhoneEl) gxPhoneEl.value = '';
+  gxGoStep(1);
+
+  depShowMethodPicker();
 }
 
+// ============================================================
+// WTRAS FLOW (paste confirmation message)
+// ============================================================
 function depGoStep(n) {
   document.getElementById('dep-step-1').style.display = n === 1 ? 'block' : 'none';
   document.getElementById('dep-step-2').style.display = n === 2 ? 'block' : 'none';
@@ -2797,7 +3078,7 @@ function depGoStep2() {
   const amount = parseInt(document.getElementById('dep-amount').value) || 0;
   if (amount < minDep) { setErr('dep-amount-err', true, 'Minimum deposit is ' + fmt(minDep)); return; }
   if (amount > maxDep) { setErr('dep-amount-err', true, 'Maximum deposit is ' + fmt(maxDep)); return; }
-  depGoStep(2);
+  navGo('deposit-wtras-2');
 }
 
 function depSetNetwork(net) {
@@ -2833,41 +3114,23 @@ function depGoStep3() {
   document.getElementById('dep-confirm-btn').disabled = true;
   setErr('dep-confirm-err', false);
   depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false, amountMatch: false };
-  depGoStep(3);
+  navGo('deposit-wtras-3');
 }
 
-function depExtractDigits(s) { return (s || '').replace(/\D/g, ''); }
+function depCopyNumber() {
+  const num = document.getElementById('dep-company-number').textContent;
+  if (navigator.clipboard) { navigator.clipboard.writeText(num).then(depCopySuccess).catch(() => {}); }
+}
 
 function depParseMessage() {
   const msg = document.getElementById('dep-message-paste').value || '';
   const statusBox = document.getElementById('dep-detect-status');
   const confirmBtn = document.getElementById('dep-confirm-btn');
-  const companyNumber = depNetwork === 'mtn' ? (settingsData.mtnNumber || '') : (settingsData.airtelNumber || '');
   const companyName = depNetwork === 'mtn' ? (settingsData.mtnName || '') : (settingsData.airtelName || '');
   const enteredAmount = parseInt(document.getElementById('dep-amount').value) || 0;
 
-  let tid = null;
-  if (depNetwork === 'airtel') {
-    const m = msg.match(/TID[:\s]*([0-9]{6,})/i);
-    if (m) tid = m[1];
-  } else if (depNetwork === 'mtn') {
-    const m = msg.match(/ID:?\s*([0-9]{6,})/i);
-    if (m) tid = m[1];
-  }
-
-  const msgDigits = depExtractDigits(msg);
-  const compDigits = depExtractDigits(companyNumber);
-  const last9 = compDigits.slice(-9);
-  const numberMatch = !!(last9 && msgDigits.includes(last9));
-  const nameMatch = !!(companyName && msg.toLowerCase().includes(companyName.toLowerCase().trim()));
-
-  // Amount must match exactly what the user entered on page 1
-  const amountCandidates = (msg.match(/[\d]{1,3}(?:,\d{3})*(?:\.\d+)?/g) || [])
-    .map(n => parseInt(n.replace(/,/g, ''), 10))
-    .filter(n => !isNaN(n));
-  const amountMatch = !!(enteredAmount && amountCandidates.includes(enteredAmount));
-
-  depDetected = { tid, companyNumberMatch: numberMatch, companyNameMatch: nameMatch, amountMatch };
+  depDetected = depDetectFields(msg, depNetwork, enteredAmount);
+  const { tid, companyNumberMatch: numberMatch, companyNameMatch: nameMatch, amountMatch } = depDetected;
 
   if (!msg.trim()) {
     statusBox.style.display = 'none';
@@ -2891,71 +3154,175 @@ async function submitManualDeposit() {
   setErr('dep-confirm-err', false);
   const amount = parseInt(document.getElementById('dep-amount').value) || 0;
   const phoneDigits = document.getElementById('dep-phone').value.trim();
-  const fullPhone = '+256' + phoneDigits.slice(1);
-  const { tid, companyNumberMatch, companyNameMatch, amountMatch } = depDetected;
-  if (!tid || !companyNumberMatch || !amountMatch) { setErr('dep-confirm-err', true, 'Please paste a valid confirmation message matching your amount first'); return; }
-
-  const companyNumber = depNetwork === 'mtn' ? (settingsData.mtnNumber || '') : (settingsData.airtelNumber || '');
-  const companyName = depNetwork === 'mtn' ? (settingsData.mtnName || '') : (settingsData.airtelName || '');
-
   const btn = document.getElementById('dep-confirm-btn');
   btn.disabled = true; btn.textContent = 'Submitting...';
 
   try {
-    // Hard duplicate-TID check — atomic claim so the same TID can't be reused
-    const tidRef = db.ref('usedDepositTIDs/' + tid);
-    const txResult = await tidRef.transaction((current) => {
-      if (current !== null) return; // abort - already claimed
-      return { username: currentUsername, date: dateStr() };
-    });
-
-    if (!txResult.committed) {
-      setErr('dep-confirm-err', true, 'This transaction ID has already been used. Contact support if this is a mistake.');
+    const result = await depSubmitCommon('WTRAS', depNetwork, phoneDigits, amount, depDetected);
+    if (!result.ok) {
+      setErr('dep-confirm-err', true, result.msg);
       btn.disabled = false; btn.textContent = 'CONFIRM NOW';
       return;
     }
-
-    const adminTxKey = 'adm_dep_' + Date.now();
-    const txKey = 'tx_dep_' + Date.now();
-
-    await db.ref('adminTransactions/' + adminTxKey).set({
-      type: 'Deposit',
-      username: currentUsername,
-      userId: safeKey(currentUsername),
-      phone: fullPhone,
-      network: depNetwork,
-      amount: amount,
-      transactionId: tid,
-      companyNumber: companyNumber,
-      companyNameMatched: companyNameMatch ? companyName : null,
-      txKey: txKey,
-      date: dateStr(),
-      status: 'pending'
-    });
-
-    await db.ref('users/' + safeKey(currentUsername) + '/transactions/' + txKey).set({
-      type: 'Deposit',
-      amount: amount,
-      note: 'Manual deposit submitted (' + depNetwork.toUpperCase() + ', TID: ' + tid + ') — awaiting admin approval',
-      date: dateStr(),
-      status: 'pending'
-    });
-
-    await sendAdminNotification('deposit_pending', currentUsername, amount, 'Manual deposit awaiting approval (' + depNetwork.toUpperCase() + ', TID: ' + tid + ')');
 
     const popup = document.getElementById('popup-banner');
     popup.textContent = 'Deposit submitted — awaiting admin confirmation';
     popup.classList.add('show');
     setTimeout(() => popup.classList.remove('show'), 1500);
 
-    document.getElementById('dep-amount').value = '';
-    document.getElementById('dep-phone').value = '';
     depResetFlow();
     switchTab('home');
     renderHistory();
   } catch (error) {
     console.error('Manual deposit error:', error);
     setErr('dep-confirm-err', true, 'Something went wrong. Please try again.');
+    btn.disabled = false; btn.textContent = 'CONFIRM NOW';
+    return;
+  }
+  btn.disabled = false; btn.textContent = 'CONFIRM NOW';
+}
+
+// ============================================================
+// GITRAX FLOW (upload screenshot, on-device OCR only —
+// screenshot is never uploaded or stored anywhere)
+// ============================================================
+function gxGoStep(n) {
+  document.getElementById('gx-step-1').style.display = n === 1 ? 'block' : 'none';
+  document.getElementById('gx-step-2').style.display = n === 2 ? 'block' : 'none';
+  document.getElementById('gx-step-3').style.display = n === 3 ? 'block' : 'none';
+}
+
+function gxGoStep2() {
+  clearErrors('gx-amount-err');
+  const minDep = settingsData.minDeposit || 10000;
+  const maxDep = settingsData.maxDeposit || 2350000;
+  const amount = parseInt(document.getElementById('gx-amount').value) || 0;
+  if (amount < minDep) { setErr('gx-amount-err', true, 'Minimum deposit is ' + fmt(minDep)); return; }
+  if (amount > maxDep) { setErr('gx-amount-err', true, 'Maximum deposit is ' + fmt(maxDep)); return; }
+  navGo('deposit-gitrax-2');
+}
+
+function gxSetNetwork(net) {
+  gxNetwork = net;
+  document.getElementById('gx-net-mtn-btn').classList.toggle('active', net === 'mtn');
+  document.getElementById('gx-net-airtel-btn').classList.toggle('active', net === 'airtel');
+  setErr('gx-net-err', false);
+}
+
+function gxGoStep3() {
+  clearErrors('gx-phone-err');
+  const phoneDigits = document.getElementById('gx-phone').value.trim();
+  if (!gxNetwork) { setErr('gx-net-err', true, 'Please select a network'); return; }
+  if (!phoneDigits || phoneDigits.length !== 10 || !phoneDigits.startsWith('0')) { setErr('gx-phone-err', true, 'Enter 10 digits starting with 0'); return; }
+
+  const companyNumber = gxNetwork === 'mtn' ? (settingsData.mtnNumber || '') : (settingsData.airtelNumber || '');
+  const companyName = gxNetwork === 'mtn' ? (settingsData.mtnName || '') : (settingsData.airtelName || '');
+  if (!companyNumber) { setErr('gx-phone-err', true, 'Deposits temporarily unavailable for this network. Contact support.'); return; }
+
+  const amount = parseInt(document.getElementById('gx-amount').value) || 0;
+  document.getElementById('gx-confirm-amount').textContent = fmt(amount);
+  document.getElementById('gx-company-number').textContent = companyNumber;
+  document.getElementById('gx-company-name').textContent = companyName || '';
+
+  const ussdCode = gxNetwork === 'mtn' ? (settingsData.mtnUssdCode || '*165*1#') : (settingsData.airtelUssdCode || '*185*1#');
+  document.getElementById('gx-ussd-code').textContent = ussdCode;
+  document.getElementById('gx-guidance-amount').textContent = fmt(amount);
+  document.getElementById('gx-guidance-number').textContent = companyNumber;
+  document.getElementById('gx-guidance-network').textContent = gxNetwork === 'mtn' ? 'MTN' : 'Airtel';
+
+  document.getElementById('gx-screenshot-input').value = '';
+  document.getElementById('gx-screenshot-preview').style.display = 'none';
+  document.getElementById('gx-detect-status').style.display = 'none';
+  document.getElementById('gx-confirm-btn').disabled = true;
+  setErr('gx-confirm-err', false);
+  gxDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false, amountMatch: false };
+  navGo('deposit-gitrax-3');
+}
+
+function gxCopyNumber() {
+  const num = document.getElementById('gx-company-number').textContent;
+  if (navigator.clipboard) { navigator.clipboard.writeText(num).then(depCopySuccess).catch(() => {}); }
+}
+
+function gxHandleScreenshot(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+
+  const preview = document.getElementById('gx-screenshot-preview');
+  const reader = new FileReader();
+  reader.onload = (e) => { preview.src = e.target.result; preview.style.display = 'block'; };
+  reader.readAsDataURL(file);
+
+  gxRunOcr(file);
+}
+
+async function gxRunOcr(file) {
+  const statusBox = document.getElementById('gx-detect-status');
+  const confirmBtn = document.getElementById('gx-confirm-btn');
+  confirmBtn.disabled = true;
+  statusBox.style.display = 'block';
+  statusBox.style.color = 'var(--muted)';
+  statusBox.textContent = 'Reading screenshot…';
+
+  try {
+    const { data: { text } } = await Tesseract.recognize(file, 'eng');
+    gxProcessOcrText(text);
+  } catch (err) {
+    console.error('OCR error:', err);
+    statusBox.style.color = 'var(--warn)';
+    statusBox.textContent = '❌ Could not read the screenshot. Try a clearer image.';
+    gxDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false, amountMatch: false };
+    confirmBtn.disabled = true;
+  }
+}
+
+function gxProcessOcrText(text) {
+  const statusBox = document.getElementById('gx-detect-status');
+  const confirmBtn = document.getElementById('gx-confirm-btn');
+  const companyName = gxNetwork === 'mtn' ? (settingsData.mtnName || '') : (settingsData.airtelName || '');
+  const enteredAmount = parseInt(document.getElementById('gx-amount').value) || 0;
+
+  gxDetected = depDetectFields(text, gxNetwork, enteredAmount);
+  const { tid, companyNumberMatch: numberMatch, companyNameMatch: nameMatch, amountMatch } = gxDetected;
+
+  statusBox.style.display = 'block';
+  const lines = [];
+  lines.push(tid ? ('✅ Transaction ID detected: ' + tid) : '❌ Transaction ID not found');
+  lines.push(numberMatch ? '✅ Company number matched' : '❌ Company number not found in screenshot');
+  lines.push(amountMatch ? ('✅ Amount matched: ' + fmt(enteredAmount)) : ('❌ Amount ' + fmt(enteredAmount) + ' not found in screenshot'));
+  if (companyName) lines.push(nameMatch ? '✅ Company name matched' : 'ℹ️ Company name not detected (not required)');
+  statusBox.innerHTML = lines.join('<br>');
+  statusBox.style.color = (tid && numberMatch && amountMatch) ? 'var(--success)' : 'var(--warn)';
+
+  confirmBtn.disabled = !(tid && numberMatch && amountMatch);
+}
+
+async function submitManualDepositGx() {
+  setErr('gx-confirm-err', false);
+  const amount = parseInt(document.getElementById('gx-amount').value) || 0;
+  const phoneDigits = document.getElementById('gx-phone').value.trim();
+  const btn = document.getElementById('gx-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+
+  try {
+    const result = await depSubmitCommon('GITRAX', gxNetwork, phoneDigits, amount, gxDetected);
+    if (!result.ok) {
+      setErr('gx-confirm-err', true, result.msg);
+      btn.disabled = false; btn.textContent = 'CONFIRM NOW';
+      return;
+    }
+
+    const popup = document.getElementById('popup-banner');
+    popup.textContent = 'Deposit submitted — awaiting admin confirmation';
+    popup.classList.add('show');
+    setTimeout(() => popup.classList.remove('show'), 1500);
+
+    depResetFlow();
+    switchTab('home');
+    renderHistory();
+  } catch (error) {
+    console.error('Manual deposit error (GITRAX):', error);
+    setErr('gx-confirm-err', true, 'Something went wrong. Please try again.');
     btn.disabled = false; btn.textContent = 'CONFIRM NOW';
     return;
   }

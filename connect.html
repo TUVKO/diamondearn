@@ -711,9 +711,9 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         </div>
         <table>
           <thead>
-            <tr><th>Date</th><th>Username</th><th>Network</th><th>Paid From</th><th>Amount</th><th>Transaction ID</th><th>Company Match</th><th>Status</th><th>Actions</th></tr>
+            <tr><th>Date</th><th>Username</th><th>Method</th><th>Network</th><th>Paid From</th><th>Amount</th><th>Transaction ID</th><th>Company Match</th><th>Status</th><th>Actions</th></tr>
           </thead>
-          <tbody id="dep-table-body"><tr class="empty-row"><td colspan="9">No deposit requests yet</td></tr></tbody>
+          <tbody id="dep-table-body"><tr class="empty-row"><td colspan="10">No deposit requests yet</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -2463,12 +2463,13 @@ function renderDepositsTable() {
   if (depFilter !== 'all') entries = entries.filter(([k, v]) => v.status === depFilter);
   entries.sort((a, b) => b[0].localeCompare(a[0]));
   if (countEl) countEl.textContent = entries.length + ' requests';
-  if (!entries.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No deposit requests yet<\/tr>'; return; }
+  if (!entries.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="10">No deposit requests yet<\/tr>'; return; }
 
   tbody.innerHTML = entries.map(([k, v]) => {
     const sc = v.status === 'successful' ? 'var(--success)' : v.status === 'failed' ? 'var(--warn)' : 'var(--gold)';
     const si = v.status === 'successful' ? '✅ Approved' : v.status === 'failed' ? '❌ Rejected' : '⏳ Pending';
     const companyMatch = v.companyNameMatched ? `${v.companyNameMatched} ✅` : (v.companyNumber ? 'Number only ✅' : '—');
+    const methodColor = v.method === 'GITRAX' ? '#d4af37' : 'var(--accent3)';
     const actions = v.status === 'pending' ? `
       <button class="btn btn-approve" onclick="approveDeposit('${k}', '${v.userId}', '${v.username}', ${v.amount}, '${v.txKey}')">✅ Approve</button>
       <button class="btn btn-reject" onclick="rejectDeposit('${k}', '${v.userId}', '${v.username}', ${v.amount}, '${v.txKey}')">❌ Reject</button>
@@ -2476,6 +2477,7 @@ function renderDepositsTable() {
     return `<tr>
       <td class="mono" style="font-size:11px;">${v.date || '—'}</td>
       <td><strong>${v.username || '—'}</strong></td>
+      <td><span style="font-size:11px;font-weight:800;color:${methodColor};">${v.method || 'WTRAS'}</span></td>
       <td>${(v.network || '—').toUpperCase()}</td>
       <td class="mono">${v.phone || '—'}</td>
       <td class="mono" style="color:var(--success);font-weight:800;">${fmt(v.amount)}</td>
