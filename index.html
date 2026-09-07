@@ -2452,6 +2452,17 @@ function viewMachine(machineId) {
   switchTab('machine-detail');
 }
 
+function generateRobotCode() {
+  const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const rl = () => letters[Math.floor(Math.random() * letters.length)];
+  const rd = () => Math.floor(Math.random() * 10);
+  let digits = '';
+  for (let i = 0; i < 4; i++) digits += rd();
+  let suffix = '';
+  for (let i = 0; i < 3; i++) suffix += rl();
+  return 'ART-' + rl() + digits + suffix;
+}
+
 function renderMachineDetail() {
   const m = machinesCatalog[currentViewedMachineId];
   if (!m) return;
@@ -2467,12 +2478,10 @@ function renderMachineDetail() {
 
   const descCard = document.getElementById('md-description-card');
   const descEl = document.getElementById('md-description');
-  if (m.description && m.description.trim()) {
-    descEl.textContent = m.description.trim();
-    descCard.style.display = 'block';
-  } else {
-    descCard.style.display = 'none';
-  }
+  const robotLine = 'This machine is paired with robot ' + generateRobotCode() + ' to ensure smooth, uninterrupted operation.';
+  const customDesc = (m.description && m.description.trim()) ? m.description.trim() : '';
+  descEl.textContent = customDesc ? (customDesc + '\n\n' + robotLine) : robotLine;
+  descCard.style.display = 'block';
 
   const imgEl = document.getElementById('md-image');
   if (m.imageUrl) { imgEl.src = m.imageUrl; imgEl.style.display = 'block'; }
