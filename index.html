@@ -180,6 +180,9 @@ input[type="password"]{padding-right:46px;}
 .section{padding:0 16px;margin-bottom:14px;}
 .dash-section{display:none;}
 .dash-section.active{display:block;}
+#sec-machine-detail.active{position:relative;}
+#sec-machine-detail .md-scroll-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;bottom:290px;overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;}
+#sec-machine-detail .md-fixed-panel{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);width:100%;max-width:500px;background:var(--bg);padding:12px 16px 14px;box-sizing:border-box;border-top:1px solid var(--border);z-index:150;}
 .stats-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:22px 20px;}
 .balance-big{text-align:center;padding:8px 0 16px;}
 .balance-label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
@@ -753,45 +756,49 @@ input[type="password"]{padding-right:46px;}
   <!-- Deposit -->
   <!-- Machine Detail -->
   <div class="dash-section" id="sec-machine-detail">
-    <div class="inner-header"><div><div class="inner-title" id="md-name">Machine</div><div class="inner-sub" id="md-category">Ordinary</div></div></div>
-    <div class="section">
-      <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px;">
-        <img id="md-image" class="machine-card-img" style="width:80px;height:80px;display:none;">
-        <div>
-          <div style="font-size:13px;color:var(--text);margin-bottom:4px;">Contract: <strong id="md-days">0</strong> Days</div>
-        </div>
-      </div>
-
-      <div class="stats-card" style="margin-bottom:14px;">
-        <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div class="stat-box" style="padding:14px 8px;text-align:center;">
-            <div class="stat-label" style="font-size:8px;margin-bottom:6px;">BUY PRICE</div>
-            <div class="stat-value" id="md-price" style="font-size:14px;font-weight:800;color:var(--text);">UGX 0</div>
-          </div>
-          <div class="stat-box" style="padding:14px 8px;text-align:center;">
-            <div class="stat-label" style="font-size:8px;margin-bottom:6px;">PAYOUT</div>
-            <div class="stat-value" id="md-payout" style="font-size:14px;font-weight:800;color:var(--success);">UGX 0</div>
+    <div class="md-scroll-wrap">
+      <div class="inner-header"><div><div class="inner-title" id="md-name">Machine</div><div class="inner-sub" id="md-category">Ordinary</div></div></div>
+      <div class="section">
+        <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px;">
+          <img id="md-image" class="machine-card-img" style="width:80px;height:80px;display:none;">
+          <div>
+            <div style="font-size:13px;color:var(--text);margin-bottom:4px;">Contract: <strong id="md-days">0</strong> Days</div>
           </div>
         </div>
-      </div>
 
-      <div class="stats-card" id="md-description-card" style="margin-bottom:14px;display:none;">
-        <div style="padding:14px;">
-          <div class="stat-label" style="font-size:8px;margin-bottom:8px;">DESCRIPTION</div>
-          <div id="md-description" style="font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap;"></div>
+        <div class="stats-card" style="margin-bottom:14px;">
+          <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="stat-box" style="padding:14px 8px;text-align:center;">
+              <div class="stat-label" style="font-size:8px;margin-bottom:6px;">BUY PRICE</div>
+              <div class="stat-value" id="md-price" style="font-size:14px;font-weight:800;color:var(--text);">UGX 0</div>
+            </div>
+            <div class="stat-box" style="padding:14px 8px;text-align:center;">
+              <div class="stat-label" style="font-size:8px;margin-bottom:6px;">PAYOUT</div>
+              <div class="stat-value" id="md-payout" style="font-size:14px;font-weight:800;color:var(--success);">UGX 0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-card" id="md-description-card" style="margin-bottom:14px;display:none;background:linear-gradient(160deg,#052e1c 0%,#0c8046 100%);border:1px solid rgba(212,175,55,.35);">
+          <div style="padding:14px;">
+            <div class="stat-label" style="font-size:8px;margin-bottom:8px;color:#d4af37;">DESCRIPTION</div>
+            <div id="md-description" style="font-size:13px;color:rgba(255,255,255,.92);line-height:1.7;white-space:pre-wrap;"></div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <div class="stats-card" style="margin-bottom:14px;">
+    <div class="md-fixed-panel">
+      <div class="stats-card" style="margin-bottom:10px;">
         <div style="text-align:center;padding:12px 8px;">
           <div class="stat-label" style="font-size:8px;margin-bottom:6px;">YOUR BALANCE</div>
           <div class="stat-value" id="md-balance" style="font-size:16px;font-weight:800;color:var(--accent3);">UGX 0</div>
         </div>
       </div>
 
-      <div id="md-error" style="display:none;background:rgba(239,68,68,.15);border:1px solid var(--danger);color:var(--danger);padding:10px 14px;border-radius:10px;font-size:12px;margin-bottom:14px;"></div>
+      <div id="md-error" style="display:none;background:rgba(239,68,68,.15);border:1px solid var(--danger);color:var(--danger);padding:10px 14px;border-radius:10px;font-size:12px;margin-bottom:10px;"></div>
 
-      <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
         <button class="machine-buy-btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);" onclick="switchTab('deposit')">Recharge Balance</button>
         <button class="machine-buy-btn" id="md-purchase-btn" onclick="purchaseCurrentMachine()">Purchase Machine</button>
         <button class="machine-buy-btn" style="background:transparent;border:1px solid var(--border);color:var(--muted);" onclick="switchTab('team')">← Back to TIERS</button>
