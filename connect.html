@@ -2236,6 +2236,13 @@ function generateMachineDescription(category, days, returnAmount) {
   return template.replace(/{days}/g, days).replace(/{return}/g, fmt(returnAmount));
 }
 
+function generateMachineSerial() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+  let sn = '';
+  for (let i = 0; i < 13; i++) sn += chars[Math.floor(Math.random() * chars.length)];
+  return sn;
+}
+
 async function saveMachine() {
   const editId = document.getElementById('machine-edit-id').value;
   const name = document.getElementById('machine-name').value.trim();
@@ -2255,8 +2262,11 @@ async function saveMachine() {
 
   // If admin left the description blank, auto-generate one from the category template
   const finalDescription = description || generateMachineDescription(category, days, returnTotal);
+  // Serial number is fully system-managed: keep the existing one on edit, generate fresh only for new machines
+  const existingForSerial = editId ? allMachines[editId] : null;
+  const finalSerial = (existingForSerial && existingForSerial.serialNumber) || generateMachineSerial();
 
-  const machineData = { name, category, imageUrl, price, days, payout, percent, description: finalDescription, active: true };
+  const machineData = { name, category, imageUrl, price, days, payout, percent, description: finalDescription, serialNumber: finalSerial, active: true };
 
   if (editId) {
     const existing = allMachines[editId];
