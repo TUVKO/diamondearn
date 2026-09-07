@@ -700,12 +700,6 @@ input[type="password"]{padding-right:46px;}
     </div>
 
     <div class="section">
-      <div class="home-tabs" style="display:grid;grid-template-columns:1fr;gap:8px;">
-        <button class="home-tab-btn" id="app-download-btn" onclick="triggerAppInstall()">App Download</button>
-      </div>
-    </div>
-
-    <div class="section">
       <div class="me-mega-card">
         <div class="me-mega-grid">
           <div class="me-mini-stat">
@@ -747,6 +741,13 @@ input[type="password"]{padding-right:46px;}
         </div>
       </div>
     </div>
+
+    <div class="section">
+      <div class="home-tabs" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button class="home-tab-btn" id="app-download-btn" onclick="triggerAppInstall()">App Download</button>
+        <button class="home-tab-btn" onclick="switchTab('team')">TIERS</button>
+      </div>
+    </div>
   </div>
 
   <!-- Deposit -->
@@ -771,6 +772,13 @@ input[type="password"]{padding-right:46px;}
             <div class="stat-label" style="font-size:8px;margin-bottom:6px;">PAYOUT</div>
             <div class="stat-value" id="md-payout" style="font-size:14px;font-weight:800;color:var(--success);">UGX 0</div>
           </div>
+        </div>
+      </div>
+
+      <div class="stats-card" id="md-description-card" style="margin-bottom:14px;display:none;">
+        <div style="padding:14px;">
+          <div class="stat-label" style="font-size:8px;margin-bottom:8px;">DESCRIPTION</div>
+          <div id="md-description" style="font-size:13px;color:var(--text);line-height:1.7;white-space:pre-wrap;"></div>
         </div>
       </div>
 
@@ -833,7 +841,7 @@ input[type="password"]{padding-right:46px;}
 
       <!-- METHOD PICKER -->
       <div id="dep-method-picker">
-        <div class="action-card" style="cursor:pointer;background:var(--btn);border:none;" onclick="depSelectMethod('wtras')">
+        <div class="action-card" style="cursor:pointer;background:var(--btn);border:none;margin-bottom:12px;" onclick="depSelectMethod('wtras')">
           <div style="font-size:16px;font-weight:800;color:#fff;">WTRAS</div>
           <div style="font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;">Paste the confirmation SMS you receive after paying</div>
         </div>
@@ -2449,6 +2457,15 @@ function renderMachineDetail() {
   document.getElementById('md-price').textContent = fmt(price);
   document.getElementById('md-payout').textContent = fmt(payout);
   document.getElementById('md-balance').textContent = fmt(currentUser ? (currentUser.primeBalance || 0) : 0);
+
+  const descCard = document.getElementById('md-description-card');
+  const descEl = document.getElementById('md-description');
+  if (m.description && m.description.trim()) {
+    descEl.textContent = m.description.trim();
+    descCard.style.display = 'block';
+  } else {
+    descCard.style.display = 'none';
+  }
 
   const imgEl = document.getElementById('md-image');
   if (m.imageUrl) { imgEl.src = m.imageUrl; imgEl.style.display = 'block'; }

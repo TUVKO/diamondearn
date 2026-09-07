@@ -643,6 +643,11 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
           </div>
           <input type="hidden" id="machine-payout">
           <div id="machine-payout-preview" style="font-size:12px;color:var(--muted);margin-bottom:14px;">💰 Payout will be calculated automatically</div>
+          <div style="margin-bottom:14px;">
+            <label class="f-label">Description</label>
+            <textarea class="f-input" style="padding:11px 14px;width:100%;box-sizing:border-box;resize:vertical;font-family:inherit;" id="machine-description" rows="4" placeholder="Shown to the user when they open this machine's details page."></textarea>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px;">Leave blank to auto-generate a description matching this machine's category (Ordinary, VIP, VVIP, Platinum, Diamond, Royal, Infinite, Sovereign) when you save.</div>
+          </div>
           <div style="display:flex;gap:10px;">
             <button class="btn btn-save" style="flex:1;padding:12px;" onclick="saveMachine()">💾 Save Machine</button>
             <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);display:none;" id="machine-cancel-btn" onclick="cancelMachineEdit()">Cancel</button>
@@ -2139,6 +2144,98 @@ function updateMachinePayoutPreview() {
   preview.innerHTML = `💰 Payout: <strong style="color:var(--success)">${fmt(payout)}</strong> (Price ${fmt(price)} + ${fmt(returnTotal)} return — ${pct}%)`;
 }
 
+// ============================================================
+// AUTO-GENERATED MACHINE DESCRIPTIONS BY CATEGORY
+// Used only when admin leaves the Description field blank on save.
+// {days} and {return} are substituted with the machine's actual values.
+// ============================================================
+const MACHINE_DESCRIPTION_TEMPLATES = {
+  Ordinary: `Every great fortune starts with a single, steady step.
+
+Hire this machine into service for {days} days. It's a dependable, no-frills worker — the kind that shows up every day, does its job quietly, and gets the work done without fuss.
+
+There's nothing flashy about it, and that's exactly the point. It's built for people who understand that consistency beats excitement, and that small, steady gains stack up into something real over time.
+
+Place it to work, then let it run. When the {days} days are done, it returns to you with {return} — a fair reward for a job simply, honestly done.
+
+Sometimes ordinary is exactly where extraordinary begins.`,
+
+  VIP: `Some machines simply work harder — and expect to be treated accordingly.
+
+This VIP machine is hired into service for {days} days, built for those who've outgrown ordinary returns and are ready for something with more weight behind it. It doesn't just work — it performs, steadily and without excuse.
+
+You won't need to check in on it. It knows its job, and it does it well, day after day, until the full term is complete.
+
+At the end of its {days}-day service, it returns to you with {return} — a reward that reflects the level you've chosen to operate at.
+
+VIP isn't a title. It's a decision you made the moment you hired it.`,
+
+  VVIP: `Reserved for those who move differently.
+
+The VVIP machine doesn't work like the others — it works like it has something to prove, because you do too. For {days} days, it's fully committed to your service, operating at a level built for people who expect more and settle for nothing less.
+
+This tier exists for a reason: because some people are done waiting for small wins and are ready to hire something built for bigger ones.
+
+When its {days} days are complete, it returns bearing {return} — proof that raising your standards raises your rewards.
+
+VVIP service. VVIP results.`,
+
+  Platinum: `Strength, refined.
+
+Platinum doesn't shout — it simply delivers. Hired for {days} days, this machine brings a rare combination of durability and precision, working quietly in the background while your patience does the rest.
+
+It's for people who've learned that the biggest returns often come from the calmest confidence — placing trust once, and letting the work speak over time.
+
+After {days} days of dedicated service, your Platinum machine returns with {return}, a reward shaped by resilience and time well spent.
+
+Platinum: because some things are simply built to last.`,
+
+  Diamond: `Pressure creates value. This machine was built under both.
+
+For {days} days, the Diamond machine works with an intensity matched only by its reliability — a tier reserved for those who understand that real value isn't handed out, it's forged.
+
+Every day of its service adds to something larger: a return built not on luck, but on commitment sustained over time.
+
+When the {days}-day term concludes, it returns to you with {return} — a reward as solid and unshakeable as the machine that earned it.
+
+Diamond doesn't just shine. It holds its value.`,
+
+  Royal: `Some machines serve. This one answers to you alone.
+
+The Royal machine is hired for {days} days of dedicated, uncompromising service — designed for those who've earned the right to expect more, and refuse to accept less.
+
+It works with the quiet confidence of something built for people who lead rather than follow, who set the pace rather than wait for it.
+
+Upon completing its {days} days, it returns to your name bearing {return} — a reward fit for the standard you've chosen to hold.
+
+Royal isn't given. It's claimed, one decision at a time.`,
+
+  Infinite: `Beyond levels. Beyond limits.
+
+The Infinite machine represents the edge of what's possible — hired for {days} days to work at a level built for those who no longer measure success by comparison, only by growth.
+
+There is no ceiling here, only momentum: a machine built to match ambition that refuses to plateau.
+
+When its {days}-day service is fulfilled, it returns with {return} — a reward as boundless as the vision that hired it.
+
+Infinite is not a limit. It's a beginning.`,
+
+  Sovereign: `This is not merely a machine. This is a statement.
+
+At the highest tier we offer, the Sovereign machine is hired only by those who understand that true wealth is built, not wished for. For {days} days, this machine works under your name alone, carrying the full weight of your trust and the full promise of your reward.
+
+Every detail of its service has been designed for those at the top — precision, reliability, and a return worthy of the commitment you've made.
+
+When its {days}-day service concludes, it returns with {return} — not as a bonus, but as the natural outcome of backing something built to perform at the very top.
+
+Sovereign is not a name you're given. It's a level you claim.`
+};
+
+function generateMachineDescription(category, days, returnAmount) {
+  const template = MACHINE_DESCRIPTION_TEMPLATES[category] || MACHINE_DESCRIPTION_TEMPLATES.Ordinary;
+  return template.replace(/{days}/g, days).replace(/{return}/g, fmt(returnAmount));
+}
+
 async function saveMachine() {
   const editId = document.getElementById('machine-edit-id').value;
   const name = document.getElementById('machine-name').value.trim();
@@ -2147,6 +2244,7 @@ async function saveMachine() {
   const price = parseInt(document.getElementById('machine-price').value) || 0;
   const days = parseInt(document.getElementById('machine-days').value) || 0;
   const returnTotal = parseInt(document.getElementById('machine-return-total').value) || 0;
+  const description = document.getElementById('machine-description').value.trim();
   const payout = Math.round(price + returnTotal);
   const percent = price > 0 ? Math.round((returnTotal / price) * 100) : 0;
 
@@ -2155,7 +2253,10 @@ async function saveMachine() {
   if (days <= 0) { toast('Days must be greater than 0', '#f87171'); return; }
   if (returnTotal <= 0) { toast('Total Return must be greater than 0', '#f87171'); return; }
 
-  const machineData = { name, category, imageUrl, price, days, payout, percent, active: true };
+  // If admin left the description blank, auto-generate one from the category template
+  const finalDescription = description || generateMachineDescription(category, days, returnTotal);
+
+  const machineData = { name, category, imageUrl, price, days, payout, percent, description: finalDescription, active: true };
 
   if (editId) {
     const existing = allMachines[editId];
@@ -2180,6 +2281,7 @@ function editMachine(id) {
   document.getElementById('machine-image').value = m.imageUrl || '';
   document.getElementById('machine-price').value = m.price || 0;
   document.getElementById('machine-days').value = m.days || 0;
+  document.getElementById('machine-description').value = m.description || '';
   const price = m.price || 0;
   const payout = m.payout || 0;
   const returnTotal = payout - price;
@@ -2202,6 +2304,7 @@ function cancelMachineEdit() {
   document.getElementById('machine-price').value = '';
   document.getElementById('machine-days').value = '';
   document.getElementById('machine-return-total').value = '';
+  document.getElementById('machine-description').value = '';
   document.getElementById('machine-payout').value = '';
   document.getElementById('machine-form-title').textContent = '➕ Add New Machine';
   document.getElementById('machine-cancel-btn').style.display = 'none';
