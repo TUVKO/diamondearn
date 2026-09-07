@@ -407,6 +407,16 @@ input[type="password"]{padding-right:46px;}
 .machine-card-price{font-size:13px;font-weight:700;color:var(--text);}
 .machine-card-payout{font-size:13px;font-weight:800;color:var(--accent);margin-top:2px;}
 .machine-card-pct{position:absolute;top:12px;right:12px;background:var(--btn);color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;}
+.sn-badge{background:#1a1a1a;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.3);}
+.sn-badge-header{padding:5px 7px 6px;}
+.sn-badge-label{font-size:7px;color:rgba(255,255,255,.55);letter-spacing:1.5px;margin-bottom:3px;}
+.sn-badge-value{font-size:8px;font-weight:700;color:#fff;font-family:'Courier New',monospace;letter-spacing:.3px;background:rgba(255,255,255,.14);border-radius:8px;padding:2px 6px;display:inline-block;white-space:nowrap;}
+.sn-badge-bars{display:block;width:100%;height:20px;}
+.sn-badge-sm{width:82px;}
+.sn-badge-sm .sn-badge-value{font-size:7px;}
+.sn-badge-lg{width:112px;}
+.sn-badge-lg .sn-badge-header{padding:6px 8px 7px;}
+.sn-badge-lg .sn-badge-bars{height:24px;}
 .machine-buy-btn{width:100%;background:var(--btn);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:13px;padding:10px;margin-top:10px;cursor:pointer;}
 .machine-buy-btn:active{transform:scale(.98);}
 .my-machine-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;}
@@ -766,11 +776,7 @@ input[type="password"]{padding-right:46px;}
               <div style="font-size:13px;color:var(--text);margin-bottom:4px;">Contract: <strong id="md-days">0</strong> Days</div>
             </div>
           </div>
-          <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:6px 8px;text-align:center;min-width:74px;">
-            <div style="font-size:7px;letter-spacing:1px;color:rgba(255,255,255,.6);margin-bottom:2px;">SN</div>
-            <div id="md-serial" style="font-size:8px;font-weight:700;color:#fff;margin-bottom:4px;font-family:monospace;letter-spacing:.5px;">—</div>
-            <svg id="md-barcode" width="60" height="20" viewBox="0 0 60 20"></svg>
-          </div>
+          <div id="md-sn-badge-wrap"></div>
         </div>
 
         <div class="stats-card" style="margin-bottom:14px;">
@@ -855,13 +861,17 @@ input[type="password"]{padding-right:46px;}
 
       <!-- METHOD PICKER -->
       <div id="dep-method-picker">
-        <div class="action-card" style="cursor:pointer;background:var(--btn);border:none;margin-bottom:12px;" onclick="depSelectMethod('wtras')">
+        <div class="action-card" style="cursor:pointer;background:#0c8046;border:none;margin-bottom:12px;" onclick="depSelectMethod('wtras')">
           <div style="font-size:16px;font-weight:800;color:#fff;">WTRAS</div>
           <div style="font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;">Paste the confirmation SMS you receive after paying</div>
         </div>
-        <div class="action-card" style="cursor:pointer;background:var(--btn);border:none;" onclick="depSelectMethod('gitrax')">
-          <div style="font-size:16px;font-weight:800;color:#fff;">GITRAX</div>
-          <div style="font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;">Upload a screenshot of the confirmation SMS instead</div>
+        <div class="action-card" style="cursor:pointer;background:#1a1a1a;border:1px solid #d4af37;margin-bottom:12px;" onclick="depSelectMethod('gitrax')">
+          <div style="font-size:16px;font-weight:800;color:#d4af37;">GITRAX</div>
+          <div style="font-size:12px;color:#a89968;margin-top:4px;">Upload a screenshot of the confirmation SMS instead</div>
+        </div>
+        <div class="action-card" style="cursor:pointer;background:#1d4ed8;border:none;" onclick="depSelectMethod('supapay')">
+          <div style="font-size:16px;font-weight:800;color:#fff;">SUPA PAY</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.85);margin-top:4px;">Just enter the phone number you paid from and confirm</div>
         </div>
       </div>
 
@@ -1003,6 +1013,77 @@ input[type="password"]{padding-right:46px;}
           <div style="display:flex;gap:8px;">
             <button class="green-btn" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="history.back()">BACK</button>
             <button class="green-btn" id="gx-confirm-btn" style="flex:1;background:var(--gold);color:#111;" disabled onclick="submitManualDepositGx()">CONFIRM NOW</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============== SUPA PAY FLOW (blue theme, no SMS/screenshot — phone + confirm only) ============== -->
+      <div id="supapay-flow" style="display:none;--bg:#0b1530;--surface:#132248;--surface2:#1a2d5c;--surface3:#132248;--border:#2c4384;--gold:#60a5fa;--text:#eaf0ff;--muted:#9fb2e0;--success:#22c55e;background:#0b1530;border-radius:16px;padding:12px;margin:-4px -4px 0;">
+
+        <!-- STEP 1: Amount -->
+        <div class="action-card" id="sp-step-1">
+          <div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:10px;cursor:pointer;" onclick="history.back()">← Change method</div>
+          <div class="field-group">
+            <label class="field-label">Amount to Deposit (UGX)</label>
+            <div style="font-size:9px;color:var(--success);font-weight:700;margin-bottom:4px;">Minimum deposit: UGX 10,000</div>
+            <div class="field-wrap"><input type="number" id="sp-amount" min="10000" max="2350000"></div>
+            <div class="field-error" id="sp-amount-err">Please check the amount limits</div>
+          </div>
+          <button class="green-btn" style="background:var(--gold);color:#0b1530;" onclick="spGoStep2()">CONTINUE</button>
+        </div>
+
+        <!-- STEP 2: Network + Phone -->
+        <div class="action-card" id="sp-step-2" style="display:none;">
+          <div class="field-group">
+            <label class="field-label">Select Network</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <button type="button" class="cat-tab" id="sp-net-mtn-btn" style="width:100%;" onclick="spSetNetwork('mtn')">MTN</button>
+              <button type="button" class="cat-tab" id="sp-net-airtel-btn" style="width:100%;" onclick="spSetNetwork('airtel')">Airtel</button>
+            </div>
+            <div class="field-error" id="sp-net-err">Please select a network</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Phone Number You'll Pay From</label>
+            <div class="field-wrap"><input type="tel" id="sp-phone" placeholder="0712345678" maxlength="10" oninput="depPhoneInput(this)"></div>
+            <div class="field-hint">10 digits starting with 0</div>
+            <div class="field-error" id="sp-phone-err">Enter 10 digits starting with 0</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="green-btn" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="history.back()">BACK</button>
+            <button class="green-btn" style="flex:1;background:var(--gold);color:#0b1530;" onclick="spGoStep3()">CONTINUE</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Payment Instructions + Phone Confirmation (no SMS/screenshot) -->
+        <div class="action-card" id="sp-step-3" style="display:none;">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;">
+            <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:8px;">HOW TO PAY</div>
+            <ol id="sp-guidance-steps" style="margin:0;padding-left:18px;font-size:12px;color:var(--text);line-height:1.9;">
+              <li>Open your phone's dialer app</li>
+              <li>Dial <strong id="sp-ussd-code" style="color:var(--gold);">—</strong></li>
+              <li>Send <strong id="sp-guidance-amount">UGX 0</strong> to <strong id="sp-guidance-number">—</strong></li>
+              <li>Enter the phone number you paid from below and tap Deposit Now</li>
+            </ol>
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:6px;">Send <strong id="sp-confirm-amount">UGX 0</strong> to</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+              <div style="font-size:20px;font-weight:800;color:var(--gold);" id="sp-company-number">—</div>
+              <button type="button" onclick="spCopyNumber()" title="Copy number" style="background:var(--gold);border:none;border-radius:6px;padding:4px 12px;color:#0b1530;font-size:11px;font-weight:700;cursor:pointer;line-height:1.6;">Copy</button>
+            </div>
+            <div style="font-size:12px;color:var(--text);margin-top:2px;" id="sp-company-name">—</div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Phone Number Used to Pay</label>
+            <div class="field-hint" style="margin-bottom:6px;">Confirm the number you sent the money from</div>
+            <div class="field-wrap"><input type="tel" id="sp-confirm-phone" placeholder="0712345678" maxlength="10" oninput="depPhoneInput(this)"></div>
+            <div class="field-error" id="sp-confirm-phone-err">Enter 10 digits starting with 0</div>
+          </div>
+          <div class="field-error" id="sp-confirm-err"></div>
+          <div style="display:flex;gap:8px;">
+            <button class="green-btn" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);" onclick="history.back()">BACK</button>
+            <button class="green-btn" id="sp-confirm-btn" style="flex:1;background:var(--gold);color:#0b1530;" onclick="submitSupaPayDeposit()">DEPOSIT NOW</button>
           </div>
         </div>
 
@@ -1377,7 +1458,7 @@ input[type="password"]{padding-right:46px;}
     <div class="welcome-section-text">Buy a machine to start an investment cycle. It runs for a set number of days, then matures — your return is credited straight to your <strong>Prime Account</strong>.</div>
 
     <div class="welcome-badge"><span>ADDING FUNDS</span></div>
-    <div class="welcome-section-text">Two ways to deposit: <strong>WTRAS</strong> (paste the confirmation SMS) or <strong>GITRAX</strong> (upload a screenshot instead). Always send money only to the number shown inside the app.</div>
+    <div class="welcome-section-text">Three ways to deposit: <strong>WTRAS</strong> (paste the confirmation SMS), <strong>GITRAX</strong> (upload a screenshot instead), or <strong>SUPA PAY</strong> (just confirm your phone number). Always send money only to the number shown inside the app.</div>
 
     <div class="welcome-badge"><span>EARN WITH REFERRALS</span></div>
     <div class="welcome-section-text">Share your invite link and earn <strong>12% / 4% / 2%</strong> across three levels whenever your team buys machines — no purchase required to start referring.</div>
@@ -2090,6 +2171,10 @@ function renderScreen(screenKey) {
     applyTabInternal('deposit', true);
     depShowFlow('gitrax');
     gxGoStep(parseInt(screenKey.split('-')[2], 10) || 1);
+  } else if (screenKey.indexOf('deposit-supapay-') === 0) {
+    applyTabInternal('deposit', true);
+    depShowFlow('supapay');
+    spGoStep(parseInt(screenKey.split('-')[2], 10) || 1);
   } else {
     applyTabInternal(screenKey);
   }
@@ -2212,7 +2297,9 @@ function renderMachineShop() {
 
     const price = m.price || 0;
     const payout = m.payout || 0;
+    const snBadge = m.serialNumber ? `<div style="position:absolute;top:12px;right:12px;">${buildSerialBadgeHtml(m.serialNumber, 'sm')}</div>` : '';
     return `<div class="machine-card">
+      ${snBadge}
       ${img}
       <div class="machine-card-body">
         <div class="machine-card-name">${m.name || 'Machine'}</div>
@@ -2470,33 +2557,39 @@ function generateRobotCode() {
   return 'ART-' + rl() + digits + suffix;
 }
 
-function renderBarcodeSvg(seedStr) {
-  const svg = document.getElementById('md-barcode');
-  if (!svg) return;
-  svg.innerHTML = '';
-  const width = 60, height = 20;
-  // Derive a simple deterministic seed from the serial number so the same
-  // machine always shows the same-looking (decorative, non-scannable) bars.
+function buildBarcodeBars(seedStr) {
+  // Deterministic (same serial -> same-looking bars everywhere), decorative, non-scannable.
   let seed = 0;
   for (let i = 0; i < seedStr.length; i++) seed = (seed * 31 + seedStr.charCodeAt(i)) >>> 0;
+  if (!seed) seed = 42;
   const rand = () => {
     seed = (seed * 1103515245 + 12345) >>> 0;
     return (seed % 1000) / 1000;
   };
-  let x = 0;
-  while (x < width) {
-    const barW = 1 + Math.round(rand() * 2);
-    if (rand() > 0.45) {
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      rect.setAttribute('x', x);
-      rect.setAttribute('y', 0);
-      rect.setAttribute('width', barW);
-      rect.setAttribute('height', height);
-      rect.setAttribute('fill', '#ffffff');
-      svg.appendChild(rect);
-    }
-    x += barW;
+  const bars = [];
+  let x = 2;
+  while (x < 98) {
+    const w = 1 + Math.round(rand() * 2.2);
+    if (rand() > 0.4) bars.push({ x, w });
+    x += w;
   }
+  return bars;
+}
+
+function buildSerialBadgeHtml(serial, size) {
+  if (!serial) return '';
+  const bars = buildBarcodeBars(serial);
+  const barsMarkup = bars.map(b => `<rect x="${b.x}" y="0" width="${b.w}" height="24" fill="#000"/>`).join('');
+  return `<div class="sn-badge sn-badge-${size}">
+    <div class="sn-badge-header">
+      <div class="sn-badge-label">SN</div>
+      <div class="sn-badge-value">${serial}</div>
+    </div>
+    <svg class="sn-badge-bars" viewBox="0 0 100 24" preserveAspectRatio="none">
+      <rect x="0" y="0" width="100" height="24" fill="#fff"/>
+      ${barsMarkup}
+    </svg>
+  </div>`;
 }
 
 function renderMachineDetail() {
@@ -2512,9 +2605,8 @@ function renderMachineDetail() {
   document.getElementById('md-payout').textContent = fmt(payout);
   document.getElementById('md-balance').textContent = fmt(currentUser ? (currentUser.primeBalance || 0) : 0);
 
-  const snEl = document.getElementById('md-serial');
-  if (snEl) snEl.textContent = m.serialNumber || '—';
-  renderBarcodeSvg(m.serialNumber || '');
+  const snWrap = document.getElementById('md-sn-badge-wrap');
+  if (snWrap) snWrap.innerHTML = buildSerialBadgeHtml(m.serialNumber || '', 'lg');
 
   const descCard = document.getElementById('md-description-card');
   const descEl = document.getElementById('md-description');
@@ -3156,6 +3248,7 @@ let depNetwork = null;
 let depDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false, amountMatch: false };
 let gxNetwork = null;
 let gxDetected = { tid: null, companyNumberMatch: false, companyNameMatch: false, amountMatch: false };
+let spNetwork = null;
 
 // ---- Shared detection logic (used by both WTRAS paste and GITRAX OCR) ----
 function depExtractDigits(s) { return (s || '').replace(/\D/g, ''); }
@@ -3241,6 +3334,45 @@ async function depSubmitCommon(method, network, phoneDigits, amount, detected) {
   return { ok: true };
 }
 
+// SUPA PAY submission — no SMS/screenshot, no transaction ID, so no
+// automatic verification and no duplicate-TID protection. Admin must
+// manually verify each of these against mobile money records.
+async function depSubmitNoConfirm(method, network, phoneDigits, amount) {
+  const fullPhone = '+256' + phoneDigits.slice(1);
+  const companyNumber = network === 'mtn' ? (settingsData.mtnNumber || '') : (settingsData.airtelNumber || '');
+
+  const adminTxKey = 'adm_dep_' + Date.now();
+  const txKey = 'tx_dep_' + Date.now();
+
+  await db.ref('adminTransactions/' + adminTxKey).set({
+    type: 'Deposit',
+    method: method,
+    username: currentUsername,
+    userId: safeKey(currentUsername),
+    phone: fullPhone,
+    network: network,
+    amount: amount,
+    transactionId: null,
+    companyNumber: companyNumber,
+    companyNameMatched: null,
+    txKey: txKey,
+    date: dateStr(),
+    status: 'pending'
+  });
+
+  await db.ref('users/' + safeKey(currentUsername) + '/transactions/' + txKey).set({
+    type: 'Deposit',
+    amount: amount,
+    note: 'Manual deposit submitted via ' + method + ' (' + network.toUpperCase() + ') — awaiting confirmation',
+    date: dateStr(),
+    status: 'pending'
+  });
+
+  await sendAdminNotification('deposit_pending', currentUsername, amount, method + ' deposit awaiting approval (' + network.toUpperCase() + ')');
+
+  return { ok: true };
+}
+
 function depCopySuccess() {
   const popup = document.getElementById('popup-banner');
   popup.textContent = 'Number copied!';
@@ -3255,17 +3387,20 @@ function depShowMethodPicker() {
   document.getElementById('dep-method-picker').style.display = 'block';
   document.getElementById('wtras-flow').style.display = 'none';
   document.getElementById('gitrax-flow').style.display = 'none';
+  document.getElementById('supapay-flow').style.display = 'none';
 }
 
 function depShowFlow(method) {
   document.getElementById('dep-method-picker').style.display = 'none';
   document.getElementById('wtras-flow').style.display = method === 'wtras' ? 'block' : 'none';
   document.getElementById('gitrax-flow').style.display = method === 'gitrax' ? 'block' : 'none';
+  document.getElementById('supapay-flow').style.display = method === 'supapay' ? 'block' : 'none';
 }
 
 function depSelectMethod(method) {
   if (method === 'wtras') { navGo('deposit-wtras-1'); }
-  else { navGo('deposit-gitrax-1'); }
+  else if (method === 'gitrax') { navGo('deposit-gitrax-1'); }
+  else { navGo('deposit-supapay-1'); }
 }
 
 function depResetFlow() {
@@ -3306,6 +3441,22 @@ function depResetFlow() {
   const gxAmountEl = document.getElementById('gx-amount'); if (gxAmountEl) gxAmountEl.value = '';
   const gxPhoneEl = document.getElementById('gx-phone'); if (gxPhoneEl) gxPhoneEl.value = '';
   gxGoStep(1);
+
+  // Reset SUPA PAY
+  spNetwork = null;
+  clearErrors('sp-amount-err', 'sp-phone-err', 'sp-confirm-phone-err');
+  setErr('sp-net-err', false);
+  setErr('sp-confirm-err', false);
+  const spNetMtn = document.getElementById('sp-net-mtn-btn');
+  const spNetAirtel = document.getElementById('sp-net-airtel-btn');
+  if (spNetMtn) spNetMtn.classList.remove('active');
+  if (spNetAirtel) spNetAirtel.classList.remove('active');
+  const spBtn = document.getElementById('sp-confirm-btn');
+  if (spBtn) { spBtn.disabled = false; spBtn.textContent = 'DEPOSIT NOW'; }
+  const spAmountEl = document.getElementById('sp-amount'); if (spAmountEl) spAmountEl.value = '';
+  const spPhoneEl = document.getElementById('sp-phone'); if (spPhoneEl) spPhoneEl.value = '';
+  const spConfirmPhoneEl = document.getElementById('sp-confirm-phone'); if (spConfirmPhoneEl) spConfirmPhoneEl.value = '';
+  spGoStep(1);
 
   depShowMethodPicker();
 }
@@ -3490,6 +3641,104 @@ function gxGoStep3() {
 function gxCopyNumber() {
   const num = document.getElementById('gx-company-number').textContent;
   if (navigator.clipboard) { navigator.clipboard.writeText(num).then(depCopySuccess).catch(() => {}); }
+}
+
+// ============================================================
+// SUPA PAY FLOW (phone number + confirm only — no SMS/screenshot,
+// no automatic amount/number verification; admin verifies manually)
+// ============================================================
+function spGoStep(n) {
+  document.getElementById('sp-step-1').style.display = n === 1 ? 'block' : 'none';
+  document.getElementById('sp-step-2').style.display = n === 2 ? 'block' : 'none';
+  document.getElementById('sp-step-3').style.display = n === 3 ? 'block' : 'none';
+}
+
+function spGoStep2() {
+  clearErrors('sp-amount-err');
+  const minDep = settingsData.minDeposit || 10000;
+  const maxDep = settingsData.maxDeposit || 2350000;
+  const amount = parseInt(document.getElementById('sp-amount').value) || 0;
+  if (amount < minDep) { setErr('sp-amount-err', true, 'Minimum deposit is ' + fmt(minDep)); return; }
+  if (amount > maxDep) { setErr('sp-amount-err', true, 'Maximum deposit is ' + fmt(maxDep)); return; }
+  navGo('deposit-supapay-2');
+}
+
+function spSetNetwork(net) {
+  spNetwork = net;
+  document.getElementById('sp-net-mtn-btn').classList.toggle('active', net === 'mtn');
+  document.getElementById('sp-net-airtel-btn').classList.toggle('active', net === 'airtel');
+  setErr('sp-net-err', false);
+}
+
+function spGoStep3() {
+  clearErrors('sp-phone-err');
+  const phoneDigits = document.getElementById('sp-phone').value.trim();
+  if (!spNetwork) { setErr('sp-net-err', true, 'Please select a network'); return; }
+  if (!phoneDigits || phoneDigits.length !== 10 || !phoneDigits.startsWith('0')) { setErr('sp-phone-err', true, 'Enter 10 digits starting with 0'); return; }
+
+  const companyNumber = spNetwork === 'mtn' ? (settingsData.mtnNumber || '') : (settingsData.airtelNumber || '');
+  const companyName = spNetwork === 'mtn' ? (settingsData.mtnName || '') : (settingsData.airtelName || '');
+  if (!companyNumber) { setErr('sp-phone-err', true, 'Deposits temporarily unavailable for this network. Contact support.'); return; }
+
+  const amount = parseInt(document.getElementById('sp-amount').value) || 0;
+  document.getElementById('sp-confirm-amount').textContent = fmt(amount);
+  document.getElementById('sp-company-number').textContent = companyNumber;
+  document.getElementById('sp-company-name').textContent = companyName || '';
+
+  const ussdCode = spNetwork === 'mtn' ? (settingsData.mtnUssdCode || '*165*1#') : (settingsData.airtelUssdCode || '*185*1#');
+  document.getElementById('sp-ussd-code').textContent = ussdCode;
+  document.getElementById('sp-guidance-amount').textContent = fmt(amount);
+  document.getElementById('sp-guidance-number').textContent = companyNumber;
+
+  document.getElementById('sp-confirm-phone').value = phoneDigits;
+  setErr('sp-confirm-phone-err', false);
+  setErr('sp-confirm-err', false);
+  const spBtn = document.getElementById('sp-confirm-btn');
+  spBtn.disabled = false; spBtn.textContent = 'DEPOSIT NOW';
+  navGo('deposit-supapay-3');
+}
+
+function spCopyNumber() {
+  const num = document.getElementById('sp-company-number').textContent;
+  if (navigator.clipboard) { navigator.clipboard.writeText(num).then(depCopySuccess).catch(() => {}); }
+}
+
+async function submitSupaPayDeposit() {
+  setErr('sp-confirm-err', false);
+  clearErrors('sp-confirm-phone-err');
+  const amount = parseInt(document.getElementById('sp-amount').value) || 0;
+  const phoneDigits = document.getElementById('sp-confirm-phone').value.trim();
+  if (!phoneDigits || phoneDigits.length !== 10 || !phoneDigits.startsWith('0')) {
+    setErr('sp-confirm-phone-err', true, 'Enter 10 digits starting with 0');
+    return;
+  }
+
+  const btn = document.getElementById('sp-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+
+  try {
+    const result = await depSubmitNoConfirm('SUPA PAY', spNetwork, phoneDigits, amount);
+    if (!result.ok) {
+      setErr('sp-confirm-err', true, result.msg);
+      btn.disabled = false; btn.textContent = 'DEPOSIT NOW';
+      return;
+    }
+
+    const popup = document.getElementById('popup-banner');
+    popup.textContent = 'Deposit submitted — awaiting confirmation';
+    popup.classList.add('show');
+    setTimeout(() => popup.classList.remove('show'), 1500);
+
+    depResetFlow();
+    switchTab('home');
+    renderHistory();
+  } catch (error) {
+    console.error('Manual deposit error (SUPA PAY):', error);
+    setErr('sp-confirm-err', true, 'Something went wrong. Please try again.');
+    btn.disabled = false; btn.textContent = 'DEPOSIT NOW';
+    return;
+  }
+  btn.disabled = false; btn.textContent = 'DEPOSIT NOW';
 }
 
 function gxHandleScreenshot(input) {
