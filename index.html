@@ -580,7 +580,6 @@ input[type="password"]{padding-right:46px;}
         <button class="home-tab-btn" onclick="switchTab('invite')">Invite</button>
         <button class="home-tab-btn" onclick="switchTab('errands')">Help</button>
         <button class="home-tab-btn" onclick="openWapChannel()">Wap-Channel</button>
-        <button class="home-tab-btn" id="app-download-btn" onclick="triggerAppInstall()">App Download</button>
       </div>
     </div>
 
@@ -697,6 +696,12 @@ input[type="password"]{padding-right:46px;}
         <button class="home-tab-btn" onclick="switchTab('deposit')">Deposit</button>
         <button class="home-tab-btn" onclick="switchTab('withdraw')">Withdrawal</button>
         <button class="home-tab-btn" onclick="switchTab('transfer')">Transfer</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="home-tabs" style="display:grid;grid-template-columns:1fr;gap:8px;">
+        <button class="home-tab-btn" id="app-download-btn" onclick="triggerAppInstall()">App Download</button>
       </div>
     </div>
 
@@ -1713,6 +1718,18 @@ function startAdminStatusListener() {
 // ============================================================
 let deferredInstallPrompt = null;
 
+// NOTE: showToast() elsewhere in this app is intentionally disabled
+// (empty function). Use the popup-banner directly so install feedback
+// actually appears on screen.
+function appInstallMsg(msg) {
+  const popup = document.getElementById('popup-banner');
+  if (popup) {
+    popup.textContent = msg;
+    popup.classList.add('show');
+    setTimeout(() => popup.classList.remove('show'), 3000);
+  }
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Service worker registration failed:', err));
@@ -1726,13 +1743,13 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
-  showToast('App installed! Find it on your home screen.');
+  appInstallMsg('App installed! Find it on your home screen.');
 });
 
 async function triggerAppInstall() {
   // Already running as an installed app
   if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-    showToast('You already have the app installed.');
+    appInstallMsg('You already have the app installed.');
     return;
   }
 
@@ -1741,7 +1758,7 @@ async function triggerAppInstall() {
     const { outcome } = await deferredInstallPrompt.userChoice;
     deferredInstallPrompt = null;
     if (outcome !== 'accepted') {
-      showToast('Installation cancelled.');
+      appInstallMsg('Installation cancelled.');
     }
     return;
   }
@@ -1749,9 +1766,9 @@ async function triggerAppInstall() {
   // Browser doesn't support automatic install prompt (e.g. iOS Safari) — guide manually
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   if (isIOS) {
-    showToast('Tap the Share icon, then "Add to Home Screen".');
+    appInstallMsg('Tap the Share icon, then "Add to Home Screen".');
   } else {
-    showToast('Use your browser menu and select "Add to Home Screen" or "Install App".');
+    appInstallMsg('Use your browser menu and select "Add to Home Screen" or "Install App".');
   }
 }
 
