@@ -140,7 +140,12 @@ input[type="password"]{padding-right:46px;}
 /* ===== Full-screen Welcome Card (login / register / reload) ===== */
 .welcome-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;}
 .welcome-overlay.show{display:flex;}
-.welcome-card{position:relative;width:100%;max-width:420px;max-height:88vh;overflow-y:auto;background:linear-gradient(160deg,#052e1c 0%,#0c8046 55%,#052e1c 100%);border:1px solid rgba(212,175,55,.5);border-radius:22px;padding:28px 20px 24px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.welcome-card{position:relative;width:100%;max-width:420px;max-height:88vh;overflow:hidden;background:linear-gradient(160deg,#052e1c 0%,#0c8046 55%,#052e1c 100%);border:1px solid rgba(212,175,55,.5);border-radius:22px;padding:28px 20px 24px;box-shadow:0 20px 60px rgba(0,0,0,.5);display:flex;flex-direction:column;}
+.welcome-scroll-mid{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.welcome-badge{display:flex;align-items:center;justify-content:center;margin:16px 0 8px;position:relative;z-index:1;cursor:pointer;}
+.welcome-section-text{font-size:10px;color:rgba(255,255,255,.85);line-height:1.7;text-align:center;position:relative;z-index:1;display:none;padding:0 2px;}
+.welcome-section-text.open{display:block;}
+.welcome-section-text a{color:#d4af37;font-weight:700;text-decoration:underline;}
 .welcome-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:220px;height:220px;border-radius:50%;background:radial-gradient(circle, rgba(212,175,55,.35) 0%, rgba(212,175,55,0) 70%);animation:welcomeGlowPulseA 4s ease-in-out infinite;pointer-events:none;}
 .welcome-card::after{content:'';position:absolute;bottom:-60px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle, rgba(20,160,90,.45) 0%, rgba(20,160,90,0) 70%);animation:welcomeGlowPulseB 5s ease-in-out infinite;pointer-events:none;}
 @keyframes welcomeGlowPulseA{0%,100%{opacity:.5;transform:translateX(-50%) scale(1);}50%{opacity:1;transform:translateX(-50%) scale(1.15);}}
@@ -148,9 +153,8 @@ input[type="password"]{padding-right:46px;}
 .welcome-close-btn{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;}
 .welcome-logo-title{text-align:center;font-family:'Playfair Display',serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:2px;position:relative;z-index:1;}
 .welcome-logo-sub{text-align:center;font-size:12px;color:#d4af37;font-style:italic;margin-bottom:16px;position:relative;z-index:1;}
-.welcome-badge{display:flex;align-items:center;justify-content:center;margin:16px 0 8px;position:relative;z-index:1;}
-.welcome-badge span{border:1px solid #d4af37;color:#d4af37;font-size:10.5px;font-weight:800;letter-spacing:1px;padding:5px 16px;border-radius:20px;background:rgba(212,175,55,.08);}
-.welcome-section-text{font-size:12.5px;color:rgba(255,255,255,.9);line-height:1.7;text-align:center;position:relative;z-index:1;}
+.welcome-badge span{border:1px solid #d4af37;color:#d4af37;font-size:10.5px;font-weight:800;letter-spacing:1px;padding:5px 16px;border-radius:20px;background:rgba(212,175,55,.08);transition:background .15s;}
+.welcome-badge.open span{background:rgba(212,175,55,.22);}
 .welcome-section-text strong{color:#d4af37;}
 .welcome-ribbon{margin-top:20px;text-align:center;position:relative;z-index:1;}
 .welcome-ribbon-inner{display:inline-block;background:linear-gradient(135deg,#b8912f,#d4af37,#b8912f);color:#052e1c;font-size:10px;font-weight:800;letter-spacing:.5px;padding:7px 16px;border-radius:4px;box-shadow:0 3px 10px rgba(0,0,0,.3);}
@@ -473,7 +477,6 @@ input[type="password"]{padding-right:46px;}
 
 <div class="loading-screen" id="loading-screen">
   <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--accent);margin-bottom:10px;">ABB WORKING ROBOTICS</div>
-  <div class="loading-spinner"></div>
   <div class="loading-text">Loading...</div>
 </div>
 
@@ -1230,7 +1233,7 @@ input[type="password"]{padding-right:46px;}
     <div class="section">
       <div class="action-card" style="text-align:left;">
         <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;color:var(--accent);margin-bottom:8px;">About ABB WORKING ROBOTICS</div>
-        <p style="font-size:13px;line-height:1.7;color:var(--text);margin-bottom:18px;">ABB WORKING ROBOTICS is a digital investment platform built to help everyday people grow their money simply and transparently. We believe wealth-building shouldn't be complicated — just like mining a diamond, real value comes from patience, the right tools, and steady effort.</p>
+        <p style="font-size:13px;line-height:1.7;color:var(--text);margin-bottom:18px;">ABB WORKING ROBOTICS is a digital investment platform where you hire real robots to work on your behalf. We're partnered with <a href="https://bostondynamics.com" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;">Boston Dynamics</a> — the machines you hire are powered by their real-world robotics technology, built for precision and reliability. Wealth-building shouldn't be complicated: put a robot to work, let it run its course, and watch steady, reliable labor build your returns over time.</p>
 
         <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;color:var(--accent);margin-bottom:8px;">Where We're Based</div>
         <p style="font-size:13px;line-height:1.7;color:var(--text);margin-bottom:18px;">ABB WORKING ROBOTICS is headquartered in Toronto, Canada. We're proud to be expanding internationally, with new offices opening soon in Uganda to better serve our growing community there.</p>
@@ -1239,7 +1242,7 @@ input[type="password"]{padding-right:46px;}
         <p style="font-size:13px;line-height:1.7;color:var(--text);margin-bottom:18px;">As we open our Uganda offices, we'll be hiring local representatives to run day-to-day operations, support our members, and represent ABB WORKING ROBOTICS on the ground. If you're interested in being part of our growth in Uganda, stay tuned for opportunities.</p>
 
         <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;color:var(--accent);margin-bottom:8px;">How It Works</div>
-        <p style="font-size:13px;line-height:1.7;color:var(--text);margin-bottom:18px;">You choose a machine that fits your budget, lock in your funds for a set number of days, and once the period completes, your investment plus your return is paid straight into your Scrayd Wallet — ready to withdraw or reinvest.</p>
+        <p style="font-size:13px;line-height:1.7;color:var(--text);margin-bottom:18px;">You hire a machine that fits your budget, it works for a set number of days, and once the job is done, your investment plus your return is paid straight into your Scrayd Wallet — ready to withdraw or reinvest.</p>
 
         <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;color:var(--accent);margin-bottom:8px;">Why People Choose Us</div>
         <ul style="font-size:13px;line-height:1.8;color:var(--text);margin:0 0 18px;padding-left:18px;">
@@ -1501,19 +1504,21 @@ input[type="password"]{padding-right:46px;}
     <div class="welcome-logo-title">ABB WORKING ROBOTICS</div>
     <div class="welcome-logo-sub">Mine your wealth, one day at a time</div>
 
-    <div class="welcome-badge"><span>HOW IT WORKS</span></div>
-    <div class="welcome-section-text">Buy a machine to start an investment cycle. It runs for a set number of days, then matures — your return is credited straight to your <strong>Prime Account</strong>.</div>
+    <div class="welcome-scroll-mid">
+      <div class="welcome-badge open" onclick="toggleWelcomeSection(this)"><span>HOW IT WORKS</span></div>
+      <div class="welcome-section-text open">Buying a machine means hiring one of our robots to get to work for you. We're proud partners with <a href="https://bostondynamics.com" target="_blank" rel="noopener">Boston Dynamics</a>, the world-renowned robotics company — every machine you hire runs on real robotics technology built for reliability and precision. Once hired, your robot works continuously for a fixed number of days handling its assigned task. When that period ends, the machine matures: your original investment plus the profit it generated is credited straight to your <strong>Prime Account</strong>, ready for you to withdraw or put back to work on your next hire.</div>
 
-    <div class="welcome-badge"><span>ADDING FUNDS</span></div>
-    <div class="welcome-section-text">Three ways to deposit: <strong>WTRAS</strong> (paste the confirmation SMS), <strong>GITRAX</strong> (upload a screenshot instead), or <strong>SUPA PAY</strong> (just confirm your phone number). Always send money only to the number shown inside the app.</div>
+      <div class="welcome-badge" onclick="toggleWelcomeSection(this)"><span>ADDING FUNDS</span></div>
+      <div class="welcome-section-text">We give you three simple ways to add funds to your Prime Account. <strong>WTRAS</strong> works by pasting the confirmation SMS you receive immediately after sending your mobile money payment — our system reads it automatically. <strong>GITRAX</strong> is for anyone who'd rather upload a screenshot of that same confirmation message instead. <strong>SUPA PAY</strong> is the simplest of all — just confirm the phone number you paid from. Whichever method you choose, always double-check that you're sending money only to the number displayed inside the app.</div>
 
-    <div class="welcome-badge"><span>EARN WITH REFERRALS</span></div>
-    <div class="welcome-section-text">Share your invite link and earn <strong>12% / 4% / 2%</strong> across three levels whenever your team buys machines — no purchase required to start referring.</div>
+      <div class="welcome-badge" onclick="toggleWelcomeSection(this)"><span>EARN WITH REFERRALS</span></div>
+      <div class="welcome-section-text">You don't need to buy a machine yourself to start earning — simply share your personal invite link. Every time someone in your network buys a machine, you earn a percentage automatically, credited straight to your Prime Account. Our referral system runs three levels deep: <strong>12%</strong> on direct referrals (Level 1), <strong>4%</strong> on their referrals (Level 2), and <strong>2%</strong> on the next level after that (Level 3) — no cap, and no purchase required from you to start referring.</div>
 
-    <div class="welcome-badge"><span>STAY SAFE</span></div>
-    <div class="welcome-section-text">Never share your password, PIN, or OTP with anyone — including someone claiming to be from our team. We will never ask for it.</div>
+      <div class="welcome-badge" onclick="toggleWelcomeSection(this)"><span>STAY SAFE</span></div>
+      <div class="welcome-section-text">Never share your password, PIN, or one-time verification code (OTP) with anyone for any reason — not with friends, not with someone claiming to be a relative, and not even with someone claiming to represent our support team. Our real support staff will never contact you privately asking for these details. If anyone approaches you claiming to be from ABB WORKING ROBOTICS and asks for your password or OTP, treat it as a scam attempt and report it to our official support channels immediately.</div>
+    </div>
 
-    <div class="welcome-ribbon"><div class="welcome-ribbon-inner">FIRST LIGHT CAPITAL</div></div>
+    <div class="welcome-ribbon"><div class="welcome-ribbon-inner">ABB WORKING ROBOTICS</div></div>
     <div class="welcome-continue-hint">Tap anywhere outside or the × to continue</div>
   </div>
 </div>
@@ -1942,6 +1947,19 @@ function showWelcomeCard() {
 function closeWelcomeCard() {
   const overlay = document.getElementById('welcome-card-overlay');
   if (overlay) overlay.classList.remove('show');
+}
+
+function toggleWelcomeSection(badgeEl) {
+  const wasOpen = badgeEl.classList.contains('open');
+  const scrollMid = badgeEl.closest('.welcome-scroll-mid');
+  if (!scrollMid) return;
+  scrollMid.querySelectorAll('.welcome-badge').forEach(b => b.classList.remove('open'));
+  scrollMid.querySelectorAll('.welcome-section-text').forEach(t => t.classList.remove('open'));
+  if (!wasOpen) {
+    badgeEl.classList.add('open');
+    const textEl = badgeEl.nextElementSibling;
+    if (textEl && textEl.classList.contains('welcome-section-text')) textEl.classList.add('open');
+  }
 }
 
 // ============================================================
