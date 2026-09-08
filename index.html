@@ -117,6 +117,10 @@ input[type="password"]{padding-right:46px;}
 
 /* Dashboard */
 .dashboard-page{display:none;min-height:100vh;padding-bottom:90px;position:relative;z-index:1;}
+.home-bg-video-wrap{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;height:100vh;overflow:hidden;z-index:0;pointer-events:none;display:none;}
+.home-bg-video-wrap.active{display:block;}
+.home-bg-video-wrap iframe{position:absolute;top:50%;left:50%;width:max(100%,56.25vh);height:max(177.78vw,100%);transform:translate(-50%,-50%);border:none;}
+.home-bg-scrim{position:absolute;inset:0;background:rgba(15,157,88,.82);}
 .dashboard-page.active{display:block;}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;background:var(--bg);position:sticky;top:0;z-index:100;}
 .topbar-left{display:flex;align-items:center;gap:12px;}
@@ -548,6 +552,11 @@ input[type="password"]{padding-right:46px;}
 </div>
 
 <!-- DASHBOARD -->
+<div class="home-bg-video-wrap" id="home-bg-video-wrap">
+  <iframe src="https://www.youtube.com/embed/DKkKQ4BDzXI?autoplay=1&mute=1&loop=1&playlist=DKkKQ4BDzXI&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <div class="home-bg-scrim"></div>
+</div>
+
 <div class="dashboard-page" id="dashboard-page">
   <div class="topbar">
     <div class="topbar-left" id="topbar-brand">
@@ -2211,6 +2220,8 @@ function applyTabInternal(tab, skipDepositReset) {
 
   const topbarBrand = document.getElementById('topbar-brand');
   if (topbarBrand) topbarBrand.style.display = tab === 'home' ? 'none' : 'flex';
+  const homeBgWrap = document.getElementById('home-bg-video-wrap');
+  if (homeBgWrap) homeBgWrap.classList.toggle('active', tab === 'home');
   if (tab === 'home') {
     initHomeCarousels();
   } else {
