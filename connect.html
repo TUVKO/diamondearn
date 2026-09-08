@@ -951,6 +951,14 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         </div>
       </div>
 
+      <!-- Background Videos -->
+      <div class="settings-section">
+        <div class="settings-title">🎬 Background Videos</div>
+        <div class="settings-sub">Paste a YouTube link (Shorts, youtu.be, or watch link — any format works) for each page group. Visibility controls how strongly the dimming overlay hides the video — higher % = more visible.</div>
+        <div id="bgvid-groups-wrap"></div>
+        <button class="btn btn-save" onclick="saveBackgroundVideos()" style="margin-top:6px;">💾 Save All Background Videos</button>
+      </div>
+
       <!-- Deposit & Withdrawal Settings -->
       <div class="settings-section">
         <div class="settings-title">💰 Deposit & Withdrawal Settings</div>
@@ -2799,6 +2807,71 @@ async function obliterateUserData() {
   }
 }
 
+const BG_VIDEO_GROUPS = [
+  { key: 'home', label: 'Home', defaultVideoId: 'DKkKQ4BDzXI' },
+  { key: 'errands', label: 'Errands / Support', defaultVideoId: 'nYlvsp9kmnA' },
+  { key: 'team', label: 'Tiers', defaultVideoId: 'GS3WBVC7EpA' },
+  { key: 'plan', label: 'Dividends', defaultVideoId: 'EIrcT9W0Wuk' },
+  { key: 'account', label: 'Me', defaultVideoId: 'Zk_rmdL50oI' },
+  { key: 'auth', label: 'Login / Register', defaultVideoId: 'YzD8gI26pm4' },
+  { key: 'historyGroup', label: 'Activity, Company & Invite', defaultVideoId: 'EzDx56xGIvA' },
+  { key: 'teamWithdrawGroup', label: 'Team & Withdraw', defaultVideoId: 'L20lSIAyOtk' },
+  { key: 'depositGroup', label: 'Deposit (WTRAS, GITRAX, SUPA PAY)', defaultVideoId: 'f6O2UznNXa0' }
+];
+
+function extractYouTubeId(input) {
+  if (!input) return '';
+  const str = input.trim();
+  const patterns = [
+    /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{6,})/,
+    /(?:youtu\.be\/)([a-zA-Z0-9_-]{6,})/,
+    /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{6,})/,
+    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{6,})/
+  ];
+  for (const p of patterns) {
+    const m = str.match(p);
+    if (m && m[1]) return m[1];
+  }
+  // Not a recognizable URL — assume they pasted the raw video ID
+  if (/^[a-zA-Z0-9_-]{6,}$/.test(str)) return str;
+  return '';
+}
+
+function renderBgVideoGroupInputs() {
+  const wrap = document.getElementById('bgvid-groups-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = BG_VIDEO_GROUPS.map(g => `
+    <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:8px;">
+      <span class="settings-label">${g.label}</span>
+      <input type="text" class="settings-input" id="bgvid-${g.key}-url" placeholder="https://youtube.com/shorts/xxxxxxxxxxx">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:11px;color:var(--muted);white-space:nowrap;">Visibility</span>
+        <input type="range" min="0" max="100" value="18" id="bgvid-${g.key}-visibility" style="flex:1;" oninput="document.getElementById('bgvid-${g.key}-visibility-val').textContent=this.value+'%'">
+        <span id="bgvid-${g.key}-visibility-val" style="font-size:12px;color:var(--muted);min-width:38px;text-align:right;">18%</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function saveBackgroundVideos() {
+  const bgVideos = {};
+  for (const g of BG_VIDEO_GROUPS) {
+    const urlInput = document.getElementById('bgvid-' + g.key + '-url');
+    const visInput = document.getElementById('bgvid-' + g.key + '-visibility');
+    const parsedId = extractYouTubeId(urlInput ? urlInput.value : '');
+    const videoId = parsedId || g.defaultVideoId;
+    const visibilityPct = visInput ? parseInt(visInput.value) || 0 : 18;
+    bgVideos[g.key] = { videoId, visibilityPct };
+  }
+  try {
+    await db.ref('settings').update({ bgVideos });
+    toast('✅ Background videos saved');
+  } catch (error) {
+    console.error('Error saving background videos:', error);
+    toast('Error saving background videos', '#f87171');
+  }
+}
+
 function loadSettingsUI() {
   const s = allSettings;
   document.getElementById('ura-tax-input').value = s.uraTax || 4;
@@ -2834,6 +2907,19 @@ function loadSettingsUI() {
     lockStatus.textContent = s.withdrawLocked ? '🔒 LOCKED' : '🔓 OPEN';
     lockStatus.style.color = s.withdrawLocked ? 'var(--warn)' : 'var(--success)';
   }
+
+  if (!document.getElementById('bgvid-home-url')) renderBgVideoGroupInputs();
+  const bgVideos = s.bgVideos || {};
+  BG_VIDEO_GROUPS.forEach(g => {
+    const cfg = bgVideos[g.key] || {};
+    const urlInput = document.getElementById('bgvid-' + g.key + '-url');
+    const visInput = document.getElementById('bgvid-' + g.key + '-visibility');
+    const visVal = document.getElementById('bgvid-' + g.key + '-visibility-val');
+    if (urlInput && !urlInput.value) urlInput.value = cfg.videoId ? ('https://youtube.com/shorts/' + cfg.videoId) : '';
+    const visibilityPct = (typeof cfg.visibilityPct === 'number') ? cfg.visibilityPct : 18;
+    if (visInput) visInput.value = visibilityPct;
+    if (visVal) visVal.textContent = visibilityPct + '%';
+  });
 }
 
 function toggleApiKeyVis() {

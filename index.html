@@ -121,6 +121,7 @@ input[type="password"]{padding-right:46px;}
 .home-bg-video-wrap.active{display:block;}
 .home-bg-video-wrap iframe{position:absolute;top:50%;left:50%;width:max(100%,56.25vh);height:max(177.78vw,100%);transform:translate(-50%,-50%);border:none;}
 .home-bg-scrim{position:absolute;inset:0;background:rgba(15,157,88,.82);}
+.auth-bg-scrim{position:absolute;inset:0;background:rgba(5,11,26,.82);}
 .dashboard-page.active{display:block;}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;background:var(--bg);position:sticky;top:0;z-index:100;}
 .topbar-left{display:flex;align-items:center;gap:12px;}
@@ -553,8 +554,48 @@ input[type="password"]{padding-right:46px;}
 
 <!-- DASHBOARD -->
 <div class="home-bg-video-wrap" id="home-bg-video-wrap">
-  <iframe src="https://www.youtube.com/embed/DKkKQ4BDzXI?autoplay=1&mute=1&loop=1&playlist=DKkKQ4BDzXI&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <iframe data-video-id="DKkKQ4BDzXI" src="https://www.youtube.com/embed/DKkKQ4BDzXI?autoplay=1&mute=1&loop=1&playlist=DKkKQ4BDzXI&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
   <div class="home-bg-scrim"></div>
+</div>
+
+<div class="home-bg-video-wrap" id="errands-bg-video-wrap">
+  <iframe data-video-id="nYlvsp9kmnA" src="https://www.youtube.com/embed/nYlvsp9kmnA?autoplay=1&mute=1&loop=1&playlist=nYlvsp9kmnA&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <div class="home-bg-scrim"></div>
+</div>
+
+<div class="home-bg-video-wrap" id="team-bg-video-wrap">
+  <iframe data-video-id="GS3WBVC7EpA" src="https://www.youtube.com/embed/GS3WBVC7EpA?autoplay=1&mute=1&loop=1&playlist=GS3WBVC7EpA&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <div class="home-bg-scrim"></div>
+</div>
+
+<div class="home-bg-video-wrap" id="plan-bg-video-wrap">
+  <iframe data-video-id="EIrcT9W0Wuk" src="https://www.youtube.com/embed/EIrcT9W0Wuk?autoplay=1&mute=1&loop=1&playlist=EIrcT9W0Wuk&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <div class="home-bg-scrim"></div>
+</div>
+
+<div class="home-bg-video-wrap" id="account-bg-video-wrap">
+  <iframe data-video-id="Zk_rmdL50oI" src="https://www.youtube.com/embed/Zk_rmdL50oI?autoplay=1&mute=1&loop=1&playlist=Zk_rmdL50oI&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <div class="home-bg-scrim"></div>
+</div>
+
+<div class="home-bg-video-wrap" id="historygroup-bg-video-wrap">
+  <iframe data-video-id="EzDx56xGIvA" src="https://www.youtube.com/embed/EzDx56xGIvA?autoplay=1&mute=1&loop=1&playlist=EzDx56xGIvA&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <div class="home-bg-scrim"></div>
+</div>
+
+<div class="home-bg-video-wrap" id="teamwithdrawgroup-bg-video-wrap">
+  <iframe data-video-id="L20lSIAyOtk" src="https://www.youtube.com/embed/L20lSIAyOtk?autoplay=1&mute=1&loop=1&playlist=L20lSIAyOtk&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <div class="home-bg-scrim"></div>
+</div>
+
+<div class="home-bg-video-wrap" id="depositgroup-bg-video-wrap">
+  <iframe data-video-id="f6O2UznNXa0" src="https://www.youtube.com/embed/f6O2UznNXa0?autoplay=1&mute=1&loop=1&playlist=f6O2UznNXa0&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <div class="home-bg-scrim"></div>
+</div>
+
+<div class="home-bg-video-wrap" id="auth-bg-video-wrap">
+  <iframe data-video-id="YzD8gI26pm4" src="https://www.youtube.com/embed/YzD8gI26pm4?autoplay=1&mute=1&loop=1&playlist=YzD8gI26pm4&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <div class="auth-bg-scrim"></div>
 </div>
 
 <div class="dashboard-page" id="dashboard-page">
@@ -2069,6 +2110,8 @@ function showAuth(id) {
   document.querySelectorAll('.auth-page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
   const t = document.getElementById(id);
   if (t) { t.style.display = 'flex'; t.classList.add('active'); }
+  const authBgWrap = document.getElementById('auth-bg-video-wrap');
+  if (authBgWrap) authBgWrap.classList.add('active');
   if (id === 'register-page' && pendingRefCode) {
     const codeInput = document.getElementById('reg-referral-code');
     if (codeInput) {
@@ -2081,6 +2124,8 @@ function showAuth(id) {
 
 function showDashboard() {
   document.querySelectorAll('.auth-page').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
+  const authBgWrap = document.getElementById('auth-bg-video-wrap');
+  if (authBgWrap) authBgWrap.classList.remove('active');
   document.getElementById('dashboard-page').style.display = 'block';
   document.getElementById('dashboard-page').classList.add('active');
 }
@@ -2220,8 +2265,12 @@ function applyTabInternal(tab, skipDepositReset) {
 
   const topbarBrand = document.getElementById('topbar-brand');
   if (topbarBrand) topbarBrand.style.display = tab === 'home' ? 'none' : 'flex';
-  const homeBgWrap = document.getElementById('home-bg-video-wrap');
-  if (homeBgWrap) homeBgWrap.classList.toggle('active', tab === 'home');
+  const activeBgGroup = tabToBgGroup[tab] || null;
+  BG_VIDEO_GROUPS.forEach(g => {
+    if (g.key === 'auth') return;
+    const wrapEl = document.getElementById(g.wrapId);
+    if (wrapEl) wrapEl.classList.toggle('active', g.key === activeBgGroup);
+  });
   if (tab === 'home') {
     initHomeCarousels();
   } else {
@@ -2230,10 +2279,55 @@ function applyTabInternal(tab, skipDepositReset) {
 }
 
 
+const BG_VIDEO_GROUPS = [
+  { key: 'home', wrapId: 'home-bg-video-wrap', defaultVideoId: 'DKkKQ4BDzXI' },
+  { key: 'errands', wrapId: 'errands-bg-video-wrap', defaultVideoId: 'nYlvsp9kmnA' },
+  { key: 'team', wrapId: 'team-bg-video-wrap', defaultVideoId: 'GS3WBVC7EpA' },
+  { key: 'plan', wrapId: 'plan-bg-video-wrap', defaultVideoId: 'EIrcT9W0Wuk' },
+  { key: 'account', wrapId: 'account-bg-video-wrap', defaultVideoId: 'Zk_rmdL50oI' },
+  { key: 'auth', wrapId: 'auth-bg-video-wrap', defaultVideoId: 'YzD8gI26pm4' },
+  { key: 'historyGroup', wrapId: 'historygroup-bg-video-wrap', defaultVideoId: 'EzDx56xGIvA' },
+  { key: 'teamWithdrawGroup', wrapId: 'teamwithdrawgroup-bg-video-wrap', defaultVideoId: 'L20lSIAyOtk' },
+  { key: 'depositGroup', wrapId: 'depositgroup-bg-video-wrap', defaultVideoId: 'f6O2UznNXa0' }
+];
+
+// Which dashboard tab activates which background-video group
+const tabToBgGroup = {
+  home: 'home', errands: 'errands', team: 'team', plan: 'plan', account: 'account',
+  history: 'historyGroup', company: 'historyGroup', invite: 'historyGroup',
+  myteam: 'teamWithdrawGroup', withdraw: 'teamWithdrawGroup',
+  deposit: 'depositGroup'
+};
+
+function applyBgVideoSettings() {
+  const bgVideos = settingsData.bgVideos || {};
+  BG_VIDEO_GROUPS.forEach(g => {
+    const cfg = bgVideos[g.key] || {};
+    const videoId = (cfg.videoId || g.defaultVideoId || '').trim();
+    const visibilityPct = (typeof cfg.visibilityPct === 'number') ? cfg.visibilityPct : 18;
+    const wrap = document.getElementById(g.wrapId);
+    if (!wrap) return;
+
+    const iframe = wrap.querySelector('iframe');
+    if (iframe && videoId && iframe.getAttribute('data-video-id') !== videoId) {
+      iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&mute=1&loop=1&playlist=' + videoId + '&controls=0&showinfo=0&modestbranding=1&playsinline=1&rel=0&iv_load_policy=3';
+      iframe.setAttribute('data-video-id', videoId);
+    }
+
+    const scrim = wrap.querySelector('.home-bg-scrim, .auth-bg-scrim');
+    if (scrim) {
+      const alpha = Math.max(0, Math.min(100, 100 - visibilityPct)) / 100;
+      const rgb = g.key === 'auth' ? '5,11,26' : '15,157,88';
+      scrim.style.background = 'rgba(' + rgb + ',' + alpha + ')';
+    }
+  });
+}
+
 function startSettingsListener() {
   db.ref('settings').on('value', (snap) => {
     if (snap.exists()) settingsData = { ...settingsData, ...snap.val() };
     updateUIWithSettings();
+    applyBgVideoSettings();
     if (currentUser) { applyWithdrawLock(); }
   });
 }
@@ -4106,6 +4200,10 @@ async function doLogout() {
   setTimeout(() => {
     document.getElementById('dashboard-page').style.display = 'none';
     document.getElementById('dashboard-page').classList.remove('active');
+    ['home-bg-video-wrap', 'errands-bg-video-wrap', 'team-bg-video-wrap', 'plan-bg-video-wrap', 'account-bg-video-wrap', 'historygroup-bg-video-wrap', 'teamwithdrawgroup-bg-video-wrap', 'depositgroup-bg-video-wrap'].forEach(wid => {
+      const w = document.getElementById(wid);
+      if (w) w.classList.remove('active');
+    });
     document.getElementById('login-phone').value = '';
     document.getElementById('login-password').value = '';
     showAuth('login-page');
