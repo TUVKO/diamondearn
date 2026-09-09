@@ -543,6 +543,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
       <div class="nav-item active" onclick="showPage('pg-dashboard')"><span class="nav-icon">📊</span><span>Dashboard</span></div>
       <div class="nav-item" onclick="showPage('pg-users')"><span class="nav-icon">👥</span><span>Users</span></div>
       <div class="nav-item" onclick="showPage('pg-machines')"><span class="nav-icon">🛠️</span><span>Machines</span></div>
+      <div class="nav-item" onclick="showPage('pg-stories')"><span class="nav-icon">🎬</span><span>Stories</span></div>
       <div class="nav-item" onclick="showPage('pg-tube')"><span class="nav-icon">📈</span><span>Investors</span></div>
       <div class="nav-item" onclick="showPage('pg-transactions')"><span class="nav-icon">💰</span><span>Transactions</span></div>
       <div class="nav-item" onclick="showPage('pg-deposits')"><span class="nav-icon">💳</span><span>Deposits</span><span class="nav-badge" id="deposits-nav-badge">0</span></div>
@@ -664,6 +665,47 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         <table>
           <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Days</th><th>Payout</th><th>Return %</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody id="machines-table-body"><tr class="empty-row"><td colspan="9">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STORIES -->
+    <div class="page" id="pg-stories">
+      <div class="page-title">🎬 Stories</div>
+      <div class="page-sub">Add YouTube videos users can watch from the Stories tab</div>
+
+      <div class="table-wrap" style="max-width:600px;margin-bottom:24px;">
+        <div class="table-header"><div class="table-title" id="story-form-title">➕ Add New Story</div></div>
+        <div style="padding:24px;">
+          <input type="hidden" id="story-edit-id">
+          <div style="margin-bottom:14px;">
+            <label class="f-label">Title</label>
+            <input type="text" class="f-input" style="padding:11px 14px;" id="story-title" placeholder="e.g. How ABB Robots Work">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label class="f-label">YouTube Link or Video ID</label>
+            <input type="text" class="f-input" style="padding:11px 14px;" id="story-video-url" placeholder="https://www.youtube.com/watch?v=... or video ID" oninput="previewStoryThumb()">
+            <div style="font-size:11px;color:var(--muted);margin-top:6px;">Paste any YouTube link (watch, youtu.be, shorts) or just the video ID — it's parsed automatically.</div>
+          </div>
+          <div id="story-thumb-preview-wrap" style="display:none;margin-bottom:14px;">
+            <img id="story-thumb-preview" style="width:160px;border-radius:10px;display:block;">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label class="f-label">Order (lower shows first)</label>
+            <input type="number" class="f-input" style="padding:11px 14px;" id="story-order" placeholder="0" min="0">
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-save" style="flex:1;padding:12px;" onclick="saveStory()">💾 Save Story</button>
+            <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);display:none;" id="story-cancel-btn" onclick="cancelStoryEdit()">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">📼 All Stories</div></div>
+        <table>
+          <thead><tr><th>Thumbnail</th><th>Title</th><th>Video ID</th><th>Order</th><th>Actions</th></tr></thead>
+          <tbody id="stories-table-body"><tr class="empty-row"><td colspan="5">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -955,6 +997,37 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         </div>
       </div>
 
+      <!-- App Download (APK) -->
+      <div class="settings-section">
+        <div class="settings-title">📱 App Download (APK)</div>
+        <div class="settings-sub">Users tap "App Download" on Home to see this info and download your APK. Host the file as a GitHub Release asset or raw file link.</div>
+        <div class="settings-row">
+          <span class="settings-label">APK Download URL</span>
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
+            <input type="text" class="settings-input" id="apk-url-input" placeholder="https://github.com/you/repo/releases/download/v1.0/app.apk">
+          </div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Version</span>
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
+            <input type="text" class="settings-input" id="apk-version-input" placeholder="1.0.0">
+          </div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">File Size</span>
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
+            <input type="text" class="settings-input" id="apk-size-input" placeholder="18 MB">
+          </div>
+        </div>
+        <div class="settings-row" style="align-items:flex-start;">
+          <span class="settings-label">Changelog / Notes</span>
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
+            <textarea class="settings-input" id="apk-changelog-input" rows="3" style="resize:vertical;font-family:inherit;" placeholder="What's new in this version..."></textarea>
+          </div>
+          <button class="btn btn-save" onclick="saveAppDownloadSettings()">Save</button>
+        </div>
+      </div>
+
       <!-- Background Videos -->
       <div class="settings-section">
         <div class="settings-title">🎬 Background Videos</div>
@@ -1215,6 +1288,7 @@ let settingsUnsubscribe = null;
 let withdrawalsUnsubscribe = null;
 let adminTxUnsubscribe = null;
 let machinesUnsubscribe = null;
+let storiesUnsubscribe = null;
 let supportMessagesUnsubscribe = null;
 let supportSettingsUnsubscribe = null;
 let cleanupInterval = null;
@@ -1755,6 +1829,12 @@ function startRealtimeListeners() {
   machinesUnsubscribe = db.ref('machines').on('value', (snap) => {
     allMachines = snap.val() || {};
     renderMachinesTable();
+  });
+
+  if (storiesUnsubscribe) storiesUnsubscribe();
+  storiesUnsubscribe = db.ref('storiesVideos').on('value', (snap) => {
+    allStories = snap.val() || {};
+    renderStoriesTable();
   });
   
   startNotifListener();
@@ -2364,6 +2444,106 @@ async function deleteMachine(id) {
   }
 }
 
+// ============================================================
+// STORIES — YouTube video management for the user's Stories tab
+// ============================================================
+let allStories = {};
+
+function extractYouTubeId(input) {
+  if (!input) return '';
+  const s = input.trim();
+  const match = s.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/);
+  if (match) return match[1];
+  return s; // assume they pasted a raw video ID
+}
+
+function previewStoryThumb() {
+  const id = extractYouTubeId(document.getElementById('story-video-url').value);
+  const wrap = document.getElementById('story-thumb-preview-wrap');
+  const img = document.getElementById('story-thumb-preview');
+  if (id) {
+    img.src = 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg';
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+function renderStoriesTable() {
+  const tbody = document.getElementById('stories-table-body');
+  if (!tbody) return;
+  const list = Object.entries(allStories).sort((a, b) => (a[1].order || 0) - (b[1].order || 0));
+  if (!list.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No stories yet. Add one above.</td></tr>'; return; }
+  tbody.innerHTML = list.map(([id, s]) => {
+    const thumb = s.videoId ? `<img src="https://img.youtube.com/vi/${s.videoId}/default.jpg" style="width:64px;height:36px;border-radius:6px;object-fit:cover;" onerror="this.style.opacity='0.2'">` : '—';
+    return `<tr>
+      <td>${thumb}</td>
+      <td><strong>${(s.title || '—').replace(/</g, '&lt;')}</strong></td>
+      <td class="mono">${s.videoId || '—'}</td>
+      <td class="mono">${s.order || 0}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-edit" onclick="editStory('${id}')">✏️ Edit</button>
+        <button class="btn btn-delete" onclick="deleteStory('${id}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function saveStory() {
+  const editId = document.getElementById('story-edit-id').value;
+  const title = document.getElementById('story-title').value.trim();
+  const videoId = extractYouTubeId(document.getElementById('story-video-url').value);
+  const order = parseInt(document.getElementById('story-order').value) || 0;
+
+  if (!title) { toast('Title is required', '#f87171'); return; }
+  if (!videoId) { toast('A YouTube link or video ID is required', '#f87171'); return; }
+
+  const storyData = { title, videoId, order };
+
+  if (editId) {
+    await db.ref('storiesVideos/' + editId).update(storyData);
+    toast('✅ Story updated');
+  } else {
+    storyData.addedAt = Date.now();
+    const newId = 'story_' + Date.now();
+    await db.ref('storiesVideos/' + newId).set(storyData);
+    toast('✅ Story added');
+  }
+  cancelStoryEdit();
+}
+
+function editStory(id) {
+  const s = allStories[id];
+  if (!s) return;
+  document.getElementById('story-edit-id').value = id;
+  document.getElementById('story-title').value = s.title || '';
+  document.getElementById('story-video-url').value = s.videoId || '';
+  document.getElementById('story-order').value = s.order || 0;
+  document.getElementById('story-form-title').textContent = '✏️ Edit Story — ' + (s.title || '');
+  document.getElementById('story-cancel-btn').style.display = 'inline-block';
+  previewStoryThumb();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cancelStoryEdit() {
+  document.getElementById('story-edit-id').value = '';
+  document.getElementById('story-title').value = '';
+  document.getElementById('story-video-url').value = '';
+  document.getElementById('story-order').value = '';
+  document.getElementById('story-form-title').textContent = '➕ Add New Story';
+  document.getElementById('story-cancel-btn').style.display = 'none';
+  previewStoryThumb();
+}
+
+async function deleteStory(id) {
+  const s = allStories[id];
+  const confirmed = await confirmAction('Delete Story?', 'Delete "' + (s ? s.title : 'this story') + '"? This cannot be undone.');
+  if (confirmed) {
+    await db.ref('storiesVideos/' + id).remove();
+    toast('🗑️ Story deleted', '#f87171');
+  }
+}
+
 function filterTx(type) { txFilter = type; renderTransactions(); }
 
 async function deleteTransaction(username, txKey, txType) {
@@ -2908,6 +3088,10 @@ function loadSettingsUI() {
   document.getElementById('airtel-name-input').value = s.airtelName || '';
   document.getElementById('airtel-ussd-input').value = s.airtelUssdCode || '*185*1#';
   document.getElementById('whatsapp-channel-input').value = s.whatsappChannelLink || '';
+  document.getElementById('apk-url-input').value = s.apkUrl || '';
+  document.getElementById('apk-version-input').value = s.apkVersion || '';
+  document.getElementById('apk-size-input').value = s.apkSize || '';
+  document.getElementById('apk-changelog-input').value = s.apkChangelog || '';
   
   const apiInp = document.getElementById('marz-api-key-input');
   if (s.marzApiKey && !apiInp.value) apiInp.value = s.marzApiKey;
@@ -2956,6 +3140,20 @@ async function saveWhatsappChannel() {
   } catch (error) {
     console.error('Error saving WhatsApp channel link:', error);
     toast('Error saving WhatsApp channel link', '#f87171');
+  }
+}
+
+async function saveAppDownloadSettings() {
+  const apkUrl = document.getElementById('apk-url-input').value.trim();
+  const apkVersion = document.getElementById('apk-version-input').value.trim();
+  const apkSize = document.getElementById('apk-size-input').value.trim();
+  const apkChangelog = document.getElementById('apk-changelog-input').value.trim();
+  try {
+    await db.ref('settings').update({ apkUrl, apkVersion, apkSize, apkChangelog });
+    toast('✅ App download settings saved');
+  } catch (error) {
+    console.error('Error saving app download settings:', error);
+    toast('Error saving app download settings', '#f87171');
   }
 }
 

@@ -428,6 +428,16 @@ input[type="password"]{padding-right:46px;}
 .machine-card-price{font-size:13px;font-weight:700;color:var(--text);}
 .machine-card-payout{font-size:13px;font-weight:800;color:var(--accent);margin-top:2px;}
 .machine-card-pct{position:absolute;top:12px;right:12px;background:var(--btn);color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;}
+.stories-list{display:flex;flex-direction:column;gap:12px;}
+.story-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;}
+.story-thumb-wrap{position:relative;width:100%;aspect-ratio:16/9;background:var(--surface2);}
+.story-thumb-wrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.story-play-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;}
+.story-play-icon svg{width:22px;height:22px;fill:#fff;margin-left:3px;}
+.story-card-title{padding:12px 14px;font-size:14px;font-weight:700;color:var(--text);}
+.story-player-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden;}
+.story-player-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.story-back-link{font-size:11px;color:var(--gold);font-weight:700;margin-bottom:10px;cursor:pointer;display:inline-block;}
 .sn-badge{background:#fff;border-radius:4px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.25);}
 .sn-badge-bars{display:block;width:100%;height:20px;}
 .sn-badge-num{font-size:7px;font-weight:700;color:#000;font-family:'Courier New',monospace;text-align:center;padding:2px 4px;letter-spacing:.5px;}
@@ -854,8 +864,11 @@ input[type="password"]{padding-right:46px;}
 
     <div class="section">
       <div class="home-tabs" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <button class="home-tab-btn" id="app-download-btn" onclick="triggerAppInstall()">App Download</button>
+        <button class="home-tab-btn" id="app-download-btn" onclick="switchTab('app-download')">App Download</button>
         <button class="home-tab-btn" onclick="switchTab('team')">TIERS</button>
+      </div>
+      <div class="home-tabs" style="margin-top:8px;">
+        <button class="home-tab-btn" style="width:100%;" onclick="switchTab('stories')">Stories</button>
       </div>
     </div>
   </div>
@@ -1303,6 +1316,55 @@ input[type="password"]{padding-right:46px;}
     </div>
   </div>
 
+  <!-- App Download -->
+  <div class="dash-section" id="sec-app-download">
+    <div class="inner-header"><div><div class="inner-title">App Download</div><div class="inner-sub">Get the ABB WORKING ROBOTICS app</div></div></div>
+    <div class="section">
+      <div class="action-card" style="text-align:center;">
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:var(--accent);margin-bottom:4px;">ABB WORKING ROBOTICS</div>
+        <div id="apk-version-display" style="font-size:12px;color:var(--muted);margin-bottom:18px;">Latest Version</div>
+
+        <div class="stats-card" style="margin-bottom:16px;">
+          <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="stat-box" style="padding:14px 8px;text-align:center;">
+              <div class="stat-label" style="font-size:8px;margin-bottom:6px;">VERSION</div>
+              <div class="stat-value" id="apk-version-value" style="font-size:14px;font-weight:800;color:var(--text);">—</div>
+            </div>
+            <div class="stat-box" style="padding:14px 8px;text-align:center;">
+              <div class="stat-label" style="font-size:8px;margin-bottom:6px;">SIZE</div>
+              <div class="stat-value" id="apk-size-value" style="font-size:14px;font-weight:800;color:var(--text);">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="apk-changelog-wrap" style="text-align:left;margin-bottom:20px;display:none;">
+          <div style="font-size:11px;color:var(--muted);letter-spacing:.5px;margin-bottom:6px;">WHAT'S NEW</div>
+          <div id="apk-changelog-text" style="font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;"></div>
+        </div>
+
+        <a id="apk-download-link" class="machine-buy-btn" style="display:none;text-decoration:none;box-sizing:border-box;" href="#" target="_blank" rel="noopener">⬇️ Download APK</a>
+        <div id="apk-unavailable-note" style="font-size:11px;color:var(--muted);margin-top:6px;display:none;">The app isn't available for download yet. Please check back soon.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stories -->
+  <div class="dash-section" id="sec-stories">
+    <div class="inner-header"><div><div class="inner-title">Stories</div><div class="inner-sub">Watch the latest videos from ABB WORKING ROBOTICS</div></div></div>
+    <div class="section">
+      <div class="stories-list" id="stories-list"></div>
+    </div>
+  </div>
+
+  <!-- Story Player -->
+  <div class="dash-section" id="sec-story-player">
+    <div class="inner-header"><div><div class="inner-title" id="story-player-title">Story</div></div></div>
+    <div class="section">
+      <div class="story-back-link" onclick="history.back()">← Back to Stories</div>
+      <div class="story-player-wrap" id="story-player-wrap"></div>
+    </div>
+  </div>
+
   <!-- Invite -->
   <div class="dash-section" id="sec-invite">
     <div class="inner-header"><div><div class="inner-title">Invite</div><div class="inner-sub">Share your link and earn on machine purchases</div></div></div>
@@ -1655,6 +1717,7 @@ let settingsData = {
   mtnNumber: '', mtnName: '', airtelNumber: '', airtelName: '',
   mtnUssdCode: '*165*1#', airtelUssdCode: '*185*1#',
   whatsappChannelLink: '',
+  apkUrl: '', apkVersion: '', apkSize: '', apkChangelog: '',
   supportWhatsapp: '',  // <-- Now empty, loaded from Firebase
   supportWhatsappMsg: 'Hello, I need help with ABB WORKING ROBOTICS',
   supportFirstReply: 'Welcome! How can we help you today?',
@@ -2058,6 +2121,7 @@ async function initApp() {
   initTheme();
   startSettingsListener();
   startMachinesListener();
+  startStoriesListener();
   startSupportSettingsListener();
   startAdminStatusListener();
   
@@ -2243,7 +2307,7 @@ function closePrivacyModal(event) {
   document.getElementById('privacy-modal-overlay').classList.remove('open');
 }
 
-const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company', transfer: 'sec-transfer', invite: 'sec-invite', myteam: 'sec-myteam', account: 'sec-account' };
+const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company', transfer: 'sec-transfer', invite: 'sec-invite', myteam: 'sec-myteam', account: 'sec-account', stories: 'sec-stories', 'story-player': 'sec-story-player', 'app-download': 'sec-app-download' };
 const navOrder = ['home', 'errands', 'team', 'plan', 'profile'];
 
 // ============================================================
@@ -2315,6 +2379,9 @@ function applyTabInternal(tab, skipDepositReset) {
   if (tab === 'invite') { renderInvitePage(); }
   if (tab === 'myteam') { renderMyTeamPage(); }
   if (tab === 'account') { renderAccountPage(); }
+  if (tab === 'stories') { renderStoriesList(); }
+  if (tab === 'app-download') { renderAppDownloadPage(); }
+  if (tab !== 'story-player') { stopStoryPlayer(); }
   if (tab === 'deposit' && !skipDepositReset) { depResetFlow(); }
   if (tab === 'errands') { 
     checkSupportWarning(); 
@@ -2389,6 +2456,85 @@ function startSettingsListener() {
     applyBgVideoSettings();
     if (currentUser) { applyWithdrawLock(); }
   });
+}
+
+// ============================================================
+// APP DOWNLOAD — APK info screen, populated from settingsData
+// ============================================================
+function renderAppDownloadPage() {
+  const url = settingsData.apkUrl || '';
+  const version = settingsData.apkVersion || '';
+  const size = settingsData.apkSize || '';
+  const changelog = settingsData.apkChangelog || '';
+
+  const versionDisplay = document.getElementById('apk-version-display');
+  if (versionDisplay) versionDisplay.textContent = version ? ('Version ' + version) : 'Latest Version';
+  const versionValue = document.getElementById('apk-version-value');
+  if (versionValue) versionValue.textContent = version || '—';
+  const sizeValue = document.getElementById('apk-size-value');
+  if (sizeValue) sizeValue.textContent = size || '—';
+
+  const changelogWrap = document.getElementById('apk-changelog-wrap');
+  const changelogText = document.getElementById('apk-changelog-text');
+  if (changelogWrap && changelogText) {
+    if (changelog) { changelogText.textContent = changelog; changelogWrap.style.display = 'block'; }
+    else { changelogWrap.style.display = 'none'; }
+  }
+
+  const link = document.getElementById('apk-download-link');
+  const note = document.getElementById('apk-unavailable-note');
+  if (link && note) {
+    if (url) { link.href = url; link.style.display = 'block'; note.style.display = 'none'; }
+    else { link.style.display = 'none'; note.style.display = 'block'; }
+  }
+}
+
+// ============================================================
+// STORIES — admin-uploaded YouTube videos, list + player
+// ============================================================
+let storiesCatalog = {};
+
+function startStoriesListener() {
+  db.ref('storiesVideos').on('value', (snap) => {
+    storiesCatalog = snap.exists() ? snap.val() : {};
+    const sec = document.getElementById('sec-stories');
+    if (sec && sec.classList.contains('active')) renderStoriesList();
+  });
+}
+
+function renderStoriesList() {
+  const wrap = document.getElementById('stories-list');
+  if (!wrap) return;
+  const list = Object.entries(storiesCatalog).sort((a, b) => (a[1].order || 0) - (b[1].order || 0) || (a[1].addedAt || 0) - (b[1].addedAt || 0));
+  if (!list.length) {
+    wrap.innerHTML = '<div class="tx-empty-state"><div class="tx-empty-title">No Stories Yet</div><div class="tx-empty-text">Check back soon for new videos.</div></div>';
+    return;
+  }
+  wrap.innerHTML = list.map(([id, s]) => {
+    const vid = s.videoId || '';
+    const thumb = 'https://img.youtube.com/vi/' + vid + '/hqdefault.jpg';
+    const title = (s.title || 'Untitled').replace(/</g, '&lt;');
+    return `<div class="story-card" onclick="openStoryPlayer('${id}')">
+      <div class="story-thumb-wrap">
+        <img src="${thumb}" alt="" onerror="this.style.opacity='0.2'">
+        <div class="story-play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="story-card-title">${title}</div>
+    </div>`;
+  }).join('');
+}
+
+function openStoryPlayer(id) {
+  const s = storiesCatalog[id];
+  if (!s || !s.videoId) return;
+  document.getElementById('story-player-title').textContent = s.title || 'Story';
+  document.getElementById('story-player-wrap').innerHTML = '<iframe src="https://www.youtube.com/embed/' + s.videoId + '?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+  switchTab('story-player');
+}
+
+function stopStoryPlayer() {
+  const wrap = document.getElementById('story-player-wrap');
+  if (wrap) wrap.innerHTML = '';
 }
 
 // ============================================================
@@ -2869,6 +3015,8 @@ function updateUIWithSettings() {
   if (withInp) withInp.min = minWith;
   const depAmount = document.getElementById('dep-amount');
   if (depAmount) updateTaxPreview();
+  const appDownloadSection = document.getElementById('sec-app-download');
+  if (appDownloadSection && appDownloadSection.classList.contains('active')) renderAppDownloadPage();
 }
 
 function applyWithdrawLock() {
