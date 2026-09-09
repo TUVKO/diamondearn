@@ -114,6 +114,16 @@ input[type="password"]{padding-right:46px;}
 .phone-prefix-badge{background:var(--surface3);border-right:1px solid var(--border);padding:13px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--accent);font-weight:700;white-space:nowrap;flex-shrink:0;}
 .phone-prefix-wrap input{background:transparent;border:none;border-radius:0;padding:13px 14px;flex:1;}
 .phone-prefix-wrap input:focus{border:none;}
+.country-select-wrap select{width:auto;min-width:88px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:11px 10px;font-size:13px;font-weight:700;}
+#register-page.auth-page-navy .auth-card{background:transparent;border:none;box-shadow:none;padding:14px 4px;}
+#register-page .field-group{margin-bottom:10px;}
+#register-page .field-label{font-size:9px;margin-bottom:5px;}
+#register-page input,#register-page select{padding:10px 12px;font-size:12.5px;}
+#register-page .phone-prefix-wrap input{padding:10px 12px;}
+#register-page .country-select-wrap select{padding:9px 8px;font-size:11.5px;min-width:78px;}
+#register-page .submit-btn{padding:12px;font-size:13px;}
+#register-page .auth-title{font-size:18px;}
+#register-page .auth-subtitle{font-size:11px;margin-bottom:14px;}
 
 /* Dashboard */
 .dashboard-page{display:none;min-height:100vh;padding-bottom:90px;position:relative;z-index:1;}
@@ -493,10 +503,9 @@ input[type="password"]{padding-right:46px;}
     <div class="field-group">
       <label class="field-label">Phone Number</label>
       <div class="phone-prefix-wrap" id="login-phone-wrap">
-        <div class="phone-prefix-badge">+256</div>
-        <input type="tel" id="login-phone" maxlength="9" oninput="loginPhoneInput(this)">
+        <input type="tel" id="login-phone" maxlength="10" placeholder="0712345678" oninput="loginPhoneInput(this)">
       </div>
-      <div class="field-error" id="login-phone-err">Enter 9 digits starting with 7</div>
+      <div class="field-error" id="login-phone-err">Enter your number starting with 0</div>
     </div>
     <div class="field-group">
       <label class="field-label">Password</label>
@@ -518,20 +527,54 @@ input[type="password"]{padding-right:46px;}
   </div>
   <div class="auth-card">
     <div class="auth-title">Create Account</div>
-    <div class="auth-subtitle">Get UGX 3,000 registration bonus</div>
+    <div class="auth-subtitle">Get UGX 2,700 registration bonus</div>
     <div class="field-group">
       <label class="field-label">Phone Number</label>
-      <div class="phone-prefix-wrap" id="reg-phone-wrap">
-        <div class="phone-prefix-badge" id="reg-prefix">+256</div>
-        <input type="tel" id="reg-phone" maxlength="9" oninput="regPhoneInput(this)">
+      <div style="display:flex;gap:8px;">
+        <div class="country-select-wrap">
+          <select id="reg-country">
+            <option value="UG" data-dial="+256" selected>UG 🇺🇬</option>
+            <option value="KE" data-dial="+254">KE 🇰🇪</option>
+            <option value="TZ" data-dial="+255">TZ 🇹🇿</option>
+            <option value="RW" data-dial="+250">RW 🇷🇼</option>
+            <option value="BI" data-dial="+257">BI 🇧🇮</option>
+            <option value="SS" data-dial="+211">SS 🇸🇸</option>
+            <option value="NG" data-dial="+234">NG 🇳🇬</option>
+            <option value="GH" data-dial="+233">GH 🇬🇭</option>
+            <option value="ZA" data-dial="+27">ZA 🇿🇦</option>
+            <option value="ZM" data-dial="+260">ZM 🇿🇲</option>
+            <option value="ZW" data-dial="+263">ZW 🇿🇼</option>
+            <option value="MW" data-dial="+265">MW 🇲🇼</option>
+            <option value="MZ" data-dial="+258">MZ 🇲🇿</option>
+            <option value="ET" data-dial="+251">ET 🇪🇹</option>
+            <option value="SO" data-dial="+252">SO 🇸🇴</option>
+            <option value="CD" data-dial="+243">CD 🇨🇩</option>
+            <option value="CM" data-dial="+237">CM 🇨🇲</option>
+            <option value="CI" data-dial="+225">CI 🇨🇮</option>
+            <option value="SN" data-dial="+221">SN 🇸🇳</option>
+            <option value="ML" data-dial="+223">ML 🇲🇱</option>
+            <option value="NE" data-dial="+227">NE 🇳🇪</option>
+            <option value="BF" data-dial="+226">BF 🇧🇫</option>
+            <option value="TG" data-dial="+228">TG 🇹🇬</option>
+            <option value="BJ" data-dial="+229">BJ 🇧🇯</option>
+            <option value="GM" data-dial="+220">GM 🇬🇲</option>
+            <option value="SL" data-dial="+232">SL 🇸🇱</option>
+            <option value="LR" data-dial="+231">LR 🇱🇷</option>
+            <option value="GN" data-dial="+224">GN 🇬🇳</option>
+            <option value="EG" data-dial="+20">EG 🇪🇬</option>
+            <option value="MA" data-dial="+212">MA 🇲🇦</option>
+          </select>
+        </div>
+        <div class="phone-prefix-wrap" id="reg-phone-wrap" style="flex:1;">
+          <input type="tel" id="reg-phone" maxlength="10" placeholder="0712345678" oninput="regPhoneInput(this)">
+        </div>
       </div>
-      <div class="field-error" id="reg-phone-err">Enter 9 digits starting with 7</div>
+      <div class="field-error" id="reg-phone-err">Enter your number starting with 0</div>
     </div>
     <div class="field-group">
       <label class="field-label">Password</label>
-      <div class="field-wrap"><input type="password" id="reg-password" oninput="checkStrength(this.value)"><button class="eye-btn" onclick="toggleEye('reg-password',this)">Show</button></div>
-      <div class="pw-strength"><div class="pw-bar" id="pw-b1"></div><div class="pw-bar" id="pw-b2"></div><div class="pw-bar" id="pw-b3"></div></div>
-      <div class="field-error" id="reg-pw-err">Password must be at least 6 characters</div>
+      <div class="field-wrap"><input type="password" id="reg-password"><button class="eye-btn" onclick="toggleEye('reg-password',this)">Show</button></div>
+      <div class="field-error" id="reg-pw-err">Password must be at least 5 characters</div>
     </div>
     <div class="field-group">
       <label class="field-label">Confirm Password</label>
@@ -2117,7 +2160,7 @@ function checkStrength(pw) {
   if (pw.length >= 10 && /[^A-Za-z0-9]/.test(pw)) { if (b[0]) b[0].classList.add('strong'); if (b[1]) b[1].classList.add('strong'); if (b[2]) b[2].classList.add('strong'); }
 }
 
-function regPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 9); }
+function regPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 10); }
 function depPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 10); }
 
 function showAuth(id) {
@@ -3031,7 +3074,7 @@ function renderAccountPage() {
   const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   setText('account-phone', currentUser.phone || '—');
   setText('account-registered-date', currentUser.registeredDate || currentUser.joinedDate || '—');
-  const countryNames = { UG: 'Uganda', KE: 'Kenya' };
+  const countryNames = { UG: 'Uganda', KE: 'Kenya', TZ: 'Tanzania', RW: 'Rwanda', BI: 'Burundi', SS: 'South Sudan', NG: 'Nigeria', GH: 'Ghana', ZA: 'South Africa', ZM: 'Zambia', ZW: 'Zimbabwe', MW: 'Malawi', MZ: 'Mozambique', ET: 'Ethiopia', SO: 'Somalia', CD: 'DR Congo', CM: 'Cameroon', CI: 'Ivory Coast', SN: 'Senegal', ML: 'Mali', NE: 'Niger', BF: 'Burkina Faso', TG: 'Togo', BJ: 'Benin', GM: 'Gambia', SL: 'Sierra Leone', LR: 'Liberia', GN: 'Guinea', EG: 'Egypt', MA: 'Morocco' };
   setText('account-country', countryNames[currentUser.country] || currentUser.country || '—');
 
   // Reset password flow to initial state
@@ -4070,10 +4113,19 @@ async function doLogin() {
   setErr('login-general-err', false);
   const phoneDigits = document.getElementById('login-phone').value.trim();
   const password = document.getElementById('login-password').value;
-  if (!phoneDigits || phoneDigits.length !== 9 || !phoneDigits.startsWith('7')) { setErr('login-phone-err', true, 'Enter 9 digits starting with 7'); return; }
+  if (!phoneDigits || phoneDigits.length < 9 || phoneDigits.length > 10 || !phoneDigits.startsWith('0')) { setErr('login-phone-err', true, 'Enter your number starting with 0'); return; }
   if (!password) { setErr('login-pw-err', true); return; }
-  const fullPhone = '+256' + phoneDigits;
   try {
+    // Resolve the account's real fullPhone (with whatever country code it was
+    // registered under) via the lookup index. Accounts registered before this
+    // index existed fall back to the original Uganda-only (+256) format.
+    let fullPhone = null;
+    const lookupSnap = await db.ref('phoneLookup/' + safeKey(phoneDigits)).get();
+    if (lookupSnap.exists()) {
+      fullPhone = lookupSnap.val();
+    } else {
+      fullPhone = '+256' + phoneDigits.slice(1);
+    }
     const userSnap = await db.ref('users/' + safeKey(fullPhone)).get();
     if (!userSnap.exists()) { setErr('login-general-err', true, 'Invalid phone number or password'); return; }
     const userData = userSnap.val();
@@ -4113,22 +4165,25 @@ async function doLogin() {
   }
 }
 
-function loginPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 9); }
+function loginPhoneInput(inp) { inp.value = inp.value.replace(/\D/g, '').slice(0, 10); }
 
 async function doRegister() {
   clearErrors('reg-phone-err', 'reg-pw-err', 'reg-confirm-err', 'reg-referral-err', 'reg-general-err');
   const phoneDigits = document.getElementById('reg-phone').value.trim();
+  const countrySelect = document.getElementById('reg-country');
+  const dialCode = countrySelect.options[countrySelect.selectedIndex].getAttribute('data-dial');
+  const countryCode = countrySelect.value;
   const password = document.getElementById('reg-password').value;
   const confirm = document.getElementById('reg-confirm').value;
   const referralCodeInput = document.getElementById('reg-referral-code').value.trim().toUpperCase();
   let ok = true;
-  if (!phoneDigits || phoneDigits.length !== 9 || !phoneDigits.startsWith('7')) { setErr('reg-phone-err', true, 'Enter 9 digits starting with 7'); ok = false; }
-  if (!password || password.length < 6) { setErr('reg-pw-err', true, 'Password must be at least 6 characters'); ok = false; }
+  if (!phoneDigits || phoneDigits.length < 9 || phoneDigits.length > 10 || !phoneDigits.startsWith('0')) { setErr('reg-phone-err', true, 'Enter your number starting with 0'); ok = false; }
+  if (!password || password.length < 5) { setErr('reg-pw-err', true, 'Password must be at least 5 characters'); ok = false; }
   if (!confirm || confirm !== password) { setErr('reg-confirm-err', true, 'Passwords do not match'); ok = false; }
   if (!referralCodeInput) { setErr('reg-referral-err', true, 'A valid referral code is required'); ok = false; }
   if (!ok) return;
 
-  const fullPhone = '+256' + phoneDigits;
+  const fullPhone = dialCode + phoneDigits.slice(1);
 
   // Referral code is mandatory — must resolve to a real existing user
   const codeSnap = await db.ref('referralCodes/' + referralCodeInput).get();
@@ -4147,14 +4202,17 @@ async function doRegister() {
   const myReferralCode = await generateUniqueReferralCode();
 
   const newUser = {
-    username: fullPhone, password, country: 'UG', phone: fullPhone, primeBalance: 3000, scraydWallet: 0, withdrawn: 0,
+    username: fullPhone, password, country: countryCode, phone: fullPhone, primeBalance: 2700, scraydWallet: 0, withdrawn: 0,
     activated: false, locked: false, joinedDate: joinedYear, registeredDate, referredBy: referredBy,
     referralCode: myReferralCode,
-    transactions: { t0: { type: 'Bonus', amount: 3000, note: 'Registration Bonus', date: now, status: 'completed' } },
+    transactions: { t0: { type: 'Bonus', amount: 2700, note: 'Registration Bonus', date: now, status: 'completed' } },
     deposits: {}, ownedMachines: {}
   };
   await db.ref('users/' + safeKey(fullPhone)).set(newUser);
   await db.ref('referralCodes/' + myReferralCode).set(fullPhone);
+  // Lookup index so Login (which only asks for the local number, no country picker)
+  // can resolve the right account regardless of which country it was registered under.
+  await db.ref('phoneLookup/' + safeKey(phoneDigits)).set(fullPhone);
 
   // Build the 3-level upline network: L1 (direct referrer), L2, L3
   const l1Sk = safeKey(referredBy);
