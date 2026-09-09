@@ -864,7 +864,7 @@ input[type="password"]{padding-right:46px;}
 
     <div class="section">
       <div class="home-tabs" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-        <button class="home-tab-btn" id="app-download-btn" onclick="switchTab('app-download')">App Download</button>
+        <button class="home-tab-btn" id="app-download-btn" onclick="startApkDownload()">App Download</button>
         <button class="home-tab-btn" onclick="switchTab('team')">TIERS</button>
       </div>
       <div class="home-tabs" style="margin-top:8px;">
@@ -1316,38 +1316,6 @@ input[type="password"]{padding-right:46px;}
     </div>
   </div>
 
-  <!-- App Download -->
-  <div class="dash-section" id="sec-app-download">
-    <div class="inner-header"><div><div class="inner-title">App Download</div><div class="inner-sub">Get the ABB WORKING ROBOTICS app</div></div></div>
-    <div class="section">
-      <div class="action-card" style="text-align:center;">
-        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:800;color:var(--accent);margin-bottom:4px;">ABB WORKING ROBOTICS</div>
-        <div id="apk-version-display" style="font-size:12px;color:var(--muted);margin-bottom:18px;">Latest Version</div>
-
-        <div class="stats-card" style="margin-bottom:16px;">
-          <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="stat-box" style="padding:14px 8px;text-align:center;">
-              <div class="stat-label" style="font-size:8px;margin-bottom:6px;">VERSION</div>
-              <div class="stat-value" id="apk-version-value" style="font-size:14px;font-weight:800;color:var(--text);">—</div>
-            </div>
-            <div class="stat-box" style="padding:14px 8px;text-align:center;">
-              <div class="stat-label" style="font-size:8px;margin-bottom:6px;">SIZE</div>
-              <div class="stat-value" id="apk-size-value" style="font-size:14px;font-weight:800;color:var(--text);">—</div>
-            </div>
-          </div>
-        </div>
-
-        <div id="apk-changelog-wrap" style="text-align:left;margin-bottom:20px;display:none;">
-          <div style="font-size:11px;color:var(--muted);letter-spacing:.5px;margin-bottom:6px;">WHAT'S NEW</div>
-          <div id="apk-changelog-text" style="font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;"></div>
-        </div>
-
-        <a id="apk-download-link" class="machine-buy-btn" style="display:none;text-decoration:none;box-sizing:border-box;" href="#" target="_blank" rel="noopener">⬇️ Download APK</a>
-        <div id="apk-unavailable-note" style="font-size:11px;color:var(--muted);margin-top:6px;display:none;">The app isn't available for download yet. Please check back soon.</div>
-      </div>
-    </div>
-  </div>
-
   <!-- Stories -->
   <div class="dash-section" id="sec-stories">
     <div class="inner-header"><div><div class="inner-title">Stories</div><div class="inner-sub">Watch the latest videos from ABB WORKING ROBOTICS</div></div></div>
@@ -1717,7 +1685,7 @@ let settingsData = {
   mtnNumber: '', mtnName: '', airtelNumber: '', airtelName: '',
   mtnUssdCode: '*165*1#', airtelUssdCode: '*185*1#',
   whatsappChannelLink: '',
-  apkUrl: '', apkVersion: '', apkSize: '', apkChangelog: '',
+  apkUrl: '',
   supportWhatsapp: '',  // <-- Now empty, loaded from Firebase
   supportWhatsappMsg: 'Hello, I need help with ABB WORKING ROBOTICS',
   supportFirstReply: 'Welcome! How can we help you today?',
@@ -2307,7 +2275,7 @@ function closePrivacyModal(event) {
   document.getElementById('privacy-modal-overlay').classList.remove('open');
 }
 
-const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company', transfer: 'sec-transfer', invite: 'sec-invite', myteam: 'sec-myteam', account: 'sec-account', stories: 'sec-stories', 'story-player': 'sec-story-player', 'app-download': 'sec-app-download' };
+const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company', transfer: 'sec-transfer', invite: 'sec-invite', myteam: 'sec-myteam', account: 'sec-account', stories: 'sec-stories', 'story-player': 'sec-story-player' };
 const navOrder = ['home', 'errands', 'team', 'plan', 'profile'];
 
 // ============================================================
@@ -2380,7 +2348,6 @@ function applyTabInternal(tab, skipDepositReset) {
   if (tab === 'myteam') { renderMyTeamPage(); }
   if (tab === 'account') { renderAccountPage(); }
   if (tab === 'stories') { renderStoriesList(); }
-  if (tab === 'app-download') { renderAppDownloadPage(); }
   if (tab !== 'story-player') { stopStoryPlayer(); }
   if (tab === 'deposit' && !skipDepositReset) { depResetFlow(); }
   if (tab === 'errands') { 
@@ -2459,34 +2426,22 @@ function startSettingsListener() {
 }
 
 // ============================================================
-// APP DOWNLOAD — APK info screen, populated from settingsData
+// APP DOWNLOAD — tapping the button starts the APK download
+// immediately, no intermediate page.
 // ============================================================
-function renderAppDownloadPage() {
+function startApkDownload() {
   const url = settingsData.apkUrl || '';
-  const version = settingsData.apkVersion || '';
-  const size = settingsData.apkSize || '';
-  const changelog = settingsData.apkChangelog || '';
-
-  const versionDisplay = document.getElementById('apk-version-display');
-  if (versionDisplay) versionDisplay.textContent = version ? ('Version ' + version) : 'Latest Version';
-  const versionValue = document.getElementById('apk-version-value');
-  if (versionValue) versionValue.textContent = version || '—';
-  const sizeValue = document.getElementById('apk-size-value');
-  if (sizeValue) sizeValue.textContent = size || '—';
-
-  const changelogWrap = document.getElementById('apk-changelog-wrap');
-  const changelogText = document.getElementById('apk-changelog-text');
-  if (changelogWrap && changelogText) {
-    if (changelog) { changelogText.textContent = changelog; changelogWrap.style.display = 'block'; }
-    else { changelogWrap.style.display = 'none'; }
+  if (!url) {
+    appInstallMsg('The app isn\'t available for download yet. Please check back soon.');
+    return;
   }
-
-  const link = document.getElementById('apk-download-link');
-  const note = document.getElementById('apk-unavailable-note');
-  if (link && note) {
-    if (url) { link.href = url; link.style.display = 'block'; note.style.display = 'none'; }
-    else { link.style.display = 'none'; note.style.display = 'block'; }
-  }
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 // ============================================================
@@ -3015,8 +2970,6 @@ function updateUIWithSettings() {
   if (withInp) withInp.min = minWith;
   const depAmount = document.getElementById('dep-amount');
   if (depAmount) updateTaxPreview();
-  const appDownloadSection = document.getElementById('sec-app-download');
-  if (appDownloadSection && appDownloadSection.classList.contains('active')) renderAppDownloadPage();
 }
 
 function applyWithdrawLock() {

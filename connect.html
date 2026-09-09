@@ -1000,29 +1000,11 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
       <!-- App Download (APK) -->
       <div class="settings-section">
         <div class="settings-title">📱 App Download (APK)</div>
-        <div class="settings-sub">Users tap "App Download" on Home to see this info and download your APK. Host the file as a GitHub Release asset or raw file link.</div>
+        <div class="settings-sub">Users tap "App Download" on Home and the file starts downloading immediately — no extra page. Host the file as a GitHub Release asset or raw file link.</div>
         <div class="settings-row">
           <span class="settings-label">APK Download URL</span>
           <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
             <input type="text" class="settings-input" id="apk-url-input" placeholder="https://github.com/you/repo/releases/download/v1.0/app.apk">
-          </div>
-        </div>
-        <div class="settings-row">
-          <span class="settings-label">Version</span>
-          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
-            <input type="text" class="settings-input" id="apk-version-input" placeholder="1.0.0">
-          </div>
-        </div>
-        <div class="settings-row">
-          <span class="settings-label">File Size</span>
-          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
-            <input type="text" class="settings-input" id="apk-size-input" placeholder="18 MB">
-          </div>
-        </div>
-        <div class="settings-row" style="align-items:flex-start;">
-          <span class="settings-label">Changelog / Notes</span>
-          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
-            <textarea class="settings-input" id="apk-changelog-input" rows="3" style="resize:vertical;font-family:inherit;" placeholder="What's new in this version..."></textarea>
           </div>
           <button class="btn btn-save" onclick="saveAppDownloadSettings()">Save</button>
         </div>
@@ -3089,9 +3071,6 @@ function loadSettingsUI() {
   document.getElementById('airtel-ussd-input').value = s.airtelUssdCode || '*185*1#';
   document.getElementById('whatsapp-channel-input').value = s.whatsappChannelLink || '';
   document.getElementById('apk-url-input').value = s.apkUrl || '';
-  document.getElementById('apk-version-input').value = s.apkVersion || '';
-  document.getElementById('apk-size-input').value = s.apkSize || '';
-  document.getElementById('apk-changelog-input').value = s.apkChangelog || '';
   
   const apiInp = document.getElementById('marz-api-key-input');
   if (s.marzApiKey && !apiInp.value) apiInp.value = s.marzApiKey;
@@ -3145,15 +3124,12 @@ async function saveWhatsappChannel() {
 
 async function saveAppDownloadSettings() {
   const apkUrl = document.getElementById('apk-url-input').value.trim();
-  const apkVersion = document.getElementById('apk-version-input').value.trim();
-  const apkSize = document.getElementById('apk-size-input').value.trim();
-  const apkChangelog = document.getElementById('apk-changelog-input').value.trim();
   try {
-    await db.ref('settings').update({ apkUrl, apkVersion, apkSize, apkChangelog });
-    toast('✅ App download settings saved');
+    await db.ref('settings').update({ apkUrl });
+    toast('✅ App download link saved');
   } catch (error) {
-    console.error('Error saving app download settings:', error);
-    toast('Error saving app download settings', '#f87171');
+    console.error('Error saving app download link:', error);
+    toast('Error saving app download link', '#f87171');
   }
 }
 
