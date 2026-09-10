@@ -241,6 +241,11 @@ input[type="password"]{padding-right:46px;}
 .activity-ticker-item{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:0 28px;color:#16261c;}
 .activity-ticker-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:#16a34a;}
 @keyframes activity-ticker-scroll{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}
+
+/* Popup Toast — fixed, fades in/out, only shown on Home */
+.popup-toast-fixed{position:fixed;left:50%;bottom:66px;width:calc(100% - 24px);max-width:476px;z-index:150;background:#0f9d58;color:#fff;border-top:3px solid #111111;border-bottom:3px solid #d62828;box-shadow:inset 0 0 0 3px #f4c118,0 4px 14px rgba(0,0,0,.35);border-radius:6px;padding:10px 12px;display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;opacity:0;pointer-events:none;transform:translate(-50%,8px);transition:opacity .4s ease, transform .4s ease;}
+.popup-toast-fixed.show{opacity:1;transform:translate(-50%,0);}
+.popup-toast-dot{width:6px;height:6px;border-radius:50%;background:#f4c118;flex-shrink:0;}
 .stat-label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
 .stat-value{font-size:10px;font-weight:700;font-family:'DM Sans',sans-serif;}
 .stat-value.dep{color:var(--gold)}.stat-value.earn{color:var(--accent3)}.stat-value.with{color:var(--warn)}.stat-value.total{color:var(--accent)}
@@ -1537,6 +1542,8 @@ input[type="password"]{padding-right:46px;}
     </div>
   </div>
 
+  <div class="popup-toast-fixed" id="popup-toast-fixed"><span class="popup-toast-dot"></span><span id="popup-toast-text"></span></div>
+
   <nav class="bottom-nav">
     <div class="nav-item active" onclick="switchTab('home')"><span class="nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11L12 4l9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg></span><span class="nav-label">HOME</span></div>
     <div class="nav-item" onclick="switchTab('errands')"><span class="nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></span><span class="nav-label">ERRANDS</span></div>
@@ -2026,7 +2033,10 @@ window.addEventListener('appinstalled', () => {
 // instead of doing a fresh load, the ticker would otherwise stay frozen
 // on whatever it last rendered. Force a fresh randomized render then too.
 window.addEventListener('pageshow', (e) => {
-  if (e.persisted) renderActivityTicker();
+  if (e.persisted) {
+    renderActivityTicker();
+    buildPopupToastPool();
+  }
 });
 
 async function triggerAppInstall() {
@@ -2271,6 +2281,7 @@ function showDashboard() {
   if (authBgWrap) authBgWrap.classList.remove('active');
   document.getElementById('dashboard-page').style.display = 'block';
   document.getElementById('dashboard-page').classList.add('active');
+  startPopupToastCycle();
 }
 
 function toggleTheme() {
@@ -2417,8 +2428,10 @@ function applyTabInternal(tab, skipDepositReset) {
     if (wrapEl) wrapEl.classList.toggle('active', g.key === activeBgGroup);
   });
   if (tab === 'home') {
+    startPopupToastCycle();
     initHomeCarousels();
   } else {
+    stopPopupToastCycle();
     stopHomeCarousels();
   }
 }
@@ -2578,36 +2591,72 @@ function fakeAmount(min, max) {
   return fmt(val);
 }
 
-function renderActivityTicker() {
-  const track = document.getElementById('activity-ticker-track');
-  if (!track) return;
+function generateFakeActivityText() {
   const machineNames = Object.values(machinesCatalog).map(m => m.name).filter(Boolean);
   const fallbackNames = ['SPK 1', 'BCN 1', 'SPK 3'];
   const namesPool = machineNames.length ? machineNames : fallbackNames;
-
   const actionTypes = ['registered', 'referral', 'deposited', 'purchased', 'withdrawing', 'withdrawn'];
+  const phone = fakeMaskedPhone();
+  const action = actionTypes[Math.floor(Math.random() * actionTypes.length)];
+  if (action === 'registered') return phone + ' registered';
+  if (action === 'referral') return phone + ' earned a referral bonus';
+  if (action === 'deposited') return phone + ' deposited ' + fakeAmount(10000, 500000);
+  if (action === 'purchased') {
+    const name = namesPool[Math.floor(Math.random() * namesPool.length)];
+    return phone + ' purchased ' + name;
+  }
+  if (action === 'withdrawing') return phone + ' withdrawing ' + fakeAmount(10000, 300000);
+  return phone + ' withdrawn ' + fakeAmount(10000, 300000);
+}
+
+function renderActivityTicker() {
+  const track = document.getElementById('activity-ticker-track');
+  if (!track) return;
   let html = '';
   for (let i = 0; i < 60; i++) {
-    const phone = fakeMaskedPhone();
-    const action = actionTypes[Math.floor(Math.random() * actionTypes.length)];
-    let text;
-    if (action === 'registered') {
-      text = phone + ' registered';
-    } else if (action === 'referral') {
-      text = phone + ' earned a referral bonus';
-    } else if (action === 'deposited') {
-      text = phone + ' deposited ' + fakeAmount(10000, 500000);
-    } else if (action === 'purchased') {
-      const name = namesPool[Math.floor(Math.random() * namesPool.length)];
-      text = phone + ' purchased ' + name;
-    } else if (action === 'withdrawing') {
-      text = phone + ' withdrawing ' + fakeAmount(10000, 300000);
-    } else {
-      text = phone + ' withdrawn ' + fakeAmount(10000, 300000);
-    }
-    html += '<span class="activity-ticker-item"><span class="activity-ticker-dot"></span>' + text + '</span>';
+    html += '<span class="activity-ticker-item"><span class="activity-ticker-dot"></span>' + generateFakeActivityText() + '</span>';
   }
   track.innerHTML = html;
+}
+
+// ============================================================
+// POPUP TOAST — a single fixed-position notification that fades
+// in, holds ~4s, fades out, then shows the next of 30 examples.
+// Only runs while the Home tab is active.
+// ============================================================
+let popupToastEntries = [];
+let popupToastIndex = 0;
+let popupToastTimer = null;
+
+function buildPopupToastPool() {
+  popupToastEntries = [];
+  for (let i = 0; i < 30; i++) popupToastEntries.push(generateFakeActivityText());
+  popupToastIndex = 0;
+}
+
+function showNextPopupToast() {
+  const el = document.getElementById('popup-toast-fixed');
+  const textEl = document.getElementById('popup-toast-text');
+  if (!el || !textEl) return;
+  textEl.textContent = popupToastEntries[popupToastIndex % popupToastEntries.length];
+  popupToastIndex++;
+  el.classList.add('show');
+  popupToastTimer = setTimeout(() => {
+    el.classList.remove('show');
+    popupToastTimer = setTimeout(showNextPopupToast, 600);
+  }, 4000);
+}
+
+function startPopupToastCycle() {
+  if (popupToastTimer) return;
+  if (!popupToastEntries.length) buildPopupToastPool();
+  showNextPopupToast();
+}
+
+function stopPopupToastCycle() {
+  if (popupToastTimer) { clearTimeout(popupToastTimer); popupToastTimer = null; }
+  const el = document.getElementById('popup-toast-fixed');
+  if (el) el.classList.remove('show');
 }
 
 function renderMachineCategoryTabs() {
