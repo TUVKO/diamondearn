@@ -232,7 +232,7 @@ input[type="password"]{padding-right:46px;}
 .me-mini-stat{background:rgba(255,255,255,.6);border:1px solid rgba(15,23,42,.06);border-radius:12px;padding:10px 4px;text-align:center;}
 .me-mini-label{font-size:7px;font-weight:700;letter-spacing:.4px;color:#94a3b8;margin-bottom:5px;text-transform:uppercase;}
 .me-mini-value{font-size:12px;font-weight:800;font-family:'DM Sans',sans-serif;line-height:1.2;word-break:break-word;}
-.home-tab-btn{background:#1a2e22;border:none;color:#fff;padding:10px 6px;border-radius:14px;font-weight:600;font-size:11px;cursor:pointer;white-space:nowrap;text-align:center;width:100%;}
+.home-tab-btn{background:#f4ede1;color:#16261c;border:none;border-top:3px solid #111111;border-bottom:3px solid #d62828;box-shadow:inset 0 0 0 3px #f4c118;padding:16px 8px 14px;border-radius:4px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;text-align:center;width:100%;}
 .home-tab-btn:active{transform:scale(.97);}
 .stat-label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
 .stat-value{font-size:10px;font-weight:700;font-family:'DM Sans',sans-serif;}
@@ -869,6 +869,38 @@ input[type="password"]{padding-right:46px;}
       </div>
       <div class="home-tabs" style="margin-top:8px;">
         <button class="home-tab-btn" style="width:100%;" onclick="switchTab('stories')">Stories</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title" style="font-size:13px;font-weight:800;color:var(--text);margin:4px 0 10px;">Team Performance</div>
+      <div class="me-mega-card">
+        <div class="me-mega-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="me-mini-stat">
+            <div class="me-mini-label">TODAY'S COMMISSION</div>
+            <div class="me-mini-value" id="team-perf-today" style="color:#059669;">UGX 0</div>
+          </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">YESTERDAY'S COMMISSION</div>
+            <div class="me-mini-value" id="team-perf-yesterday" style="color:#059669;">UGX 0</div>
+          </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">THIS WEEK</div>
+            <div class="me-mini-value" id="team-perf-week" style="color:#059669;">UGX 0</div>
+          </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">THIS MONTH</div>
+            <div class="me-mini-value" id="team-perf-month" style="color:#059669;">UGX 0</div>
+          </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">JOINED TODAY</div>
+            <div class="me-mini-value" id="team-perf-joined-today" style="color:#0f172a;">0</div>
+          </div>
+          <div class="me-mini-stat">
+            <div class="me-mini-label">JOINED THIS WEEK</div>
+            <div class="me-mini-value" id="team-perf-joined-week" style="color:#0f172a;">0</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1587,7 +1619,7 @@ input[type="password"]{padding-right:46px;}
       <div class="welcome-section-text">We give you three simple ways to add funds to your Prime Account. <strong>WTRAS</strong> works by pasting the confirmation SMS you receive immediately after sending your mobile money payment — our system reads it automatically. <strong>GITRAX</strong> is for anyone who'd rather upload a screenshot of that same confirmation message instead. <strong>SUPA PAY</strong> is the simplest of all — just confirm the phone number you paid from. Whichever method you choose, always double-check that you're sending money only to the number displayed inside the app.</div>
 
       <div class="welcome-badge" onclick="toggleWelcomeSection(this)"><span>EARN WITH REFERRALS</span></div>
-      <div class="welcome-section-text">You don't need to buy a machine yourself to start earning — simply share your personal invite link. Every time someone in your network buys a machine, you earn a percentage automatically, credited straight to your Prime Account. Our referral system runs three levels deep: <strong>12%</strong> on direct referrals (Level 1), <strong>4%</strong> on their referrals (Level 2), and <strong>2%</strong> on the next level after that (Level 3) — no cap, and no purchase required from you to start referring.</div>
+      <div class="welcome-section-text">You don't need to buy a machine yourself to start earning — simply share your personal invite link. Every time someone in your network buys a machine, you earn a percentage automatically, credited straight to your Prime Account. Our referral system runs three levels deep: <strong>12%</strong> on direct referrals (Level A), <strong>4%</strong> on their referrals (Level B), and <strong>2%</strong> on the next level after that (Level C) — no cap, and no purchase required from you to start referring.</div>
 
       <div class="welcome-badge" onclick="toggleWelcomeSection(this)"><span>STAY SAFE</span></div>
       <div class="welcome-section-text">Never share your password, PIN, or one-time verification code (OTP) with anyone for any reason — not with friends, not with someone claiming to be a relative, and not even with someone claiming to represent our support team. Our real support staff will never contact you privately asking for these details. If anyone approaches you claiming to be from ABB WORKING ROBOTICS and asks for your password or OTP, treat it as a scam attempt and report it to our official support channels immediately.</div>
@@ -3136,6 +3168,10 @@ function avatarInitial(name) {
   return (name || '?').trim().charAt(0).toUpperCase() || '?';
 }
 
+function levelLetter(level) {
+  return ({ 1: 'A', 2: 'B', 3: 'C' })[level] || 'A';
+}
+
 function renderMyTeamPage() {
   if (!currentUser) return;
   const network = currentUser.network || {};
@@ -3159,7 +3195,7 @@ function renderMyTeamPage() {
       <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text);white-space:nowrap;overflow-x:auto;">
         <span style="font-weight:700;">${masked}</span>
         <span style="color:var(--muted);">•</span>
-        <span style="background:var(--btn);color:#fff;padding:1px 7px;border-radius:8px;font-weight:800;font-size:10px;">L${r.level || 1}</span>
+        <span style="background:var(--btn);color:#fff;padding:1px 7px;border-radius:8px;font-weight:800;font-size:10px;">${levelLetter(r.level)}</span>
         <span style="color:var(--muted);">•</span>
         <span>${r.purchasedMachines || 0} machines</span>
         <span style="color:var(--muted);">•</span>
@@ -3322,6 +3358,49 @@ function updateMeStats() {
   setText('me-deposited', fmt(totalDeposited));
   setText('me-total-earnings', fmt(totalEarnings));
   setText('me-pending-bonus', fmt(currentUser.pendingReferralBonus || 0));
+
+  // Team Performance — commission buckets (from timestamped referral bonus tx keys)
+  // and joined-today/this-week counts (from network entries' joinedAt, added going forward)
+  const now2 = new Date();
+  const todayKey = getDateKey(now2);
+  const yestDate = new Date(now2); yestDate.setDate(yestDate.getDate() - 1);
+  const yestKey = getDateKey(yestDate);
+  const weekStart = new Date(now2); weekStart.setDate(weekStart.getDate() - weekStart.getDay()); weekStart.setHours(0, 0, 0, 0);
+  const monthStart = new Date(now2.getFullYear(), now2.getMonth(), 1);
+
+  let commToday = 0, commYest = 0, commWeek = 0, commMonth = 0;
+  const allTx = currentUser.transactions || {};
+  Object.keys(allTx).forEach(key => {
+    const m = key.match(/^tx_refbonus_(\d+)_L\d+$/);
+    if (!m) return;
+    const tx = allTx[key];
+    if (!tx || tx.status !== 'completed') return;
+    const epoch = parseInt(m[1], 10);
+    if (!epoch) return;
+    const txDate = new Date(epoch);
+    const txKey = getDateKey(txDate);
+    const amt = tx.amount || 0;
+    if (txKey === todayKey) commToday += amt;
+    if (txKey === yestKey) commYest += amt;
+    if (txDate >= weekStart) commWeek += amt;
+    if (txDate >= monthStart) commMonth += amt;
+  });
+
+  let joinedToday = 0, joinedWeek = 0;
+  referralList.forEach(r => {
+    if (!r.joinedAt) return;
+    const jd = new Date(r.joinedAt);
+    const jKey = getDateKey(jd);
+    if (jKey === todayKey) joinedToday++;
+    if (jd >= weekStart) joinedWeek++;
+  });
+
+  setText('team-perf-today', fmt(commToday));
+  setText('team-perf-yesterday', fmt(commYest));
+  setText('team-perf-week', fmt(commWeek));
+  setText('team-perf-month', fmt(commMonth));
+  setText('team-perf-joined-today', joinedToday);
+  setText('team-perf-joined-week', joinedWeek);
 }
 
 let currentHistoryFilter = 'Deposit';
@@ -4320,7 +4399,7 @@ async function doRegister() {
   // Build the 3-level upline network: L1 (direct referrer), L2, L3
   const l1Sk = safeKey(referredBy);
   await db.ref('users/' + l1Sk + '/network/' + safeKey(fullPhone)).set({
-    username: fullPhone, phone: fullPhone, level: 1, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear
+    username: fullPhone, phone: fullPhone, level: 1, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear, joinedAt: Date.now()
   });
   const l1Snap = await db.ref('users/' + l1Sk).get();
   const l1Data = l1Snap.exists() ? l1Snap.val() : null;
@@ -4329,7 +4408,7 @@ async function doRegister() {
   if (l2Username) {
     const l2Sk = safeKey(l2Username);
     await db.ref('users/' + l2Sk + '/network/' + safeKey(fullPhone)).set({
-      username: fullPhone, phone: fullPhone, level: 2, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear
+      username: fullPhone, phone: fullPhone, level: 2, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear, joinedAt: Date.now()
     });
     const l2Snap = await db.ref('users/' + l2Sk).get();
     const l2Data = l2Snap.exists() ? l2Snap.val() : null;
@@ -4338,7 +4417,7 @@ async function doRegister() {
     if (l3Username) {
       const l3Sk = safeKey(l3Username);
       await db.ref('users/' + l3Sk + '/network/' + safeKey(fullPhone)).set({
-        username: fullPhone, phone: fullPhone, level: 3, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear
+        username: fullPhone, phone: fullPhone, level: 3, purchasedMachines: 0, totalEarned: 0, joinedDate: joinedYear, joinedAt: Date.now()
       });
     }
   }

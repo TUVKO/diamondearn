@@ -1025,9 +1025,9 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
         <div class="settings-row"><span class="settings-label">Maximum Deposit (UGX)</span><div class="ugx-group"><span class="ugx-label">UGX</span><input type="number" class="ugx-input" id="max-deposit-input" min="10000" step="1000" placeholder="2350000"></div><button class="btn btn-save" onclick="saveMaxDeposit()">Save</button></div>
         <div class="settings-row"><span class="settings-label">Minimum Withdrawal (UGX)</span><div class="ugx-group"><span class="ugx-label">UGX</span><input type="number" class="ugx-input" id="min-withdraw-input" min="500" step="500" placeholder="10000"></div><button class="btn btn-save" onclick="saveMinWithdraw()">Save</button></div>
         <div class="settings-row"><span class="settings-label">Withdrawal Service Charge (%)</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" class="pct-input" id="with-charge-input" min="0" max="50" step="0.5" placeholder="10"><span class="pct-label">%</span></div><button class="btn btn-save" onclick="saveWithCharge()">Save</button></div>
-        <div class="settings-row"><span class="settings-label">Referral Commission — Level 1 (Direct)</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" class="pct-input" id="referral-pct-l1-input" min="0" max="50" step="0.5" placeholder="11"><span class="pct-label">%</span></div><button class="btn btn-save" onclick="saveReferralPcts()">Save</button></div>
-        <div class="settings-row"><span class="settings-label">Referral Commission — Level 2</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" class="pct-input" id="referral-pct-l2-input" min="0" max="50" step="0.5" placeholder="4"><span class="pct-label">%</span></div></div>
-        <div class="settings-row"><span class="settings-label">Referral Commission — Level 3</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" class="pct-input" id="referral-pct-l3-input" min="0" max="50" step="0.5" placeholder="1"><span class="pct-label">%</span></div></div>
+        <div class="settings-row"><span class="settings-label">Referral Commission — Level A (Direct)</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" class="pct-input" id="referral-pct-l1-input" min="0" max="50" step="0.5" placeholder="11"><span class="pct-label">%</span></div><button class="btn btn-save" onclick="saveReferralPcts()">Save</button></div>
+        <div class="settings-row"><span class="settings-label">Referral Commission — Level B</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" class="pct-input" id="referral-pct-l2-input" min="0" max="50" step="0.5" placeholder="4"><span class="pct-label">%</span></div></div>
+        <div class="settings-row"><span class="settings-label">Referral Commission — Level C</span><div style="display:flex;align-items:center;gap:8px;"><input type="number" class="pct-input" id="referral-pct-l3-input" min="0" max="50" step="0.5" placeholder="1"><span class="pct-label">%</span></div></div>
       </div>
 
       <!-- Support Settings -->
@@ -3214,7 +3214,7 @@ async function saveReferralPcts() {
   const l2 = parseFloat(document.getElementById('referral-pct-l2-input').value) || 0;
   const l3 = parseFloat(document.getElementById('referral-pct-l3-input').value) || 0;
   await db.ref('settings').update({ referralPercentL1: l1, referralPercentL2: l2, referralPercentL3: l3 });
-  toast('✅ Referral commissions updated: L1 ' + l1 + '%, L2 ' + l2 + '%, L3 ' + l3 + '%');
+  toast('✅ Referral commissions updated: A ' + l1 + '%, B ' + l2 + '%, C ' + l3 + '%');
 }
 
 async function lockWithdrawals(lock) {
