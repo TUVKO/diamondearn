@@ -2022,6 +2022,13 @@ window.addEventListener('appinstalled', () => {
   appInstallMsg('App installed! Find it on your home screen.');
 });
 
+// If the browser restores this page from its back/forward cache (bfcache)
+// instead of doing a fresh load, the ticker would otherwise stay frozen
+// on whatever it last rendered. Force a fresh randomized render then too.
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) renderActivityTicker();
+});
+
 async function triggerAppInstall() {
   // Already running as an installed app
   if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
