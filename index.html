@@ -234,6 +234,13 @@ input[type="password"]{padding-right:46px;}
 .me-mini-value{font-size:12px;font-weight:800;font-family:'DM Sans',sans-serif;line-height:1.2;word-break:break-word;}
 .home-tab-btn{background:#f4ede1;color:#16261c;border:none;border-top:3px solid #111111;border-bottom:3px solid #d62828;box-shadow:inset 0 0 0 3px #f4c118;padding:16px 8px 14px;border-radius:4px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;text-align:center;width:100%;}
 .home-tab-btn:active{transform:scale(.97);}
+
+/* Live Activity Ticker */
+.activity-ticker-wrap{overflow:hidden;white-space:nowrap;border-radius:10px;margin-bottom:14px;background:#f4ede1;padding:10px 0;border-top:3px solid #111111;border-bottom:3px solid #d62828;box-shadow:inset 0 0 0 3px #f4c118;}
+.activity-ticker-track{display:inline-block;padding-left:100%;animation:activity-ticker-scroll 260s linear infinite;}
+.activity-ticker-item{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:0 28px;color:#16261c;}
+.activity-ticker-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:#16a34a;}
+@keyframes activity-ticker-scroll{0%{transform:translateX(0);}100%{transform:translateX(-100%);}}
 .stat-label{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
 .stat-value{font-size:10px;font-weight:700;font-family:'DM Sans',sans-serif;}
 .stat-value.dep{color:var(--gold)}.stat-value.earn{color:var(--accent3)}.stat-value.with{color:var(--warn)}.stat-value.total{color:var(--accent)}
@@ -669,6 +676,12 @@ input[type="password"]{padding-right:46px;}
         <div class="welcome-banner-circle wb-c2"></div>
         <div class="welcome-banner-title">Welcome</div>
         <div class="welcome-banner-text">Small steps today, bigger rewards tomorrow</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="activity-ticker-wrap">
+        <div class="activity-ticker-track" id="activity-ticker-track"></div>
       </div>
     </div>
 
@@ -1527,7 +1540,7 @@ input[type="password"]{padding-right:46px;}
   <nav class="bottom-nav">
     <div class="nav-item active" onclick="switchTab('home')"><span class="nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11L12 4l9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg></span><span class="nav-label">HOME</span></div>
     <div class="nav-item" onclick="switchTab('errands')"><span class="nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg></span><span class="nav-label">ERRANDS</span></div>
-    <div class="nav-item" onclick="switchTab('team')"><span class="nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="3" y1="12" x2="21" y2="12"/></svg></span><span class="nav-label">TIERS</span></div>
+    <div class="nav-item" onclick="switchTab('team')"><span class="nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="3" y1="12" x2="21" y2="12"/></svg></span><span class="nav-label">ROBOTICS</span></div>
     <div class="nav-item" onclick="switchTab('plan')"><span class="nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg></span><span class="nav-label">DIVIDENDS</span></div>
     <div class="nav-item" onclick="switchTab('profile')"><span class="nav-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg></span><span class="nav-label">ME</span></div>
   </nav>
@@ -2536,9 +2549,58 @@ function startMachinesListener() {
     machinesCatalog = snap.exists() ? snap.val() : {};
     renderMachineCategoryTabs();
     renderMachineShop();
+    renderActivityTicker();
     const homeSection = document.getElementById('sec-home');
     if (homeSection && homeSection.classList.contains('active')) initHomeCarousels();
   });
+}
+
+// ============================================================
+// LIVE ACTIVITY TICKER — 60 fake, randomly generated entries
+// scrolling on Home. Machine names come from the real catalog;
+// phone numbers and amounts are fake/randomized for display only.
+// ============================================================
+function fakeMaskedPhone() {
+  const prefix = '2567' + Math.floor(Math.random() * 10);
+  const last3 = String(Math.floor(Math.random() * 900) + 100);
+  return '+' + prefix + '****' + last3;
+}
+
+function fakeAmount(min, max) {
+  const val = Math.floor((Math.random() * (max - min) + min) / 500) * 500;
+  return fmt(val);
+}
+
+function renderActivityTicker() {
+  const track = document.getElementById('activity-ticker-track');
+  if (!track) return;
+  const machineNames = Object.values(machinesCatalog).map(m => m.name).filter(Boolean);
+  const fallbackNames = ['SPK 1', 'BCN 1', 'SPK 3'];
+  const namesPool = machineNames.length ? machineNames : fallbackNames;
+
+  const actionTypes = ['registered', 'referral', 'deposited', 'purchased', 'withdrawing', 'withdrawn'];
+  let html = '';
+  for (let i = 0; i < 60; i++) {
+    const phone = fakeMaskedPhone();
+    const action = actionTypes[Math.floor(Math.random() * actionTypes.length)];
+    let text;
+    if (action === 'registered') {
+      text = phone + ' registered';
+    } else if (action === 'referral') {
+      text = phone + ' earned a referral bonus';
+    } else if (action === 'deposited') {
+      text = phone + ' deposited ' + fakeAmount(10000, 500000);
+    } else if (action === 'purchased') {
+      const name = namesPool[Math.floor(Math.random() * namesPool.length)];
+      text = phone + ' purchased ' + name;
+    } else if (action === 'withdrawing') {
+      text = phone + ' withdrawing ' + fakeAmount(10000, 300000);
+    } else {
+      text = phone + ' withdrawn ' + fakeAmount(10000, 300000);
+    }
+    html += '<span class="activity-ticker-item"><span class="activity-ticker-dot"></span>' + text + '</span>';
+  }
+  track.innerHTML = html;
 }
 
 function renderMachineCategoryTabs() {
@@ -3148,7 +3210,7 @@ function copyInviteLink() {
 function shareInviteLink() {
   const link = getReferralLink();
   if (navigator.share) {
-    navigator.share({ title: 'ABB WORKING ROBOTICS', text: 'Join ABB WORKING ROBOTICS using my referral link:', url: link }).catch(() => {});
+    navigator.share({ title: 'ABB WORKING ROBOTICS', text: "I've been earning steadily by hiring robots on ABB WORKING ROBOTICS — they do the work, I collect the profit. I'd like to invite you to join using my referral link below:", url: link }).catch(() => {});
   } else {
     copyInviteLink();
   }
