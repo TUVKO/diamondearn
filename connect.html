@@ -607,7 +607,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
             <div><label class="f-label">Machine Name</label><input type="text" class="f-input" style="padding:11px 14px;" id="machine-name" placeholder="e.g. NOB 1"></div>
             <div><label class="f-label">Category</label>
-              <select class="f-input" style="padding:11px 14px;" id="machine-category">
+              <select class="f-input" style="padding:11px 14px;" id="machine-category" onchange="updateMachinePayoutPreview()">
                 <option value="Ordinary">Ordinary</option>
                 <option value="VIP">VIP</option>
                 <option value="VVIP">VVIP</option>
@@ -637,13 +637,13 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
               <input type="text" class="f-input" style="padding:11px 14px;margin-top:8px;" id="machine-image" placeholder="https://..." oninput="previewMachineImageUrl()">
             </details>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
             <div><label class="f-label">Price (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-price" placeholder="24000" min="0" oninput="updateMachinePayoutPreview()"></div>
             <div><label class="f-label">Days</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-days" placeholder="14" min="1" oninput="updateMachinePayoutPreview()"></div>
-            <div><label class="f-label">Daily Return (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-daily-return" placeholder="e.g. 800" min="1" oninput="updateMachinePayoutPreview()"></div>
           </div>
+          <input type="hidden" id="machine-daily-return">
           <input type="hidden" id="machine-payout">
-          <div id="machine-payout-preview" style="font-size:12px;color:var(--muted);margin-bottom:14px;">💰 Payout will be calculated automatically</div>
+          <div id="machine-payout-preview" style="font-size:12px;color:var(--muted);margin-bottom:14px;">💰 Daily Return will be calculated automatically from Price, Days and Category</div>
           <div style="margin-bottom:14px;">
             <label class="f-label">Description</label>
             <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);margin-bottom:8px;cursor:pointer;">
@@ -938,6 +938,23 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
           <div class="pct-group"><input type="number" class="pct-input" id="ura-tax-input" min="0" max="50" step="0.5" placeholder="4"><span class="pct-label">%</span></div>
           <button class="btn btn-save" onclick="saveUraTax()">Save</button>
         </div>
+      </div>
+
+      <!-- Deposit Recovery Periods -->
+      <div class="settings-section">
+        <div class="settings-title">🔁 Deposit Recovery Period (days) — by Category</div>
+        <div class="settings-sub">Internal only — never shown to users. Machine Daily Return is auto-calculated as Price ÷ this number for the machine's category.</div>
+        <div id="recovery-periods-list">
+          <div class="settings-row"><span class="settings-label">Ordinary</span><input type="number" class="settings-input mono" id="recovery-period-Ordinary" min="1" style="max-width:100px;"></div>
+          <div class="settings-row"><span class="settings-label">VIP</span><input type="number" class="settings-input mono" id="recovery-period-VIP" min="1" style="max-width:100px;"></div>
+          <div class="settings-row"><span class="settings-label">VVIP</span><input type="number" class="settings-input mono" id="recovery-period-VVIP" min="1" style="max-width:100px;"></div>
+          <div class="settings-row"><span class="settings-label">Platinum</span><input type="number" class="settings-input mono" id="recovery-period-Platinum" min="1" style="max-width:100px;"></div>
+          <div class="settings-row"><span class="settings-label">Diamond</span><input type="number" class="settings-input mono" id="recovery-period-Diamond" min="1" style="max-width:100px;"></div>
+          <div class="settings-row"><span class="settings-label">Royal</span><input type="number" class="settings-input mono" id="recovery-period-Royal" min="1" style="max-width:100px;"></div>
+          <div class="settings-row"><span class="settings-label">Infinite</span><input type="number" class="settings-input mono" id="recovery-period-Infinite" min="1" style="max-width:100px;"></div>
+          <div class="settings-row"><span class="settings-label">Sovereign</span><input type="number" class="settings-input mono" id="recovery-period-Sovereign" min="1" style="max-width:100px;"></div>
+        </div>
+        <button class="btn btn-save" style="margin-top:8px;" onclick="saveRecoveryPeriods()">💾 Save Recovery Periods</button>
       </div>
 
       <!-- Manual Deposit Numbers -->
@@ -1242,7 +1259,8 @@ let allSettings = {
   airtelName: '',
   mtnUssdCode: '*165*1#',
   airtelUssdCode: '*185*1#',
-  whatsappChannelLink: ''
+  whatsappChannelLink: '',
+  recoveryPeriods: { Ordinary: 32, VIP: 32, VVIP: 32, Platinum: 32, Diamond: 32, Royal: 32, Infinite: 32, Sovereign: 32 }
 };
 let allSupportSettings = {
   whatsappNumber: '+256712345678',
@@ -2217,21 +2235,30 @@ function handleMachineImageUpload(input) {
   reader.readAsDataURL(file);
 }
 
+function getRecoveryPeriod(category) {
+  const rp = (allSettings && allSettings.recoveryPeriods) || {};
+  return rp[category] || 32;
+}
+
 function updateMachinePayoutPreview() {
   const price = parseFloat(document.getElementById('machine-price').value) || 0;
   const days = parseInt(document.getElementById('machine-days').value) || 0;
-  const dailyReturn = parseFloat(document.getElementById('machine-daily-return').value) || 0;
+  const category = document.getElementById('machine-category').value || 'Ordinary';
+  const recoveryPeriod = getRecoveryPeriod(category);
   const preview = document.getElementById('machine-payout-preview');
-  if (price <= 0 || days <= 0 || dailyReturn <= 0) {
+  if (price <= 0 || days <= 0) {
+    document.getElementById('machine-daily-return').value = '';
     document.getElementById('machine-payout').value = '';
-    preview.textContent = '💰 Total return will be calculated automatically';
+    preview.textContent = '💰 Daily Return will be calculated automatically from Price, Days and Category';
     return;
   }
+  const dailyReturn = Math.round(price / recoveryPeriod);
   const returnTotal = Math.round(dailyReturn * days);
   const payout = Math.round(price + returnTotal);
   const pct = Math.round((returnTotal / price) * 100);
+  document.getElementById('machine-daily-return').value = dailyReturn;
   document.getElementById('machine-payout').value = payout;
-  preview.innerHTML = `💰 ${fmt(dailyReturn)}/day × ${days} days = <strong style="color:var(--success)">${fmt(returnTotal)}</strong> total return (${pct}%), plus the ${fmt(price)} purchase amount returned at the end`;
+  preview.innerHTML = `💰 Daily Return: <strong style="color:var(--success)">${fmt(dailyReturn)}</strong>/day (Price ÷ ${recoveryPeriod}-day recovery for ${category}) × ${days} days = ${fmt(returnTotal)} total return (${pct}%), plus the ${fmt(price)} purchase amount returned at the end`;
 }
 
 // ============================================================
@@ -2348,7 +2375,8 @@ async function saveMachine() {
   const imageUrl = document.getElementById('machine-image').value.trim();
   const price = parseInt(document.getElementById('machine-price').value) || 0;
   const days = parseInt(document.getElementById('machine-days').value) || 0;
-  const dailyReturn = parseInt(document.getElementById('machine-daily-return').value) || 0;
+  const recoveryPeriod = getRecoveryPeriod(category);
+  const dailyReturn = price > 0 ? Math.round(price / recoveryPeriod) : 0;
   const returnTotal = Math.round(dailyReturn * days);
   const description = document.getElementById('machine-description').value.trim();
   const autoDesc = document.getElementById('machine-auto-desc').checked;
@@ -2358,7 +2386,6 @@ async function saveMachine() {
   if (!name) { toast('Machine name is required', '#f87171'); return; }
   if (price <= 0) { toast('Price must be greater than 0', '#f87171'); return; }
   if (days <= 0) { toast('Days must be greater than 0', '#f87171'); return; }
-  if (dailyReturn <= 0) { toast('Daily Return must be greater than 0', '#f87171'); return; }
 
   // Auto-generate: description is always regenerated fresh from current Category/Days/Return,
   // so future edits to those fields keep the description in sync automatically.
@@ -2396,12 +2423,6 @@ function editMachine(id) {
   document.getElementById('machine-description').value = m.description || '';
   document.getElementById('machine-auto-desc').checked = m.autoDescription === true;
   onAutoDescToggle();
-  const price = m.price || 0;
-  const days = m.days || 0;
-  const payout = m.payout || 0;
-  const dailyReturn = m.dailyReturn !== undefined ? m.dailyReturn : (days > 0 ? Math.round((payout - price) / days) : 0);
-  document.getElementById('machine-daily-return').value = dailyReturn > 0 ? dailyReturn : '';
-  document.getElementById('machine-payout').value = payout;
   document.getElementById('machine-form-title').textContent = '✏️ Edit Machine — ' + (m.name || '');
   document.getElementById('machine-cancel-btn').style.display = 'inline-block';
   document.getElementById('machine-image-status').textContent = m.imageUrl ? '✅ Current image' : 'No image selected';
@@ -3074,6 +3095,11 @@ async function saveBackgroundVideos() {
 function loadSettingsUI() {
   const s = allSettings;
   document.getElementById('ura-tax-input').value = s.uraTax || 4;
+  const rp = s.recoveryPeriods || {};
+  ['Ordinary','VIP','VVIP','Platinum','Diamond','Royal','Infinite','Sovereign'].forEach(cat => {
+    const el = document.getElementById('recovery-period-' + cat);
+    if (el) el.value = rp[cat] || 32;
+  });
   document.getElementById('with-charge-input').value = s.withdrawCharge || 10;
   document.getElementById('referral-pct-l1-input').value = s.referralPercentL1 !== undefined ? s.referralPercentL1 : 12;
   document.getElementById('referral-pct-l2-input').value = s.referralPercentL2 !== undefined ? s.referralPercentL2 : 4;
@@ -3197,6 +3223,20 @@ async function saveUraTax() {
   if (v < 0) { toast('Tax cannot be negative', '#f87171'); return; }
   await db.ref('settings/uraTax').set(v);
   toast('✅ URA Tax updated to ' + v + '%');
+}
+
+async function saveRecoveryPeriods() {
+  const cats = ['Ordinary','VIP','VVIP','Platinum','Diamond','Royal','Infinite','Sovereign'];
+  const recoveryPeriods = {};
+  for (const cat of cats) {
+    const el = document.getElementById('recovery-period-' + cat);
+    const v = parseInt(el ? el.value : 0) || 32;
+    if (v < 1) { toast('Recovery period must be at least 1 day (' + cat + ')', '#f87171'); return; }
+    recoveryPeriods[cat] = v;
+  }
+  await db.ref('settings/recoveryPeriods').set(recoveryPeriods);
+  toast('✅ Recovery periods saved');
+  updateMachinePayoutPreview();
 }
 
 async function saveMinDeposit() {
