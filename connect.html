@@ -639,8 +639,8 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
             <div><label class="f-label">Price (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-price" placeholder="24000" min="0" oninput="updateMachinePayoutPreview()"></div>
-            <div><label class="f-label">Days</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-days" placeholder="14" min="1"></div>
-            <div><label class="f-label">Total Return (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-return-total" placeholder="e.g. 12000" min="1" oninput="updateMachinePayoutPreview()"></div>
+            <div><label class="f-label">Days</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-days" placeholder="14" min="1" oninput="updateMachinePayoutPreview()"></div>
+            <div><label class="f-label">Daily Return (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-daily-return" placeholder="e.g. 800" min="1" oninput="updateMachinePayoutPreview()"></div>
           </div>
           <input type="hidden" id="machine-payout">
           <div id="machine-payout-preview" style="font-size:12px;color:var(--muted);margin-bottom:14px;">💰 Payout will be calculated automatically</div>
@@ -663,7 +663,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
       <div class="table-wrap">
         <div class="table-header"><div class="table-title">📦 All Machines</div></div>
         <table>
-          <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Days</th><th>Payout</th><th>Return %</th><th>Status</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Days</th><th>Daily / Total</th><th>Return %</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody id="machines-table-body"><tr class="empty-row"><td colspan="9">Loading...</td></tr></tbody>
         </table>
       </div>
@@ -2033,17 +2033,28 @@ function renderUserMachinesModal() {
   list.innerHTML = owned.map(([key, m]) => {
     const statusLabel = m.status === 'active' ? 'Active' : (m.status === 'cancelled' ? 'Cancelled' : 'Completed');
     const badgeClass = m.status === 'active' ? 'badge-active' : 'badge-locked';
-    const daysLeft = m.status === 'active' ? Math.max(0, Math.ceil(((m.maturityDate || now) - now) / 86400000)) : null;
+    const isDaily = m.dailyReturn !== undefined;
+    let subLine, earningsLine;
+    if (isDaily) {
+      const daysPaid = m.daysPaid || 0;
+      const daysLeft = m.status === 'active' ? Math.max(0, (m.days || 0) - daysPaid) : 0;
+      subLine = `${m.days || 0} day contract${m.status === 'active' ? ' — ' + daysLeft + 'd left' : ''} — ${daysPaid}/${m.days || 0} days paid`;
+      earningsLine = `Price: <strong style="color:var(--text);">${fmt(m.price || 0)}</strong> &nbsp;•&nbsp; Daily: <strong style="color:var(--success);">${fmt(m.dailyReturn || 0)}</strong> &nbsp;•&nbsp; Earned so far: <strong style="color:var(--success);">${fmt(m.totalEarned || 0)}</strong>${m.principalReturned ? ' &nbsp;•&nbsp; <strong style="color:var(--success);">Principal returned</strong>' : ''}`;
+    } else {
+      const daysLeft = m.status === 'active' ? Math.max(0, Math.ceil(((m.maturityDate || now) - now) / 86400000)) : null;
+      subLine = `${m.days || 0} day contract${daysLeft !== null ? ' — ' + daysLeft + 'd left' : ''} (legacy lump-sum)`;
+      earningsLine = `Price: <strong style="color:var(--text);">${fmt(m.price || 0)}</strong> &nbsp;•&nbsp; Payout: <strong style="color:var(--success);">${fmt(m.payout || 0)}</strong>`;
+    }
     return `<div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
         <div>
           <div style="font-weight:800;font-size:14px;color:var(--text);">${m.name || 'Machine'}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${m.days || 0} day contract${daysLeft !== null ? ' — ' + daysLeft + 'd left' : ''}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${subLine}</div>
         </div>
         <span class="badge ${badgeClass}">${statusLabel}</span>
       </div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">
-        Price: <strong style="color:var(--text);">${fmt(m.price || 0)}</strong> &nbsp;•&nbsp; Payout: <strong style="color:var(--success);">${fmt(m.payout || 0)}</strong>
+        ${earningsLine}
       </div>
       ${m.status === 'active' ? `
       <div style="display:flex;gap:8px;">
@@ -2132,16 +2143,19 @@ function renderMachinesTable() {
   if (!list.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No machines yet. Add one above.</td></tr>'; return; }
   tbody.innerHTML = list.map(([id, m]) => {
     const price = m.price || 0;
+    const days = m.days || 0;
     const payout = m.payout || 0;
-    const pct = price > 0 ? Math.round(((payout - price) / price) * 100) : 0;
+    const dailyReturn = m.dailyReturn !== undefined ? m.dailyReturn : (days > 0 ? Math.round((payout - price) / days) : 0);
+    const totalReturn = m.totalReturn !== undefined ? m.totalReturn : Math.round(dailyReturn * days);
+    const pct = price > 0 ? Math.round((totalReturn / price) * 100) : 0;
     const imgHtml = m.imageUrl ? `<img src="${m.imageUrl}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;" onerror="this.style.opacity='0.2'">` : '—';
     return `<tr>
       <td>${imgHtml}</td>
       <td><strong>${m.name || '—'}</strong></td>
       <td class="mono">${m.category || '—'}</td>
       <td class="mono" style="color:var(--gold)">${fmt(price)}</td>
-      <td class="mono">${m.days || 0}d</td>
-      <td class="mono" style="color:var(--success)">${fmt(payout)}</td>
+      <td class="mono">${days}d</td>
+      <td class="mono" style="color:var(--success)">${fmt(dailyReturn)}/day · ${fmt(totalReturn)}</td>
       <td class="mono" style="color:var(--accent3)">+${pct}%</td>
       <td><span class="badge ${m.active === false ? 'badge-locked' : 'badge-active'}">${m.active === false ? 'Locked' : 'Unlocked'}</span></td>
       <td style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -2205,17 +2219,19 @@ function handleMachineImageUpload(input) {
 
 function updateMachinePayoutPreview() {
   const price = parseFloat(document.getElementById('machine-price').value) || 0;
-  const returnTotal = parseFloat(document.getElementById('machine-return-total').value) || 0;
+  const days = parseInt(document.getElementById('machine-days').value) || 0;
+  const dailyReturn = parseFloat(document.getElementById('machine-daily-return').value) || 0;
   const preview = document.getElementById('machine-payout-preview');
-  if (price <= 0 || returnTotal <= 0) {
+  if (price <= 0 || days <= 0 || dailyReturn <= 0) {
     document.getElementById('machine-payout').value = '';
-    preview.textContent = '💰 Payout will be calculated automatically';
+    preview.textContent = '💰 Total return will be calculated automatically';
     return;
   }
+  const returnTotal = Math.round(dailyReturn * days);
   const payout = Math.round(price + returnTotal);
   const pct = Math.round((returnTotal / price) * 100);
   document.getElementById('machine-payout').value = payout;
-  preview.innerHTML = `💰 Payout: <strong style="color:var(--success)">${fmt(payout)}</strong> (Price ${fmt(price)} + ${fmt(returnTotal)} return — ${pct}%)`;
+  preview.innerHTML = `💰 ${fmt(dailyReturn)}/day × ${days} days = <strong style="color:var(--success)">${fmt(returnTotal)}</strong> total return (${pct}%), plus the ${fmt(price)} purchase amount returned at the end`;
 }
 
 // ============================================================
@@ -2230,7 +2246,7 @@ Hire this machine into service for {days} days. It's a dependable, no-frills wor
 
 There's nothing flashy about it, and that's exactly the point. It's built for people who understand that consistency beats excitement, and that small, steady gains stack up into something real over time.
 
-Place it to work, then let it run. When the {days} days are done, it returns to you with {return} — a fair reward for a job simply, honestly done.
+Place it to work and it starts paying you back the very same day — a steady daily return, no lock-up. When the {days} days are done, its total earnings come to {return}, and your purchase amount is paid straight back to you — a fair reward for a job simply, honestly done.
 
 Sometimes ordinary is exactly where extraordinary begins.`,
 
@@ -2238,9 +2254,9 @@ Sometimes ordinary is exactly where extraordinary begins.`,
 
 This VIP machine is hired into service for {days} days, built for those who've outgrown ordinary returns and are ready for something with more weight behind it. It doesn't just work — it performs, steadily and without excuse.
 
-You won't need to check in on it. It knows its job, and it does it well, day after day, until the full term is complete.
+You won't need to check in on it. It knows its job, and it pays you every single day it works, until the full term is complete.
 
-At the end of its {days}-day service, it returns to you with {return} — a reward that reflects the level you've chosen to operate at.
+Over its {days}-day service it earns you {return} in daily returns, and your purchase amount is handed straight back to you at the end — a reward that reflects the level you've chosen to operate at.
 
 VIP isn't a title. It's a decision you made the moment you hired it.`,
 
@@ -2248,9 +2264,9 @@ VIP isn't a title. It's a decision you made the moment you hired it.`,
 
 The VVIP machine doesn't work like the others — it works like it has something to prove, because you do too. For {days} days, it's fully committed to your service, operating at a level built for people who expect more and settle for nothing less.
 
-This tier exists for a reason: because some people are done waiting for small wins and are ready to hire something built for bigger ones.
+This tier exists for a reason: because some people are done waiting for small wins and are ready to hire something that pays them from day one.
 
-When its {days} days are complete, it returns bearing {return} — proof that raising your standards raises your rewards.
+Across its {days} days of daily returns it earns you {return} in total, with your purchase amount returned in full at the end — proof that raising your standards raises your rewards.
 
 VVIP service. VVIP results.`,
 
@@ -2258,9 +2274,9 @@ VVIP service. VVIP results.`,
 
 Platinum doesn't shout — it simply delivers. Hired for {days} days, this machine brings a rare combination of durability and precision, working quietly in the background while your patience does the rest.
 
-It's for people who've learned that the biggest returns often come from the calmest confidence — placing trust once, and letting the work speak over time.
+It's for people who've learned that the biggest returns often come from the calmest confidence — placing trust once, and collecting a return every single day while it works.
 
-After {days} days of dedicated service, your Platinum machine returns with {return}, a reward shaped by resilience and time well spent.
+After {days} days of dedicated service your Platinum machine has paid you {return} in total, plus your purchase amount back in full — a reward shaped by resilience and time well spent.
 
 Platinum: because some things are simply built to last.`,
 
@@ -2268,9 +2284,9 @@ Platinum: because some things are simply built to last.`,
 
 For {days} days, the Diamond machine works with an intensity matched only by its reliability — a tier reserved for those who understand that real value isn't handed out, it's forged.
 
-Every day of its service adds to something larger: a return built not on luck, but on commitment sustained over time.
+Every day of its service pays you directly — a return built not on luck, but on commitment sustained over time.
 
-When the {days}-day term concludes, it returns to you with {return} — a reward as solid and unshakeable as the machine that earned it.
+When the {days}-day term concludes, it has paid you {return} in total, with your purchase amount returned in full — a reward as solid and unshakeable as the machine that earned it.
 
 Diamond doesn't just shine. It holds its value.`,
 
@@ -2278,9 +2294,9 @@ Diamond doesn't just shine. It holds its value.`,
 
 The Royal machine is hired for {days} days of dedicated, uncompromising service — designed for those who've earned the right to expect more, and refuse to accept less.
 
-It works with the quiet confidence of something built for people who lead rather than follow, who set the pace rather than wait for it.
+It works with the quiet confidence of something built for people who lead rather than follow — paying you daily, without you having to ask.
 
-Upon completing its {days} days, it returns to your name bearing {return} — a reward fit for the standard you've chosen to hold.
+Upon completing its {days} days, it has delivered {return} in total earnings to your name, plus your purchase amount back in full — a reward fit for the standard you've chosen to hold.
 
 Royal isn't given. It's claimed, one decision at a time.`,
 
@@ -2288,9 +2304,9 @@ Royal isn't given. It's claimed, one decision at a time.`,
 
 The Infinite machine represents the edge of what's possible — hired for {days} days to work at a level built for those who no longer measure success by comparison, only by growth.
 
-There is no ceiling here, only momentum: a machine built to match ambition that refuses to plateau.
+There is no ceiling here, only momentum: a machine built to match ambition, paying out every day it's on the job.
 
-When its {days}-day service is fulfilled, it returns with {return} — a reward as boundless as the vision that hired it.
+When its {days}-day service is fulfilled, it has delivered {return} in total daily returns, with your purchase amount returned in full — a reward as boundless as the vision that hired it.
 
 Infinite is not a limit. It's a beginning.`,
 
@@ -2298,9 +2314,9 @@ Infinite is not a limit. It's a beginning.`,
 
 At the highest tier we offer, the Sovereign machine is hired only by those who understand that true wealth is built, not wished for. For {days} days, this machine works under your name alone, carrying the full weight of your trust and the full promise of your reward.
 
-Every detail of its service has been designed for those at the top — precision, reliability, and a return worthy of the commitment you've made.
+Every detail of its service has been designed for those at the top — precision, reliability, and a daily return worthy of the commitment you've made.
 
-When its {days}-day service concludes, it returns with {return} — not as a bonus, but as the natural outcome of backing something built to perform at the very top.
+When its {days}-day service concludes, it has paid you {return} in total, with your purchase amount returned in full — not as a bonus, but as the natural outcome of backing something built to perform at the very top.
 
 Sovereign is not a name you're given. It's a level you claim.`
 };
@@ -2332,7 +2348,8 @@ async function saveMachine() {
   const imageUrl = document.getElementById('machine-image').value.trim();
   const price = parseInt(document.getElementById('machine-price').value) || 0;
   const days = parseInt(document.getElementById('machine-days').value) || 0;
-  const returnTotal = parseInt(document.getElementById('machine-return-total').value) || 0;
+  const dailyReturn = parseInt(document.getElementById('machine-daily-return').value) || 0;
+  const returnTotal = Math.round(dailyReturn * days);
   const description = document.getElementById('machine-description').value.trim();
   const autoDesc = document.getElementById('machine-auto-desc').checked;
   const payout = Math.round(price + returnTotal);
@@ -2341,7 +2358,7 @@ async function saveMachine() {
   if (!name) { toast('Machine name is required', '#f87171'); return; }
   if (price <= 0) { toast('Price must be greater than 0', '#f87171'); return; }
   if (days <= 0) { toast('Days must be greater than 0', '#f87171'); return; }
-  if (returnTotal <= 0) { toast('Total Return must be greater than 0', '#f87171'); return; }
+  if (dailyReturn <= 0) { toast('Daily Return must be greater than 0', '#f87171'); return; }
 
   // Auto-generate: description is always regenerated fresh from current Category/Days/Return,
   // so future edits to those fields keep the description in sync automatically.
@@ -2351,7 +2368,7 @@ async function saveMachine() {
   const existingForSerial = editId ? allMachines[editId] : null;
   const finalSerial = (existingForSerial && existingForSerial.serialNumber) || generateMachineSerial();
 
-  const machineData = { name, category, imageUrl, price, days, payout, percent, description: finalDescription, autoDescription: autoDesc, serialNumber: finalSerial, active: true };
+  const machineData = { name, category, imageUrl, price, days, dailyReturn, totalReturn: returnTotal, payout, percent, description: finalDescription, autoDescription: autoDesc, serialNumber: finalSerial, active: true };
 
   if (editId) {
     const existing = allMachines[editId];
@@ -2380,9 +2397,10 @@ function editMachine(id) {
   document.getElementById('machine-auto-desc').checked = m.autoDescription === true;
   onAutoDescToggle();
   const price = m.price || 0;
+  const days = m.days || 0;
   const payout = m.payout || 0;
-  const returnTotal = payout - price;
-  document.getElementById('machine-return-total').value = returnTotal > 0 ? returnTotal : '';
+  const dailyReturn = m.dailyReturn !== undefined ? m.dailyReturn : (days > 0 ? Math.round((payout - price) / days) : 0);
+  document.getElementById('machine-daily-return').value = dailyReturn > 0 ? dailyReturn : '';
   document.getElementById('machine-payout').value = payout;
   document.getElementById('machine-form-title').textContent = '✏️ Edit Machine — ' + (m.name || '');
   document.getElementById('machine-cancel-btn').style.display = 'inline-block';
@@ -2400,7 +2418,7 @@ function cancelMachineEdit() {
   document.getElementById('machine-image-file').value = '';
   document.getElementById('machine-price').value = '';
   document.getElementById('machine-days').value = '';
-  document.getElementById('machine-return-total').value = '';
+  document.getElementById('machine-daily-return').value = '';
   document.getElementById('machine-description').value = '';
   document.getElementById('machine-auto-desc').checked = true;
   onAutoDescToggle();

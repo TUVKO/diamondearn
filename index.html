@@ -946,14 +946,18 @@ input[type="password"]{padding-right:46px;}
         </div>
 
         <div class="stats-card" style="margin-bottom:14px;">
-          <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <div class="stat-box" style="padding:14px 8px;text-align:center;">
+          <div class="stats-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+            <div class="stat-box" style="padding:14px 6px;text-align:center;">
               <div class="stat-label" style="font-size:8px;margin-bottom:6px;">BUY PRICE</div>
-              <div class="stat-value" id="md-price" style="font-size:14px;font-weight:800;color:var(--text);">UGX 0</div>
+              <div class="stat-value" id="md-price" style="font-size:13px;font-weight:800;color:var(--text);">UGX 0</div>
             </div>
-            <div class="stat-box" style="padding:14px 8px;text-align:center;">
-              <div class="stat-label" style="font-size:8px;margin-bottom:6px;">PAYOUT</div>
-              <div class="stat-value" id="md-payout" style="font-size:14px;font-weight:800;color:#fbbf24;">UGX 0</div>
+            <div class="stat-box" style="padding:14px 6px;text-align:center;">
+              <div class="stat-label" style="font-size:8px;margin-bottom:6px;">DAILY RETURN</div>
+              <div class="stat-value" id="md-daily" style="font-size:13px;font-weight:800;color:#fbbf24;">UGX 0</div>
+            </div>
+            <div class="stat-box" style="padding:14px 6px;text-align:center;">
+              <div class="stat-label" style="font-size:8px;margin-bottom:6px;">TOTAL RETURN</div>
+              <div class="stat-value" id="md-payout" style="font-size:13px;font-weight:800;color:#fbbf24;">UGX 0</div>
             </div>
           </div>
         </div>
@@ -1350,7 +1354,7 @@ input[type="password"]{padding-right:46px;}
         <p style="font-size:13px;line-height:1.7;color:var(--text);margin-bottom:18px;">As we open our Uganda offices, we'll be hiring local representatives to run day-to-day operations, support our members, and represent ABB WORKING ROBOTICS on the ground. If you're interested in being part of our growth in Uganda, stay tuned for opportunities.</p>
 
         <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;color:var(--accent);margin-bottom:8px;">How It Works</div>
-        <p style="font-size:13px;line-height:1.7;color:var(--text);margin-bottom:18px;">You hire a machine that fits your budget, it works for a set number of days, and once the job is done, your investment plus your return is paid straight into your Scrayd Wallet — ready to withdraw or reinvest.</p>
+        <p style="font-size:13px;line-height:1.7;color:var(--text);margin-bottom:18px;">You hire a machine that fits your budget and it starts working immediately — no waiting, no lock-up. It pays a fixed daily return straight into your Scrayd Wallet every day it's on the job, and once its work period is complete, your original purchase amount is paid back into your Prime Account, ready to withdraw or reinvest.</p>
 
         <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:800;color:var(--accent);margin-bottom:8px;">Why People Choose Us</div>
         <ul style="font-size:13px;line-height:1.8;color:var(--text);margin:0 0 18px;padding-left:18px;">
@@ -1633,7 +1637,7 @@ input[type="password"]{padding-right:46px;}
 
     <div class="welcome-scroll-mid">
       <div class="welcome-badge open" onclick="toggleWelcomeSection(this)"><span>HOW IT WORKS</span></div>
-      <div class="welcome-section-text open">Buying a machine means hiring one of our robots to get to work for you. We're proud partners with <a href="https://bostondynamics.com" target="_blank" rel="noopener">Boston Dynamics</a>, the world-renowned robotics company — every machine you hire runs on real robotics technology built for reliability and precision. Once hired, your robot works continuously for a fixed number of days handling its assigned task. When that period ends, the machine matures: your original investment plus the profit it generated is credited straight to your <strong>Prime Account</strong>, ready for you to withdraw or put back to work on your next hire.</div>
+      <div class="welcome-section-text open">Buying a machine means hiring one of our robots to get to work for you. We're proud partners with <a href="https://bostondynamics.com" target="_blank" rel="noopener">Boston Dynamics</a>, the world-renowned robotics company — every machine you hire runs on real robotics technology built for reliability and precision. Your robot starts working the moment you hire it — no lock-up period. It pays a fixed daily return into your <strong>Scrayd Wallet</strong> for every day it works, for the machine's set number of days. Once that work period is complete, your original purchase amount is credited straight back to your <strong>Prime Account</strong>, ready for you to withdraw or put back to work on your next hire.</div>
 
       <div class="welcome-badge" onclick="toggleWelcomeSection(this)"><span>ADDING FUNDS</span></div>
       <div class="welcome-section-text">We give you three simple ways to add funds to your Prime Account. <strong>WTRAS</strong> works by pasting the confirmation SMS you receive immediately after sending your mobile money payment — our system reads it automatically. <strong>GITRAX</strong> is for anyone who'd rather upload a screenshot of that same confirmation message instead. <strong>SUPA PAY</strong> is the simplest of all — just confirm the phone number you paid from. Whichever method you choose, always double-check that you're sending money only to the number displayed inside the app.</div>
@@ -2101,11 +2105,16 @@ function toggleWelcomeSection(badgeEl) {
 }
 
 // ============================================================
-// Machine maturity payout engine — replaces the old daily-profit engine.
-// Checks each owned machine; if its lock period has completed, credits
-// the full payout (price + return) to SCRAYD WALLET and marks it completed.
+// Daily earning engine — no locking. Each active robot pays its
+// dailyReturn into SCRAYD WALLET for every UTC day that completes
+// during its contract, catching up on any days missed while the app
+// was closed. Once all days are paid, the purchase amount (principal)
+// is returned to PRIME BALANCE and the robot is marked completed.
+// Machines purchased before this update (old lump-sum-at-maturity
+// style, no dailyReturn field) still finish out under their original
+// terms so in-flight contracts aren't disrupted.
 // ============================================================
-async function checkMachineMaturity() {
+async function processMachineEarnings() {
   if (!currentUsername) return;
   try {
     const userRef = db.ref('users/' + safeKey(currentUsername));
@@ -2116,13 +2125,54 @@ async function checkMachineMaturity() {
     const owned = userData.ownedMachines || {};
     const now = Date.now();
     let newScraydWallet = userData.scraydWallet || 0;
+    let newPrimeBalance = userData.primeBalance || 0;
     const updates = {};
     let paidAny = false;
     let i = 0;
 
     Object.keys(owned).forEach(key => {
       const m = owned[key];
-      if (m.status === 'active' && m.maturityDate && now >= m.maturityDate) {
+      if (m.status !== 'active') return;
+
+      if (m.dailyReturn !== undefined) {
+        // New-style: daily payouts, principal returned at the end.
+        const days = m.days || 0;
+        const cycleStart = m.cycleStart || m.purchaseDate || now;
+        const daysPaid = m.daysPaid || 0;
+        const daysElapsed = Math.max(0, Math.floor((now - cycleStart) / 86400000));
+        const dueDays = Math.min(days, daysElapsed);
+        const newDays = dueDays - daysPaid;
+
+        if (newDays > 0) {
+          const amount = newDays * (m.dailyReturn || 0);
+          newScraydWallet += amount;
+          updates[`ownedMachines/${key}/daysPaid`] = dueDays;
+          updates[`ownedMachines/${key}/totalEarned`] = (m.totalEarned || 0) + amount;
+          updates[`transactions/tx_daily_${Date.now()}_${i}`] = {
+            type: 'Daily Robot Return',
+            amount,
+            note: (m.name || 'Machine') + (newDays > 1 ? ` — ${newDays} days' returns` : ' — daily return') + ' credited to Scrayd Wallet',
+            date: dateStr(), status: 'completed'
+          };
+          paidAny = true;
+          i++;
+        }
+
+        if (dueDays >= days && !m.principalReturned) {
+          newPrimeBalance += (m.price || 0);
+          updates[`ownedMachines/${key}/principalReturned`] = true;
+          updates[`ownedMachines/${key}/status`] = 'completed';
+          updates[`transactions/tx_principal_${Date.now()}_${i}`] = {
+            type: 'Machine Completed',
+            amount: m.price || 0,
+            note: (m.name || 'Machine') + ' contract complete — purchase amount returned to Prime Account',
+            date: dateStr(), status: 'completed'
+          };
+          paidAny = true;
+          i++;
+        }
+      } else if (m.maturityDate && now >= m.maturityDate) {
+        // Legacy machine bought before this update — pays out once, in full, at maturity.
         newScraydWallet += (m.payout || 0);
         updates[`ownedMachines/${key}/status`] = 'completed';
         updates[`transactions/tx_machine_${Date.now()}_${i}`] = { type: 'Machine Payout', amount: m.payout, note: (m.name || 'Machine') + ' matured — payout credited to Scrayd Wallet', date: dateStr(), status: 'completed' };
@@ -2133,6 +2183,7 @@ async function checkMachineMaturity() {
 
     if (paidAny) {
       updates.scraydWallet = newScraydWallet;
+      updates.primeBalance = newPrimeBalance;
       await userRef.update(updates);
       currentUser = await userRef.get().then(snap => snap.val());
       updateBalanceUI();
@@ -2140,7 +2191,7 @@ async function checkMachineMaturity() {
     }
     // Silent — no toast notification
   } catch (error) {
-    console.error('Machine maturity check error:', error);
+    console.error('Machine earnings check error:', error);
   }
 }
 
@@ -2165,7 +2216,7 @@ async function initApp() {
         
         // MACHINE MATURITY CHECK FIRST - before UI updates
         // This ensures balance is updated with any completed machine payouts before UI renders
-        await checkMachineMaturity().catch(err => console.warn('Machine maturity error:', err));
+        await processMachineEarnings().catch(err => console.warn('Machine earnings error:', err));
         
         // CHECK PENDING DEPOSITS SILENTLY - in background
         checkPendingDeposits(savedUser).catch(err => console.warn('Pending deposits check error:', err));
@@ -2185,7 +2236,7 @@ async function initApp() {
         showDashboard();
         switchTab('home');
         showWelcomeCard();
-        startMachineMaturityLoop();
+        startMachineEarningsLoop();
         startInactivityWatcher();
         checkSupportWarning();
       } else {
@@ -2205,12 +2256,12 @@ async function initApp() {
   document.getElementById('loading-screen').style.display = 'none';
 }
 
-// Background machine maturity loop (every 30 min) - SILENT
-function startMachineMaturityLoop() {
+// Background daily-earnings loop (every 30 min) - SILENT
+function startMachineEarningsLoop() {
   if (machineInterval) clearInterval(machineInterval);
   machineInterval = setInterval(() => {
     if (currentUser && currentUsername) {
-      checkMachineMaturity().catch(err => console.warn('Machine interval error:', err));
+      processMachineEarnings().catch(err => console.warn('Machine interval error:', err));
     }
   }, 1800000);
 }
@@ -2659,6 +2710,18 @@ function stopPopupToastCycle() {
   if (el) el.classList.remove('show');
 }
 
+// Daily return with fallback for any catalog entries still using the
+// old Price+Total-Return schema (pre daily-earning update).
+function machineDailyReturn(m) {
+  if (m.dailyReturn !== undefined) return m.dailyReturn || 0;
+  const days = m.days || 0;
+  return days > 0 ? Math.round(((m.payout || 0) - (m.price || 0)) / days) : 0;
+}
+function machineTotalReturn(m) {
+  if (m.totalReturn !== undefined) return m.totalReturn || 0;
+  return Math.max(0, (m.payout || 0) - (m.price || 0));
+}
+
 function renderMachineCategoryTabs() {
   const wrap = document.getElementById('machine-category-tabs');
   if (!wrap) return;
@@ -2712,7 +2775,7 @@ function renderMachineShop() {
     }
 
     const price = m.price || 0;
-    const payout = m.payout || 0;
+    const daily = machineDailyReturn(m);
     const snBadge = m.serialNumber ? `<div style="position:absolute;top:12px;right:12px;">${buildSerialBadgeHtml(m.serialNumber, 'sm')}</div>` : '';
     return `<div class="machine-card">
       ${snBadge}
@@ -2721,7 +2784,7 @@ function renderMachineShop() {
         <div class="machine-card-name">${m.name || 'Machine'}</div>
         <div class="machine-card-days">Contract: ${m.days || 0} Days</div>
         <div class="machine-card-price">Buy: ${fmt(price)}</div>
-        <div class="machine-card-payout">Payout: ${fmt(payout)}</div>
+        <div class="machine-card-payout">Earn: ${fmt(daily)}/day</div>
         <button class="machine-buy-btn" onclick="viewMachine('${id}')">View</button>
       </div>
     </div>`;
@@ -2772,13 +2835,13 @@ function renderCarouselSlide(cat) {
   }
   const [id, m] = state.machines[state.idx];
   const price = m.price || 0;
-  const payout = m.payout || 0;
+  const daily = machineDailyReturn(m);
   const snBadge = m.serialNumber ? `<div style="position:absolute;top:0;right:0;">${buildSerialBadgeHtml(m.serialNumber, 'sm')}</div>` : '';
   wrap.innerHTML = `
     ${snBadge}
     <div class="carousel-machine-name">${m.name || 'Machine'}</div>
     <div class="carousel-machine-row">Buy: ${fmt(price)}</div>
-    <div class="carousel-machine-row carousel-return">Return: ${fmt(payout)}</div>
+    <div class="carousel-machine-row carousel-return">Earn: ${fmt(daily)}/day</div>
     <button class="machine-buy-btn" style="margin-top:8px;" onclick="viewMachine('${id}')">View</button>
   `;
 }
@@ -2833,17 +2896,18 @@ async function buyMachine(machineId) {
   const purchaseId = 'mch_' + Date.now();
   const now = Date.now();
   const days = m.days || 0;
-  // Maturity lands on the UTC midnight that is `days` calendar-days after
-  // the purchase date, not exactly days*24h from the purchase moment.
+  // Daily earning cycle starts at the UTC midnight of the purchase day —
+  // day 1's return is credited once that first UTC day has elapsed.
   const nowD = new Date(now);
   const purchaseUtcMidnight = Date.UTC(nowD.getUTCFullYear(), nowD.getUTCMonth(), nowD.getUTCDate());
-  const maturityDate = purchaseUtcMidnight + days * 86400000;
+  const dailyReturn = m.dailyReturn || (days > 0 ? Math.round(((m.payout || 0) - price) / days) : 0);
   const newPrimeBalance = primeBalance - price;
   const updates = {
     primeBalance: newPrimeBalance,
     [`ownedMachines/${purchaseId}`]: {
-      machineId, name: m.name || 'Machine', price, payout: m.payout || 0, days,
-      purchaseDate: now, maturityDate, status: 'active'
+      machineId, name: m.name || 'Machine', price, days, dailyReturn,
+      purchaseDate: now, cycleStart: purchaseUtcMidnight,
+      daysPaid: 0, totalEarned: 0, principalReturned: false, status: 'active'
     },
     [`transactions/tx_buy_${Date.now()}`]: { type: 'Machine Purchase', amount: -price, note: 'Purchased ' + (m.name || 'Machine') + ' (Prime Account)', date: dateStr(), status: 'completed' }
   };
@@ -3011,13 +3075,15 @@ function renderMachineDetail() {
   const m = machinesCatalog[currentViewedMachineId];
   if (!m) return;
   const price = m.price || 0;
-  const payout = m.payout || 0;
+  const daily = machineDailyReturn(m);
+  const totalReturn = machineTotalReturn(m);
 
   document.getElementById('md-name').textContent = m.name || 'Machine';
   document.getElementById('md-category').textContent = m.category || 'Ordinary';
   document.getElementById('md-days').textContent = m.days || 0;
   document.getElementById('md-price').textContent = fmt(price);
-  document.getElementById('md-payout').textContent = fmt(payout);
+  document.getElementById('md-daily').textContent = fmt(daily);
+  document.getElementById('md-payout').textContent = fmt(totalReturn);
   document.getElementById('md-balance').textContent = fmt(currentUser ? (currentUser.primeBalance || 0) : 0);
 
   const snWrap = document.getElementById('md-sn-badge-wrap');
@@ -3085,6 +3151,29 @@ function renderMyMachines() {
   const now = Date.now();
   list.innerHTML = all.map(([id, m]) => {
     const isActive = m.status === 'active';
+    const isDaily = m.dailyReturn !== undefined;
+
+    if (isDaily) {
+      const days = m.days || 0;
+      const daysPaid = m.daysPaid || 0;
+      const progress = days > 0 ? Math.min(100, Math.max(0, (daysPaid / days) * 100)) : (isActive ? 0 : 100);
+      const daysLeft = Math.max(0, days - daysPaid);
+      const statusHtml = isActive
+        ? `<span class="my-machine-days-left">${daysLeft}d left</span>`
+        : `<span class="my-machine-days-left" style="color:var(--success);">Completed</span>`;
+      return `<div class="my-machine-card">
+        <div class="my-machine-top">
+          <span class="my-machine-name">${m.name || 'Machine'}</span>
+          ${statusHtml}
+        </div>
+        <div class="my-machine-payout" style="margin-top:0;margin-bottom:8px;">Amount Purchased: <strong style="color:var(--text);">${fmt(m.price || 0)}</strong></div>
+        <div class="my-machine-progress"><div class="my-machine-progress-fill" style="width:${progress}%"></div></div>
+        <div class="my-machine-payout">Daily Return: <strong style="color:var(--text);">${fmt(m.dailyReturn || 0)}</strong> &nbsp;•&nbsp; ${daysPaid}/${days} days paid</div>
+        <div class="my-machine-payout">${isActive ? 'Earned so far: ' + fmt(m.totalEarned || 0) : 'Total earned: ' + fmt(m.totalEarned || 0) + ' + purchase amount returned'}</div>
+      </div>`;
+    }
+
+    // Legacy lump-sum machine (bought before the daily-earning update)
     const start = m.purchaseDate || now;
     const end = m.maturityDate || now;
     const totalMs = end - start;
@@ -4437,7 +4526,7 @@ async function doLogin() {
     
     // MACHINE MATURITY CHECK FIRST - before UI updates
     // This ensures balance is updated with any completed machine payouts before UI renders
-    await checkMachineMaturity().catch(err => console.warn('Login machine maturity error:', err));
+    await processMachineEarnings().catch(err => console.warn('Login machine earnings error:', err));
     
     // Re-fetch user data after maturity check to get updated balance
     const updatedSnap = await db.ref('users/' + safeKey(fullPhone)).get();
@@ -4455,7 +4544,7 @@ async function doLogin() {
     showDashboard();
     switchTab('home');
     showWelcomeCard();
-    startMachineMaturityLoop();
+    startMachineEarningsLoop();
     startInactivityWatcher();
     checkSupportWarning();
     // Silent login - no toast
@@ -4552,7 +4641,7 @@ async function doRegister() {
   showDashboard();
   switchTab('home');
   showWelcomeCard();
-  startMachineMaturityLoop();
+  startMachineEarningsLoop();
   // Silent registration - no toast
   document.getElementById('reg-phone').value = '';
   document.getElementById('reg-password').value = '';
