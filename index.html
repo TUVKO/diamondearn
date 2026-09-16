@@ -2776,6 +2776,7 @@ function renderMachineShop() {
 
     const price = m.price || 0;
     const daily = machineDailyReturn(m);
+    const totalReturn = machineTotalReturn(m);
     const snBadge = m.serialNumber ? `<div style="position:absolute;top:12px;right:12px;">${buildSerialBadgeHtml(m.serialNumber, 'sm')}</div>` : '';
     return `<div class="machine-card">
       ${snBadge}
@@ -2785,6 +2786,7 @@ function renderMachineShop() {
         <div class="machine-card-days">Contract: ${m.days || 0} Days</div>
         <div class="machine-card-price">Buy: ${fmt(price)}</div>
         <div class="machine-card-payout">Earn: ${fmt(daily)}/day</div>
+        <div class="machine-card-payout">Total Return: ${fmt(totalReturn)}</div>
         <button class="machine-buy-btn" onclick="viewMachine('${id}')">View</button>
       </div>
     </div>`;

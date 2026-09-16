@@ -607,7 +607,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
             <div><label class="f-label">Machine Name</label><input type="text" class="f-input" style="padding:11px 14px;" id="machine-name" placeholder="e.g. NOB 1"></div>
             <div><label class="f-label">Category</label>
-              <select class="f-input" style="padding:11px 14px;" id="machine-category" onchange="updateMachinePayoutPreview()">
+              <select class="f-input" style="padding:11px 14px;" id="machine-category" onchange="onMachineCategoryChange()">
                 <option value="Ordinary">Ordinary</option>
                 <option value="VIP">VIP</option>
                 <option value="VVIP">VVIP</option>
@@ -637,9 +637,10 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
               <input type="text" class="f-input" style="padding:11px 14px;margin-top:8px;" id="machine-image" placeholder="https://..." oninput="previewMachineImageUrl()">
             </details>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
             <div><label class="f-label">Price (UGX)</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-price" placeholder="24000" min="0" oninput="updateMachinePayoutPreview()"></div>
             <div><label class="f-label">Days</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-days" placeholder="14" min="1" oninput="updateMachinePayoutPreview()"></div>
+            <div><label class="f-label">Recovery Days</label><input type="number" class="f-input" style="padding:11px 14px;" id="machine-recovery-days" placeholder="32" min="1" oninput="updateMachinePayoutPreview()"></div>
           </div>
           <input type="hidden" id="machine-daily-return">
           <input type="hidden" id="machine-payout">
@@ -943,7 +944,7 @@ tbody td{padding:13px 16px;font-size:13px;vertical-align:middle;}
       <!-- Deposit Recovery Periods -->
       <div class="settings-section">
         <div class="settings-title">🔁 Deposit Recovery Period (days) — by Category</div>
-        <div class="settings-sub">Internal only — never shown to users. Machine Daily Return is auto-calculated as Price ÷ this number for the machine's category.</div>
+        <div class="settings-sub">Internal only — never shown to users. Used as the auto-suggested starting value when adding a new machine of that category; each machine's own Recovery Days field (set on the Add/Edit Machine form) is what actually determines its Daily Return.</div>
         <div id="recovery-periods-list">
           <div class="settings-row"><span class="settings-label">Ordinary</span><input type="number" class="settings-input mono" id="recovery-period-Ordinary" min="1" style="max-width:100px;"></div>
           <div class="settings-row"><span class="settings-label">VIP</span><input type="number" class="settings-input mono" id="recovery-period-VIP" min="1" style="max-width:100px;"></div>
@@ -2165,6 +2166,7 @@ function renderMachinesTable() {
     const payout = m.payout || 0;
     const dailyReturn = m.dailyReturn !== undefined ? m.dailyReturn : (days > 0 ? Math.round((payout - price) / days) : 0);
     const totalReturn = m.totalReturn !== undefined ? m.totalReturn : Math.round(dailyReturn * days);
+    const recoveryDays = m.recoveryDays || getRecoveryPeriod(m.category || 'Ordinary');
     const pct = price > 0 ? Math.round((totalReturn / price) * 100) : 0;
     const imgHtml = m.imageUrl ? `<img src="${m.imageUrl}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;" onerror="this.style.opacity='0.2'">` : '—';
     return `<tr>
@@ -2173,7 +2175,7 @@ function renderMachinesTable() {
       <td class="mono">${m.category || '—'}</td>
       <td class="mono" style="color:var(--gold)">${fmt(price)}</td>
       <td class="mono">${days}d</td>
-      <td class="mono" style="color:var(--success)">${fmt(dailyReturn)}/day · ${fmt(totalReturn)}</td>
+      <td class="mono" style="color:var(--success)">${fmt(dailyReturn)}/day (÷${recoveryDays}d) · ${fmt(totalReturn)}</td>
       <td class="mono" style="color:var(--accent3)">+${pct}%</td>
       <td><span class="badge ${m.active === false ? 'badge-locked' : 'badge-active'}">${m.active === false ? 'Locked' : 'Unlocked'}</span></td>
       <td style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -2240,25 +2242,35 @@ function getRecoveryPeriod(category) {
   return rp[category] || 32;
 }
 
+function onMachineCategoryChange() {
+  const field = document.getElementById('machine-recovery-days');
+  // Only auto-suggest when the admin hasn't already set a value for this machine
+  // (new machine, or field cleared) — never overwrite a value already saved/typed.
+  if (!field.value) {
+    field.value = getRecoveryPeriod(document.getElementById('machine-category').value || 'Ordinary');
+  }
+  updateMachinePayoutPreview();
+}
+
 function updateMachinePayoutPreview() {
   const price = parseFloat(document.getElementById('machine-price').value) || 0;
   const days = parseInt(document.getElementById('machine-days').value) || 0;
   const category = document.getElementById('machine-category').value || 'Ordinary';
-  const recoveryPeriod = getRecoveryPeriod(category);
+  const recoveryDays = parseInt(document.getElementById('machine-recovery-days').value) || getRecoveryPeriod(category);
   const preview = document.getElementById('machine-payout-preview');
-  if (price <= 0 || days <= 0) {
+  if (price <= 0 || days <= 0 || recoveryDays <= 0) {
     document.getElementById('machine-daily-return').value = '';
     document.getElementById('machine-payout').value = '';
-    preview.textContent = '💰 Daily Return will be calculated automatically from Price, Days and Category';
+    preview.textContent = '💰 Daily Return will be calculated automatically from Price, Days and Recovery Days';
     return;
   }
-  const dailyReturn = Math.round(price / recoveryPeriod);
+  const dailyReturn = Math.round(price / recoveryDays);
   const returnTotal = Math.round(dailyReturn * days);
   const payout = Math.round(price + returnTotal);
   const pct = Math.round((returnTotal / price) * 100);
   document.getElementById('machine-daily-return').value = dailyReturn;
   document.getElementById('machine-payout').value = payout;
-  preview.innerHTML = `💰 Daily Return: <strong style="color:var(--success)">${fmt(dailyReturn)}</strong>/day (Price ÷ ${recoveryPeriod}-day recovery for ${category}) × ${days} days = ${fmt(returnTotal)} total return (${pct}%), plus the ${fmt(price)} purchase amount returned at the end`;
+  preview.innerHTML = `💰 Daily Return: <strong style="color:var(--success)">${fmt(dailyReturn)}</strong>/day (Price ÷ ${recoveryDays}-day recovery) × ${days} days = ${fmt(returnTotal)} total return (${pct}%), plus the ${fmt(price)} purchase amount returned at the end`;
 }
 
 // ============================================================
@@ -2375,8 +2387,8 @@ async function saveMachine() {
   const imageUrl = document.getElementById('machine-image').value.trim();
   const price = parseInt(document.getElementById('machine-price').value) || 0;
   const days = parseInt(document.getElementById('machine-days').value) || 0;
-  const recoveryPeriod = getRecoveryPeriod(category);
-  const dailyReturn = price > 0 ? Math.round(price / recoveryPeriod) : 0;
+  const recoveryDays = parseInt(document.getElementById('machine-recovery-days').value) || 0;
+  const dailyReturn = (price > 0 && recoveryDays > 0) ? Math.round(price / recoveryDays) : 0;
   const returnTotal = Math.round(dailyReturn * days);
   const description = document.getElementById('machine-description').value.trim();
   const autoDesc = document.getElementById('machine-auto-desc').checked;
@@ -2386,6 +2398,7 @@ async function saveMachine() {
   if (!name) { toast('Machine name is required', '#f87171'); return; }
   if (price <= 0) { toast('Price must be greater than 0', '#f87171'); return; }
   if (days <= 0) { toast('Days must be greater than 0', '#f87171'); return; }
+  if (recoveryDays <= 0) { toast('Recovery Days must be greater than 0', '#f87171'); return; }
 
   // Auto-generate: description is always regenerated fresh from current Category/Days/Return,
   // so future edits to those fields keep the description in sync automatically.
@@ -2395,7 +2408,7 @@ async function saveMachine() {
   const existingForSerial = editId ? allMachines[editId] : null;
   const finalSerial = (existingForSerial && existingForSerial.serialNumber) || generateMachineSerial();
 
-  const machineData = { name, category, imageUrl, price, days, dailyReturn, totalReturn: returnTotal, payout, percent, description: finalDescription, autoDescription: autoDesc, serialNumber: finalSerial, active: true };
+  const machineData = { name, category, imageUrl, price, days, recoveryDays, dailyReturn, totalReturn: returnTotal, payout, percent, description: finalDescription, autoDescription: autoDesc, serialNumber: finalSerial, active: true };
 
   if (editId) {
     const existing = allMachines[editId];
@@ -2420,6 +2433,7 @@ function editMachine(id) {
   document.getElementById('machine-image').value = m.imageUrl || '';
   document.getElementById('machine-price').value = m.price || 0;
   document.getElementById('machine-days').value = m.days || 0;
+  document.getElementById('machine-recovery-days').value = m.recoveryDays || getRecoveryPeriod(m.category || 'Ordinary');
   document.getElementById('machine-description').value = m.description || '';
   document.getElementById('machine-auto-desc').checked = m.autoDescription === true;
   onAutoDescToggle();
@@ -2439,6 +2453,7 @@ function cancelMachineEdit() {
   document.getElementById('machine-image-file').value = '';
   document.getElementById('machine-price').value = '';
   document.getElementById('machine-days').value = '';
+  document.getElementById('machine-recovery-days').value = '';
   document.getElementById('machine-daily-return').value = '';
   document.getElementById('machine-description').value = '';
   document.getElementById('machine-auto-desc').checked = true;
