@@ -440,13 +440,16 @@ input[type="password"]{padding-right:46px;}
 .machine-card-price{font-size:13px;font-weight:700;color:var(--text);}
 .machine-card-payout{font-size:13px;font-weight:800;color:var(--accent);margin-top:2px;}
 
-.plan-tier-section{margin-bottom:26px;}
-.plan-tier-header{font-size:14px;font-weight:800;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;}
-.plan-row{border-radius:14px;padding:14px 16px;margin-bottom:10px;background:linear-gradient(135deg, var(--tier-bg1), var(--tier-bg2));border:1px solid var(--tier-border);box-shadow:0 0 16px var(--tier-glow);}
-.plan-row-name{font-weight:800;font-size:14px;color:#fff;margin-bottom:6px;}
-.plan-row-stats{font-size:12px;color:rgba(255,255,255,0.88);line-height:1.7;}
-.plan-row-stats strong{color:#fff;}
-.plan-empty{font-size:12px;color:var(--muted);padding:14px 16px;border:1px dashed var(--border);border-radius:12px;text-align:center;}
+.plan-tier-section{margin-bottom:22px;}
+.plan-tier-titlebar{display:flex;align-items:stretch;gap:10px;background:#e2e2e2;border-radius:8px 8px 0 0;overflow:hidden;}
+.plan-tier-titlebar-accent{width:6px;flex-shrink:0;}
+.plan-tier-titlebar-text{padding:11px 10px 11px 4px;font-size:12px;font-weight:800;letter-spacing:0.4px;color:#1a1a1a;text-transform:uppercase;}
+.plan-table-wrap{background:#fff;border-radius:0 0 10px 10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.2);}
+.plan-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+.plan-table thead th{padding:9px 3px;font-weight:800;text-transform:uppercase;font-size:9px;letter-spacing:0.2px;text-align:center;}
+.plan-table tbody td{padding:8px 3px;text-align:center;color:#1a1a1a;border-top:1px solid #eee;font-weight:700;font-size:10.5px;word-break:break-word;}
+.plan-table tbody tr:nth-child(even){background:#f7f7f7;}
+.plan-empty-table{background:#fff;border-radius:0 0 10px 10px;padding:14px;text-align:center;font-size:12px;color:#666;box-shadow:0 3px 10px rgba(0,0,0,0.2);}
 .machine-card-pct{position:absolute;top:12px;right:12px;background:var(--btn);color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;}
 .stories-list{display:flex;flex-direction:column;gap:12px;}
 .story-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;}
@@ -2743,14 +2746,14 @@ function machineTotalReturn(m) {
 }
 
 const PLAN_TIER_COLORS = {
-  Ordinary: { c1: '#0f5132', c2: '#134e2f', border: '#22c55e', glow: 'rgba(34,197,94,0.35)', text: '#4ade80' },
-  VIP: { c1: '#0c2d55', c2: '#0d3766', border: '#3b82f6', glow: 'rgba(59,130,246,0.35)', text: '#60a5fa' },
-  VVIP: { c1: '#3b0764', c2: '#4c0a7a', border: '#a855f7', glow: 'rgba(168,85,247,0.35)', text: '#c084fc' },
-  Platinum: { c1: '#3f3f46', c2: '#52525b', border: '#cbd5e1', glow: 'rgba(203,213,225,0.35)', text: '#e2e8f0' },
-  Diamond: { c1: '#083344', c2: '#0e4f63', border: '#22d3ee', glow: 'rgba(34,211,238,0.35)', text: '#67e8f9' },
-  Royal: { c1: '#450a0a', c2: '#5c0f0f', border: '#dc2626', glow: 'rgba(220,38,38,0.35)', text: '#f87171' },
-  Infinite: { c1: '#1e1b4b', c2: '#28245c', border: '#6366f1', glow: 'rgba(99,102,241,0.35)', text: '#818cf8' },
-  Sovereign: { c1: '#451a03', c2: '#5c2607', border: '#fbbf24', glow: 'rgba(251,191,36,0.35)', text: '#fbbf24' }
+  Ordinary: { header: '#16a34a', text: '#ffffff' },
+  VIP: { header: '#2563eb', text: '#ffffff' },
+  VVIP: { header: '#9333ea', text: '#ffffff' },
+  Platinum: { header: '#94a3b8', text: '#1a1a1a' },
+  Diamond: { header: '#06b6d4', text: '#ffffff' },
+  Royal: { header: '#dc2626', text: '#ffffff' },
+  Infinite: { header: '#4f46e5', text: '#ffffff' },
+  Sovereign: { header: '#f59e0b', text: '#1a1a1a' }
 };
 const PLAN_TIER_ORDER = ['Ordinary', 'VIP', 'VVIP', 'Platinum', 'Diamond', 'Royal', 'Infinite', 'Sovereign'];
 
@@ -2761,21 +2764,49 @@ function renderPlansPage() {
   wrap.innerHTML = PLAN_TIER_ORDER.map(cat => {
     const colors = PLAN_TIER_COLORS[cat] || PLAN_TIER_COLORS.Ordinary;
     const list = entries.filter(([, m]) => (m.category || 'Ordinary') === cat);
-    const rowsHtml = list.length
-      ? list.map(([, m]) => {
-          const price = m.price || 0;
-          const daily = machineDailyReturn(m);
-          const total = machineTotalReturn(m);
-          const days = m.days || 0;
-          return `<div class="plan-row" style="--tier-bg1:${colors.c1};--tier-bg2:${colors.c2};--tier-border:${colors.border};--tier-glow:${colors.glow};">
-            <div class="plan-row-name">${m.name || 'Machine'}</div>
-            <div class="plan-row-stats">Buy: <strong>${fmt(price)}</strong> &nbsp;•&nbsp; Daily: <strong>${fmt(daily)}</strong> &nbsp;•&nbsp; Total: <strong>${fmt(total)}</strong> &nbsp;•&nbsp; ${days} Days</div>
-          </div>`;
-        }).join('')
-      : `<div class="plan-empty">No machines in this tier yet</div>`;
+    const titlebar = `<div class="plan-tier-titlebar">
+      <div class="plan-tier-titlebar-accent" style="background:${colors.header};"></div>
+      <div class="plan-tier-titlebar-text">${cat} Robot Income Details (UGX)</div>
+    </div>`;
+
+    if (!list.length) {
+      return `<div class="plan-tier-section">${titlebar}<div class="plan-empty-table">No machines in this tier yet</div></div>`;
+    }
+
+    const rowsHtml = list.map(([, m]) => {
+      const price = m.price || 0;
+      const daily = machineDailyReturn(m);
+      const total = machineTotalReturn(m);
+      const monthly = daily * 30;
+      const days = m.days || 0;
+      const serial = m.serialNumber ? `<div style="font-size:8px;color:#888;font-weight:600;margin-top:2px;letter-spacing:0.3px;">${m.serialNumber}</div>` : '';
+      return `<tr>
+        <td style="text-align:left;padding-left:8px;">${m.name || 'Machine'}${serial}</td>
+        <td>${fmt(price)}</td>
+        <td>${fmt(daily)}</td>
+        <td>${fmt(monthly)}</td>
+        <td>${fmt(total)}</td>
+        <td>${days}</td>
+      </tr>`;
+    }).join('');
+
     return `<div class="plan-tier-section">
-      <div class="plan-tier-header" style="color:${colors.text};">${cat}</div>
-      ${rowsHtml}
+      ${titlebar}
+      <div class="plan-table-wrap">
+        <table class="plan-table">
+          <thead>
+            <tr style="background:${colors.header};color:${colors.text};">
+              <th style="text-align:left;padding-left:8px;">Robot</th>
+              <th>Buy</th>
+              <th>Daily</th>
+              <th>Monthly</th>
+              <th>Total</th>
+              <th>Days</th>
+            </tr>
+          </thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+      </div>
     </div>`;
   }).join('');
 }
@@ -4729,7 +4760,7 @@ async function doLogout() {
 }
 
 let inactivityTimer = null;
-const INACTIVITY_LIMIT = 2 * 60 * 60 * 1000;
+const INACTIVITY_LIMIT = 6 * 60 * 60 * 1000;
 function resetInactivityTimer() {
   if (!currentUser) return;
   if (inactivityTimer) clearTimeout(inactivityTimer);
