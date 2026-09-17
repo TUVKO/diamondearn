@@ -439,6 +439,14 @@ input[type="password"]{padding-right:46px;}
 .machine-card-days{font-size:11px;color:var(--muted);margin-bottom:6px;}
 .machine-card-price{font-size:13px;font-weight:700;color:var(--text);}
 .machine-card-payout{font-size:13px;font-weight:800;color:var(--accent);margin-top:2px;}
+
+.plan-tier-section{margin-bottom:26px;}
+.plan-tier-header{font-size:14px;font-weight:800;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;}
+.plan-row{border-radius:14px;padding:14px 16px;margin-bottom:10px;background:linear-gradient(135deg, var(--tier-bg1), var(--tier-bg2));border:1px solid var(--tier-border);box-shadow:0 0 16px var(--tier-glow);}
+.plan-row-name{font-weight:800;font-size:14px;color:#fff;margin-bottom:6px;}
+.plan-row-stats{font-size:12px;color:rgba(255,255,255,0.88);line-height:1.7;}
+.plan-row-stats strong{color:#fff;}
+.plan-empty{font-size:12px;color:var(--muted);padding:14px 16px;border:1px dashed var(--border);border-radius:12px;text-align:center;}
 .machine-card-pct{position:absolute;top:12px;right:12px;background:var(--btn);color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;}
 .stories-list{display:flex;flex-direction:column;gap:12px;}
 .story-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;}
@@ -885,8 +893,9 @@ input[type="password"]{padding-right:46px;}
         <button class="home-tab-btn" id="app-download-btn" onclick="startApkDownload()">App Download</button>
         <button class="home-tab-btn" onclick="switchTab('team')">TIERS</button>
       </div>
-      <div class="home-tabs" style="margin-top:8px;">
-        <button class="home-tab-btn" style="width:100%;" onclick="switchTab('stories')">Stories</button>
+      <div class="home-tabs" style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button class="home-tab-btn" onclick="switchTab('stories')">Stories</button>
+        <button class="home-tab-btn" onclick="switchTab('plansinfo')">Plans</button>
       </div>
     </div>
 
@@ -1375,6 +1384,14 @@ input[type="password"]{padding-right:46px;}
     <div class="inner-header"><div><div class="inner-title">Stories</div><div class="inner-sub">Watch the latest videos from ABB WORKING ROBOTICS</div></div></div>
     <div class="section">
       <div class="stories-list" id="stories-list"></div>
+    </div>
+  </div>
+
+  <!-- Plans -->
+  <div class="dash-section" id="sec-plansinfo">
+    <div class="inner-header"><div><div class="inner-title">Plans</div><div class="inner-sub">Rates for every robot, by tier</div></div></div>
+    <div class="section">
+      <div id="plans-page-content"></div>
     </div>
   </div>
 
@@ -2389,7 +2406,7 @@ function closePrivacyModal(event) {
   document.getElementById('privacy-modal-overlay').classList.remove('open');
 }
 
-const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company', transfer: 'sec-transfer', invite: 'sec-invite', myteam: 'sec-myteam', account: 'sec-account', stories: 'sec-stories', 'story-player': 'sec-story-player' };
+const tabMap = { home: 'sec-home', history: 'sec-history', team: 'sec-team', plan: 'sec-plan', profile: 'sec-profile', deposit: 'sec-deposit', withdraw: 'sec-withdraw', errands: 'sec-errands', 'machine-detail': 'sec-machine-detail', company: 'sec-company', transfer: 'sec-transfer', invite: 'sec-invite', myteam: 'sec-myteam', account: 'sec-account', stories: 'sec-stories', 'story-player': 'sec-story-player', plansinfo: 'sec-plansinfo' };
 const navOrder = ['home', 'errands', 'team', 'plan', 'profile'];
 
 // ============================================================
@@ -2462,6 +2479,7 @@ function applyTabInternal(tab, skipDepositReset) {
   if (tab === 'myteam') { renderMyTeamPage(); }
   if (tab === 'account') { renderAccountPage(); }
   if (tab === 'stories') { renderStoriesList(); }
+  if (tab === 'plansinfo') { renderPlansPage(); }
   if (tab !== 'story-player') { stopStoryPlayer(); }
   if (tab === 'deposit' && !skipDepositReset) { depResetFlow(); }
   if (tab === 'errands') { 
@@ -2623,6 +2641,8 @@ function startMachinesListener() {
     renderActivityTicker();
     const homeSection = document.getElementById('sec-home');
     if (homeSection && homeSection.classList.contains('active')) initHomeCarousels();
+    const plansSection = document.getElementById('sec-plansinfo');
+    if (plansSection && plansSection.classList.contains('active')) renderPlansPage();
   });
 }
 
@@ -2720,6 +2740,44 @@ function machineDailyReturn(m) {
 function machineTotalReturn(m) {
   if (m.totalReturn !== undefined) return m.totalReturn || 0;
   return Math.max(0, (m.payout || 0) - (m.price || 0));
+}
+
+const PLAN_TIER_COLORS = {
+  Ordinary: { c1: '#0f5132', c2: '#134e2f', border: '#22c55e', glow: 'rgba(34,197,94,0.35)', text: '#4ade80' },
+  VIP: { c1: '#0c2d55', c2: '#0d3766', border: '#3b82f6', glow: 'rgba(59,130,246,0.35)', text: '#60a5fa' },
+  VVIP: { c1: '#3b0764', c2: '#4c0a7a', border: '#a855f7', glow: 'rgba(168,85,247,0.35)', text: '#c084fc' },
+  Platinum: { c1: '#3f3f46', c2: '#52525b', border: '#cbd5e1', glow: 'rgba(203,213,225,0.35)', text: '#e2e8f0' },
+  Diamond: { c1: '#083344', c2: '#0e4f63', border: '#22d3ee', glow: 'rgba(34,211,238,0.35)', text: '#67e8f9' },
+  Royal: { c1: '#450a0a', c2: '#5c0f0f', border: '#dc2626', glow: 'rgba(220,38,38,0.35)', text: '#f87171' },
+  Infinite: { c1: '#1e1b4b', c2: '#28245c', border: '#6366f1', glow: 'rgba(99,102,241,0.35)', text: '#818cf8' },
+  Sovereign: { c1: '#451a03', c2: '#5c2607', border: '#fbbf24', glow: 'rgba(251,191,36,0.35)', text: '#fbbf24' }
+};
+const PLAN_TIER_ORDER = ['Ordinary', 'VIP', 'VVIP', 'Platinum', 'Diamond', 'Royal', 'Infinite', 'Sovereign'];
+
+function renderPlansPage() {
+  const wrap = document.getElementById('plans-page-content');
+  if (!wrap) return;
+  const entries = Object.entries(machinesCatalog || {});
+  wrap.innerHTML = PLAN_TIER_ORDER.map(cat => {
+    const colors = PLAN_TIER_COLORS[cat] || PLAN_TIER_COLORS.Ordinary;
+    const list = entries.filter(([, m]) => (m.category || 'Ordinary') === cat);
+    const rowsHtml = list.length
+      ? list.map(([, m]) => {
+          const price = m.price || 0;
+          const daily = machineDailyReturn(m);
+          const total = machineTotalReturn(m);
+          const days = m.days || 0;
+          return `<div class="plan-row" style="--tier-bg1:${colors.c1};--tier-bg2:${colors.c2};--tier-border:${colors.border};--tier-glow:${colors.glow};">
+            <div class="plan-row-name">${m.name || 'Machine'}</div>
+            <div class="plan-row-stats">Buy: <strong>${fmt(price)}</strong> &nbsp;•&nbsp; Daily: <strong>${fmt(daily)}</strong> &nbsp;•&nbsp; Total: <strong>${fmt(total)}</strong> &nbsp;•&nbsp; ${days} Days</div>
+          </div>`;
+        }).join('')
+      : `<div class="plan-empty">No machines in this tier yet</div>`;
+    return `<div class="plan-tier-section">
+      <div class="plan-tier-header" style="color:${colors.text};">${cat}</div>
+      ${rowsHtml}
+    </div>`;
+  }).join('');
 }
 
 function renderMachineCategoryTabs() {
