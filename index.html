@@ -441,15 +441,14 @@ input[type="password"]{padding-right:46px;}
 .machine-card-payout{font-size:13px;font-weight:800;color:var(--accent);margin-top:2px;}
 
 .plan-tier-section{margin-bottom:22px;}
-.plan-tier-titlebar{display:flex;align-items:stretch;gap:10px;background:#e2e2e2;border-radius:8px 8px 0 0;overflow:hidden;}
+.plan-tier-titlebar{display:flex;align-items:stretch;gap:10px;background:#1a1a1a;border-radius:8px 8px 0 0;overflow:hidden;}
 .plan-tier-titlebar-accent{width:6px;flex-shrink:0;}
-.plan-tier-titlebar-text{padding:11px 10px 11px 4px;font-size:12px;font-weight:800;letter-spacing:0.4px;color:#1a1a1a;text-transform:uppercase;}
-.plan-table-wrap{background:#fff;border-radius:0 0 10px 10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,0.2);}
-.plan-table{width:100%;border-collapse:collapse;table-layout:fixed;}
-.plan-table thead th{padding:9px 3px;font-weight:800;text-transform:uppercase;font-size:9px;letter-spacing:0.2px;text-align:center;}
-.plan-table tbody td{padding:8px 3px;text-align:center;color:#1a1a1a;border-top:1px solid #eee;font-weight:700;font-size:10.5px;word-break:break-word;}
-.plan-table tbody tr:nth-child(even){background:#f7f7f7;}
-.plan-empty-table{background:#fff;border-radius:0 0 10px 10px;padding:14px;text-align:center;font-size:12px;color:#666;box-shadow:0 3px 10px rgba(0,0,0,0.2);}
+.plan-tier-titlebar-text{padding:11px 10px 11px 4px;font-size:12px;font-weight:800;letter-spacing:0.4px;color:#fff;text-transform:uppercase;}
+.plan-table-wrap{background:#0a0a0a;border-radius:0 0 10px 10px;overflow:hidden;}
+.plan-table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;}
+.plan-table thead th{padding:9px 3px;font-weight:800;text-transform:uppercase;font-size:9px;letter-spacing:0.2px;text-align:center;border:1px solid var(--tier-border);}
+.plan-table tbody td{padding:8px 3px;text-align:center;color:var(--tier-text);background:#0a0a0a;border:1px solid var(--tier-border);font-weight:700;font-size:10.5px;word-break:break-word;}
+.plan-empty-table{background:#0a0a0a;border-radius:0 0 10px 10px;padding:14px;text-align:center;font-size:12px;color:var(--muted);border:1px solid var(--tier-border);}
 .machine-card-pct{position:absolute;top:12px;right:12px;background:var(--btn);color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;}
 .stories-list{display:flex;flex-direction:column;gap:12px;}
 .story-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;}
@@ -2746,14 +2745,14 @@ function machineTotalReturn(m) {
 }
 
 const PLAN_TIER_COLORS = {
-  Ordinary: { header: '#16a34a', text: '#ffffff' },
-  VIP: { header: '#2563eb', text: '#ffffff' },
-  VVIP: { header: '#9333ea', text: '#ffffff' },
-  Platinum: { header: '#94a3b8', text: '#1a1a1a' },
-  Diamond: { header: '#06b6d4', text: '#ffffff' },
-  Royal: { header: '#dc2626', text: '#ffffff' },
-  Infinite: { header: '#4f46e5', text: '#ffffff' },
-  Sovereign: { header: '#f59e0b', text: '#1a1a1a' }
+  Ordinary: { header: '#16a34a', headerText: '#ffffff', text: '#4ade80', border: '#22c55e', glow: 'rgba(34,197,94,0.45)' },
+  VIP: { header: '#2563eb', headerText: '#ffffff', text: '#60a5fa', border: '#3b82f6', glow: 'rgba(59,130,246,0.45)' },
+  VVIP: { header: '#9333ea', headerText: '#ffffff', text: '#c084fc', border: '#a855f7', glow: 'rgba(168,85,247,0.45)' },
+  Platinum: { header: '#94a3b8', headerText: '#1a1a1a', text: '#e2e8f0', border: '#cbd5e1', glow: 'rgba(203,213,225,0.4)' },
+  Diamond: { header: '#06b6d4', headerText: '#ffffff', text: '#67e8f9', border: '#22d3ee', glow: 'rgba(34,211,238,0.45)' },
+  Royal: { header: '#dc2626', headerText: '#ffffff', text: '#f87171', border: '#ef4444', glow: 'rgba(239,68,68,0.45)' },
+  Infinite: { header: '#4f46e5', headerText: '#ffffff', text: '#818cf8', border: '#6366f1', glow: 'rgba(99,102,241,0.45)' },
+  Sovereign: { header: '#f59e0b', headerText: '#1a1a1a', text: '#fbbf24', border: '#f59e0b', glow: 'rgba(245,158,11,0.5)' }
 };
 const PLAN_TIER_ORDER = ['Ordinary', 'VIP', 'VVIP', 'Platinum', 'Diamond', 'Royal', 'Infinite', 'Sovereign'];
 
@@ -2763,14 +2762,15 @@ function renderPlansPage() {
   const entries = Object.entries(machinesCatalog || {});
   wrap.innerHTML = PLAN_TIER_ORDER.map(cat => {
     const colors = PLAN_TIER_COLORS[cat] || PLAN_TIER_COLORS.Ordinary;
+    const varsStyle = `--tier-border:${colors.border};--tier-text:${colors.text};`;
     const list = entries.filter(([, m]) => (m.category || 'Ordinary') === cat);
-    const titlebar = `<div class="plan-tier-titlebar">
+    const titlebar = `<div class="plan-tier-titlebar" style="box-shadow:0 0 14px ${colors.glow};">
       <div class="plan-tier-titlebar-accent" style="background:${colors.header};"></div>
       <div class="plan-tier-titlebar-text">${cat} Robot Income Details (UGX)</div>
     </div>`;
 
     if (!list.length) {
-      return `<div class="plan-tier-section">${titlebar}<div class="plan-empty-table">No machines in this tier yet</div></div>`;
+      return `<div class="plan-tier-section">${titlebar}<div class="plan-empty-table" style="${varsStyle}box-shadow:0 0 14px ${colors.glow};">No machines in this tier yet</div></div>`;
     }
 
     const rowsHtml = list.map(([, m]) => {
@@ -2792,10 +2792,10 @@ function renderPlansPage() {
 
     return `<div class="plan-tier-section">
       ${titlebar}
-      <div class="plan-table-wrap">
-        <table class="plan-table">
+      <div class="plan-table-wrap" style="box-shadow:0 0 14px ${colors.glow};">
+        <table class="plan-table" style="${varsStyle}">
           <thead>
-            <tr style="background:${colors.header};color:${colors.text};">
+            <tr style="background:${colors.header};color:${colors.headerText};">
               <th style="text-align:left;padding-left:8px;">Robot</th>
               <th>Buy</th>
               <th>Daily</th>
