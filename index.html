@@ -108,6 +108,19 @@ input[type="password"]{padding-right:46px;}
 .auth-switch{text-align:center;margin-top:18px;font-size:13px;color:var(--muted);}
 .auth-switch a{color:var(--accent);font-weight:700;cursor:pointer;text-decoration:none;}
 
+/* Register-page FAQ */
+.reg-faq-wrap{margin-top:34px;padding-top:22px;border-top:1px solid rgba(96,165,250,.22);}
+.reg-faq-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:800;color:var(--accent);text-align:center;margin-bottom:4px;}
+.reg-faq-sub{font-size:11px;color:var(--muted);text-align:center;margin-bottom:16px;}
+.faq-item{border-bottom:1px solid rgba(96,165,250,.15);}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 2px;cursor:pointer;}
+.faq-q span:first-child{font-size:12.5px;font-weight:700;color:var(--text);}
+.faq-chev{font-size:16px;font-weight:700;color:var(--accent);flex-shrink:0;transition:transform .2s ease;}
+.faq-item.open .faq-chev{transform:rotate(45deg);}
+.faq-a{max-height:0;overflow:hidden;font-size:11.5px;line-height:1.75;color:var(--muted);transition:max-height .3s ease;padding:0 2px;}
+.faq-item.open .faq-a{max-height:800px;padding-bottom:15px;}
+.faq-a strong{color:var(--accent3);}
+
 /* Phone Prefix */
 .phone-prefix-wrap{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
 .phone-prefix-wrap:focus-within{border-color:var(--accent);}
@@ -118,6 +131,7 @@ input[type="password"]{padding-right:46px;}
 .auth-page-navy input,.auth-page-navy select,.auth-page-navy .phone-prefix-wrap,.auth-page-navy .country-select-wrap select{background:rgba(6,12,30,.96) !important;}
 .auth-page-navy .phone-prefix-wrap input{background:transparent !important;}
 #register-page.auth-page-navy .auth-card{background:transparent;border:none;box-shadow:none;padding:14px 4px;}
+#login-page.auth-page-navy .auth-card{background:transparent;border:none;box-shadow:none;padding:14px 4px;}
 #register-page .field-group{margin-bottom:10px;}
 #register-page .field-label{font-size:9px;margin-bottom:5px;}
 #register-page input,#register-page select{padding:10px 12px;font-size:12.5px;}
@@ -193,6 +207,22 @@ input[type="password"]{padding-right:46px;}
 .carousel-empty{color:rgba(255,255,255,.6);font-size:12px;text-align:center;padding:20px 0;}
 .brand-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--accent);}
 .topbar-right{display:flex;align-items:center;gap:10px;}
+.bell-wrap{position:relative;cursor:pointer;font-size:19px;padding:6px;line-height:1;}
+.bell-dot{position:absolute;top:4px;right:4px;width:9px;height:9px;border-radius:50%;background:#ef4444;border:2px solid var(--bg);}
+.notif-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:flex-start;justify-content:center;padding:70px 16px 16px;}
+.notif-overlay.show{display:flex;}
+.notif-card{width:100%;max-width:420px;max-height:75vh;background:var(--surface,#141414);border:1px solid var(--border,rgba(255,255,255,.08));border-radius:18px;padding:16px;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.notif-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.notif-card-title{font-family:'Playfair Display',serif;font-weight:800;font-size:16px;color:var(--accent);}
+.notif-close{cursor:pointer;color:var(--muted);font-size:16px;padding:4px 8px;}
+.notif-list{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.notif-empty{text-align:center;color:var(--muted);font-size:12.5px;padding:30px 10px;}
+.notif-entry{padding:12px 4px;border-bottom:1px solid var(--border,rgba(255,255,255,.08));}
+.notif-entry:last-child{border-bottom:none;}
+.notif-entry-msg{font-size:12.5px;line-height:1.6;color:var(--text);}
+.notif-entry-time{font-size:10px;color:var(--muted);margin-top:5px;}
+.notif-entry.unread{position:relative;padding-left:14px;}
+.notif-entry.unread::before{content:'';position:absolute;left:0;top:16px;width:6px;height:6px;border-radius:50%;background:var(--accent,#4ade80);}
 .theme-toggle{background:none;border:none;font-size:18px;cursor:pointer;padding:6px;color:var(--accent);transition:.3s;}
 .theme-toggle:active{transform:scale(.95);}
 .username-top{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:11px;font-weight:700;color:var(--accent3);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -625,6 +655,61 @@ input[type="password"]{padding-right:46px;}
     <div class="field-error" id="reg-general-err" style="text-align:center;margin-bottom:10px;font-size:12px;"></div>
     <button class="submit-btn" onclick="doRegister()">Open Account</button>
     <div class="auth-switch">Already have an account? <a onclick="showAuth('login-page')">Sign In</a></div>
+
+    <div class="reg-faq-wrap">
+      <div class="reg-faq-title">Frequently Asked Questions</div>
+      <div class="reg-faq-sub">Everything from registering to withdrawing — tap a question</div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaqItem(this)"><span>What is ABB Working Robotics?</span><span class="faq-chev">＋</span></div>
+        <div class="faq-a">ABB Working Robotics (AWR) lets you hire a working robot with your own money instead of buying one outright. You pick a machine that fits your budget, and it starts working for you the same day — no waiting, no lock-up period. Our fleet is built on real robotics engineering — technology from <strong>Boston Dynamics</strong>, precision components from <strong>Inspire Robots</strong>, and every unit carries a verified, tamper-proof serial tag produced by <strong>ID Plate</strong> — so you always know your robot is genuine and accounted for.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaqItem(this)"><span>How do I register an account?</span><span class="faq-chev">＋</span></div>
+        <div class="faq-a">Fill in your phone number and choose a password above. If someone shared their invite link or code with you, enter it in the Referral Code field — this links your account to them and unlocks a <strong>UGX 2,700</strong> registration bonus for you once your account is set up. Registration takes less than a minute, and you're taken straight to your dashboard once it's done.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaqItem(this)"><span>What are the Prime Account and Scrayd Wallet?</span><span class="faq-chev">＋</span></div>
+        <div class="faq-a">Every account has two balances. Your <strong>Prime Account</strong> is your investing balance — it's where deposits land, and where you spend money to hire machines. Your <strong>Scrayd Wallet</strong> is your earnings balance — every daily return your robots earn is paid straight in here, kept completely separate from your capital. You can move funds between the two at any time, and withdrawals are made from your Scrayd Wallet.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaqItem(this)"><span>How do I deposit funds?</span><span class="faq-chev">＋</span></div>
+        <div class="faq-a">Once logged in, go to the Deposit section on your dashboard and choose a payment method. The minimum deposit is <strong>UGX 10,000</strong>. Depending on the method, you'll either paste the confirmation SMS you receive after paying, upload a screenshot of that confirmation, or simply confirm the phone number you paid from. Always double-check you're sending money only to the number shown inside the app — funds are credited to your Prime Account once confirmed.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaqItem(this)"><span>How do I hire a robot?</span><span class="faq-chev">＋</span></div>
+        <div class="faq-a">Browse the shop on your dashboard, where each machine shows its price, work period (in days), daily return, and total return over its full contract. Pick one that fits your Prime Account balance and confirm the purchase — the amount is deducted from your Prime Account and the robot starts working immediately. You're free to hire more than one machine at a time.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaqItem(this)"><span>How and when do I get paid?</span><span class="faq-chev">＋</span></div>
+        <div class="faq-a">Each robot pays its fixed daily return straight into your Scrayd Wallet for every day it's on the job — automatically, with no action needed from you. There's no waiting until the end of the contract to see a single shilling. Once a robot completes its full work period, your original purchase amount (the principal) is paid back in full to your Prime Account, ready to withdraw or reinvest in another machine.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaqItem(this)"><span>How do I withdraw my earnings?</span><span class="faq-chev">＋</span></div>
+        <div class="faq-a">Go to the Withdraw section, choose Mobile Money or Bank, and enter the amount you'd like to cash out from your Scrayd Wallet — the minimum withdrawal is <strong>UGX 10,000</strong>. Submit your request and our team reviews it before funds are sent out. Bank withdrawals require your account details to be saved once beforehand, and those details can't be changed after saving, so double-check them carefully.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaqItem(this)"><span>How does the referral program work?</span><span class="faq-chev">＋</span></div>
+        <div class="faq-a">You don't need to own a machine yourself to earn from referrals — just share your personal invite link. Every time someone in your network hires a machine, you earn a percentage automatically, credited straight to your Prime Account. It runs three levels deep: <strong>12%</strong> on people you refer directly (Level A), <strong>4%</strong> on their referrals (Level B), and <strong>2%</strong> on the next level after that (Level C) — with no cap on how much you can earn.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaqItem(this)"><span>Is this platform trustworthy?</span><span class="faq-chev">＋</span></div>
+        <div class="faq-a">Every robot in our fleet is real hardware — built on technology from Boston Dynamics and Inspire Robots, and tagged with a genuine, verifiable serial from ID Plate, so nothing is hidden behind vague promises. Withdrawals are reviewed by a real team before funds are sent, and your capital (Prime Account) and profits (Scrayd Wallet) are always kept separate, so you can see exactly where every shilling comes from.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaqItem(this)"><span>What if I need help or run into a problem?</span><span class="faq-chev">＋</span></div>
+        <div class="faq-a">Reach out through our official support channels shown inside the app once you're logged in. And for your safety — never share your password, PIN, or one-time verification code (OTP) with anyone for any reason, not even someone claiming to be from our support team. Genuine staff will never ask you for these privately. If anyone does, treat it as a scam attempt and report it right away.</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -680,6 +765,20 @@ input[type="password"]{padding-right:46px;}
       <div class="brand"><div class="brand-name">AWR</div></div>
     </div>
     <div class="topbar-right">
+      <div class="bell-wrap" onclick="openNotifPanel()">
+        <span class="bell-icon">🔔</span>
+        <span class="bell-dot" id="bell-dot" style="display:none;"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="notif-overlay" id="notif-overlay" onclick="if(event.target===this) closeNotifPanel()">
+    <div class="notif-card">
+      <div class="notif-card-header">
+        <div class="notif-card-title">Notifications</div>
+        <div class="notif-close" onclick="closeNotifPanel()">✕</div>
+      </div>
+      <div class="notif-list" id="notif-list"></div>
     </div>
   </div>
 
@@ -2110,6 +2209,11 @@ function closeWelcomeCard() {
   if (overlay) overlay.classList.remove('show');
 }
 
+function toggleFaqItem(qEl) {
+  const item = qEl.closest('.faq-item');
+  if (item) item.classList.toggle('open');
+}
+
 function toggleWelcomeSection(badgeEl) {
   const wasOpen = badgeEl.classList.contains('open');
   const scrollMid = badgeEl.closest('.welcome-scroll-mid');
@@ -2158,23 +2262,37 @@ async function processMachineEarnings() {
         const days = m.days || 0;
         const cycleStart = m.cycleStart || m.purchaseDate || now;
         const daysPaid = m.daysPaid || 0;
+        const daysForfeited = m.daysForfeited || 0;
         const daysElapsed = Math.max(0, Math.floor((now - cycleStart) / 86400000));
         const dueDays = Math.min(days, daysElapsed);
-        const newDays = dueDays - daysPaid;
+        const newDays = dueDays - daysPaid - daysForfeited;
+        const cat = machinesCatalog[m.machineId];
+        const serial = (cat && cat.serialNumber) || '';
+        const isLocked = !!(cat && cat.lockedUntil && now < cat.lockedUntil);
 
         if (newDays > 0) {
-          const amount = newDays * (m.dailyReturn || 0);
-          newScraydWallet += amount;
-          updates[`ownedMachines/${key}/daysPaid`] = dueDays;
-          updates[`ownedMachines/${key}/totalEarned`] = (m.totalEarned || 0) + amount;
-          updates[`transactions/tx_daily_${Date.now()}_${i}`] = {
-            type: 'Daily Robot Return',
-            amount,
-            note: (m.name || 'Machine') + (newDays > 1 ? ` — ${newDays} days' returns` : ' — daily return') + ' credited to Scrayd Wallet',
-            date: dateStr(), status: 'completed'
-          };
-          paidAny = true;
-          i++;
+          if (isLocked) {
+            // Robot under maintenance — these days go unpaid, contract clock is unaffected.
+            updates[`ownedMachines/${key}/daysForfeited`] = daysForfeited + newDays;
+            paidAny = true;
+          } else {
+            const amount = newDays * (m.dailyReturn || 0);
+            newScraydWallet += amount;
+            updates[`ownedMachines/${key}/daysPaid`] = daysPaid + newDays;
+            updates[`ownedMachines/${key}/totalEarned`] = (m.totalEarned || 0) + amount;
+            updates[`transactions/tx_daily_${Date.now()}_${i}`] = {
+              type: 'Daily Robot Return',
+              amount,
+              note: (m.name || 'Machine') + (newDays > 1 ? ` — ${newDays} days' returns` : ' — daily return') + ' credited to Scrayd Wallet',
+              date: dateStr(), status: 'completed'
+            };
+            updates[`notifications/notif_${Date.now()}_${i}`] = {
+              message: '🤖 Your robot' + (serial ? ' ' + serial : '') + ' has worked hard for you today — UGX ' + amount.toLocaleString() + ' just landed in your Scrayd Wallet!',
+              date: dateStr(), ts: Date.now(), read: false, kind: 'earning'
+            };
+            paidAny = true;
+            i++;
+          }
         }
 
         if (dueDays >= days && !m.principalReturned) {
@@ -2186,6 +2304,10 @@ async function processMachineEarnings() {
             amount: m.price || 0,
             note: (m.name || 'Machine') + ' contract complete — purchase amount returned to Prime Account',
             date: dateStr(), status: 'completed'
+          };
+          updates[`notifications/notif_${Date.now()}_${i}`] = {
+            message: '🎉 Robot' + (serial ? ' ' + serial : '') + ' finished its contract — your full UGX ' + (m.price || 0).toLocaleString() + ' purchase amount is back in your Prime Account, ready to withdraw or reinvest!',
+            date: dateStr(), ts: Date.now(), read: false, kind: 'completed'
           };
           paidAny = true;
           i++;
@@ -3607,8 +3729,65 @@ function startUserListener(username) {
       renderHistory();
       updateProfileUI();
       renderMyMachines();
+      renderNotifBell();
+      const notifOverlay = document.getElementById('notif-overlay');
+      if (notifOverlay && notifOverlay.classList.contains('show')) renderNotifList();
     }
   });
+}
+
+// ============================================================
+// NOTIFICATION BELL — daily-earning / machine-completed / admin
+// maintenance messages, sourced from users/{u}/notifications
+// ============================================================
+function renderNotifBell() {
+  const dot = document.getElementById('bell-dot');
+  if (!dot) return;
+  const notifs = (currentUser && currentUser.notifications) || {};
+  const hasUnread = Object.values(notifs).some(n => !n.read);
+  dot.style.display = hasUnread ? 'block' : 'none';
+}
+
+function renderNotifList() {
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+  const notifs = (currentUser && currentUser.notifications) || {};
+  const entries = Object.entries(notifs).sort((a, b) => (b[1].ts || 0) - (a[1].ts || 0));
+  if (!entries.length) {
+    list.innerHTML = '<div class="notif-empty">No notifications yet — updates on your robots will show up here.</div>';
+    return;
+  }
+  list.innerHTML = entries.map(([id, n]) => {
+    return `<div class="notif-entry ${n.read ? '' : 'unread'}">
+      <div class="notif-entry-msg">${n.message || ''}</div>
+      <div class="notif-entry-time">${n.date || ''}</div>
+    </div>`;
+  }).join('');
+}
+
+function openNotifPanel() {
+  const overlay = document.getElementById('notif-overlay');
+  if (!overlay) return;
+  overlay.classList.add('show');
+  renderNotifList();
+  // Mark all as read
+  if (currentUsername && currentUser && currentUser.notifications) {
+    const updates = {};
+    let any = false;
+    Object.entries(currentUser.notifications).forEach(([id, n]) => {
+      if (!n.read) { updates[`notifications/${id}/read`] = true; any = true; }
+    });
+    if (any) {
+      db.ref('users/' + safeKey(currentUsername)).update(updates).catch(() => {});
+    }
+  }
+  const dot = document.getElementById('bell-dot');
+  if (dot) dot.style.display = 'none';
+}
+
+function closeNotifPanel() {
+  const overlay = document.getElementById('notif-overlay');
+  if (overlay) overlay.classList.remove('show');
 }
 
 function updateProfileUI() {

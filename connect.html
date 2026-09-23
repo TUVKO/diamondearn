@@ -2177,10 +2177,14 @@ function renderMachinesTable() {
       <td class="mono">${days}d</td>
       <td class="mono" style="color:var(--success)">${fmt(dailyReturn)}/day (÷${recoveryDays}d) · ${fmt(totalReturn)}</td>
       <td class="mono" style="color:var(--accent3)">+${pct}%</td>
-      <td><span class="badge ${m.active === false ? 'badge-locked' : 'badge-active'}">${m.active === false ? 'Locked' : 'Unlocked'}</span></td>
+      <td>
+        <span class="badge ${m.active === false ? 'badge-locked' : 'badge-active'}">${m.active === false ? 'Locked' : 'Unlocked'}</span>
+        ${(m.lockedUntil && Date.now() < m.lockedUntil) ? `<div class="badge badge-locked" style="margin-top:4px;">🛠️ Maintenance — ${Math.max(1, Math.ceil((m.lockedUntil - Date.now()) / 86400000))}d left</div>` : ''}
+      </td>
       <td style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn btn-edit" onclick="editMachine('${id}')">✏️ Edit</button>
         <button class="btn ${m.active === false ? 'btn-approve' : 'btn-reject'}" onclick="toggleMachineActive('${id}', ${m.active === false})">${m.active === false ? '🔓 Unlock' : '🔒 Lock'}</button>
+        <button class="btn btn-edit" onclick="openMaintenanceModal('${id}')">🛠️ Maintenance</button>
         <button class="btn btn-delete" onclick="deleteMachine('${id}')">🗑️</button>
       </td>
     </tr>`;
@@ -2469,6 +2473,88 @@ function cancelMachineEdit() {
 async function toggleMachineActive(id, newActive) {
   await db.ref('machines/' + id + '/active').set(newActive);
   toast(newActive ? '🔓 Machine unlocked' : '🔒 Machine locked', newActive ? undefined : '#f87171');
+}
+
+// ============================================================
+// MAINTENANCE LOCK — pause daily earnings on a robot for a set
+// number of days, with a reason shown to every owner via their
+// notification bell. Robot stays purchasable while locked; it
+// simply won't earn until the period ends (auto, no cron needed —
+// checked against lockedUntil wherever earnings are processed).
+// ============================================================
+const MAINTENANCE_REASONS = [
+  '🔧 Scheduled maintenance — getting some upgrades done.',
+  '⚙️ Undergoing a hardware inspection.',
+  '🛠️ Software update in progress.',
+  '🔋 Recharging and recalibrating.',
+  '📦 Temporarily paused due to high demand — restocking parts.'
+];
+
+async function openMaintenanceModal(id) {
+  const m = allMachines[id];
+  if (!m) return;
+
+  const alreadyLocked = m.lockedUntil && Date.now() < m.lockedUntil;
+  const reasonOptions = MAINTENANCE_REASONS.map((r, idx) => `<option value="${idx}">${r}</option>`).join('');
+
+  const { value: formValues } = await Swal.fire({
+    title: '🛠️ Put "' + (m.name || 'this robot') + '" under maintenance',
+    html: `
+      <div style="text-align:left;font-size:13px;">
+        ${alreadyLocked ? `<div style="color:#f87171;margin-bottom:10px;">Already under maintenance — this will replace the current lock.</div>` : ''}
+        <label style="display:block;font-weight:700;margin-bottom:4px;">Days it will not work</label>
+        <input id="swal-lock-days" type="number" min="1" value="1" class="swal2-input" style="margin:0 0 12px;width:100%;">
+        <label style="display:block;font-weight:700;margin-bottom:4px;">Reason shown to users</label>
+        <select id="swal-lock-reason" class="swal2-select" style="margin:0;width:100%;display:block;">${reasonOptions}</select>
+      </div>
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Lock Robot',
+    confirmButtonColor: '#f87171',
+    preConfirm: () => {
+      const days = parseInt(document.getElementById('swal-lock-days').value) || 0;
+      const reasonIdx = parseInt(document.getElementById('swal-lock-reason').value) || 0;
+      if (days < 1) { Swal.showValidationMessage('Enter at least 1 day'); return false; }
+      return { days, reasonIdx };
+    }
+  });
+
+  if (!formValues) return;
+  await lockMachineForMaintenance(id, formValues.days, formValues.reasonIdx);
+}
+
+async function lockMachineForMaintenance(id, days, reasonIdx) {
+  const m = allMachines[id];
+  if (!m) return;
+  const reason = MAINTENANCE_REASONS[reasonIdx] || MAINTENANCE_REASONS[0];
+  const lockedUntil = Date.now() + days * 86400000;
+
+  await db.ref('machines/' + id).update({ lockedUntil, lockReason: reason, lockDays: days });
+
+  const serial = m.serialNumber || '';
+  const message = '🤖 Robot' + (serial ? ' ' + serial : '') + ' will not be working for the next ' + days + ' day' + (days > 1 ? 's' : '') + ' — ' + reason + ' It\'ll resume automatically once that\'s done.<br><br><em>We\'re sorry for the inconvenience — thank you for your patience.</em> 🙏';
+
+  // Notify every user who currently owns an active instance of this machine
+  const updates = {};
+  let notified = 0;
+  Object.entries(allUsers).forEach(([userKey, u]) => {
+    const owned = u.ownedMachines || {};
+    const ownsThis = Object.values(owned).some(o => o.machineId === id && o.status === 'active');
+    if (ownsThis) {
+      updates[`${userKey}/notifications/notif_${Date.now()}_${notified}`] = {
+        message, date: dateStr(), ts: Date.now(), read: false, kind: 'maintenance'
+      };
+      notified++;
+    }
+  });
+
+  if (notified > 0) {
+    await db.ref('users').update(updates);
+  }
+
+  toast('🛠️ Robot locked for ' + days + ' day' + (days > 1 ? 's' : '') + ' — ' + notified + ' owner' + (notified === 1 ? '' : 's') + ' notified', '#f87171');
+  renderMachinesTable();
 }
 
 async function deleteMachine(id) {
